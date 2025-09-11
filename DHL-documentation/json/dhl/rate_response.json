@@ -1,0 +1,756 @@
+{
+    "products": [
+        {
+            "productName": "EXPRESS DOMESTIC",
+            "productCode": "N",
+            "localProductCode": "N",
+            "localProductCountryCode": "MX",
+            "networkTypeCode": "TD",
+            "isCustomerAgreement": false,
+            "weight": {
+                "volumetric": 0.02,
+                "provided": 6,
+                "unitOfMeasurement": "metric"
+            },
+            "totalPrice": [
+                {
+                    "currencyType": "BILLC",
+                    "priceCurrency": "MXN",
+                    "price": 462.8
+                },
+                {
+                    "currencyType": "PULCL",
+                    "priceCurrency": "MXN",
+                    "price": 462.8
+                },
+                {
+                    "currencyType": "BASEC",
+                    "priceCurrency": "EUR",
+                    "price": 25.06
+                }
+            ],
+            "totalPriceBreakdown": [
+                {
+                    "currencyType": "BILLC",
+                    "priceCurrency": "MXN",
+                    "priceBreakdown": [
+                        {
+                            "typeCode": "STTXA",
+                            "price": 63.83
+                        },
+                        {
+                            "typeCode": "SPRQT",
+                            "price": 226.88
+                        },
+                        {
+                            "typeCode": "STDIS",
+                            "price": 216.76
+                        }
+                    ]
+                },
+                {
+                    "currencyType": "PULCL",
+                    "priceCurrency": "MXN",
+                    "priceBreakdown": [
+                        {
+                            "typeCode": "STTXA",
+                            "price": 63.83
+                        },
+                        {
+                            "typeCode": "SPRQT",
+                            "price": 226.88
+                        },
+                        {
+                            "typeCode": "STDIS",
+                            "price": 216.76
+                        }
+                    ]
+                },
+                {
+                    "currencyType": "BASEC",
+                    "priceCurrency": "EUR",
+                    "priceBreakdown": [
+                        {
+                            "typeCode": "STTXA",
+                            "price": 3.46
+                        },
+                        {
+                            "typeCode": "SPRQT",
+                            "price": 12.29
+                        },
+                        {
+                            "typeCode": "STDIS",
+                            "price": 11.75
+                        }
+                    ]
+                }
+            ],
+            "detailedPriceBreakdown": [
+                {
+                    "currencyType": "BILLC",
+                    "priceCurrency": "MXN",
+                    "breakdown": [
+                        {
+                            "name": "EXPRESS DOMESTIC",
+                            "price": 226.88,
+                            "priceBreakdown": [
+                                {
+                                    "priceType": "TAX",
+                                    "typeCode": "IVA   ",
+                                    "price": 31.29,
+                                    "rate": 16,
+                                    "basePrice": 195.59
+                                },
+                                {
+                                    "priceType": "DISCOUNT",
+                                    "typeCode": "S",
+                                    "price": 195.59,
+                                    "rate": 50,
+                                    "basePrice": 391.18
+                                }
+                            ]
+                        },
+                        {
+                            "name": "MULTIPIECE SHIPMENT",
+                            "serviceCode": "YE",
+                            "localServiceCode": "YE",
+                            "serviceTypeCode": "SCH",
+                            "price": 111.6,
+                            "isCustomerAgreement": false,
+                            "isMarketedService": true,
+                            "priceBreakdown": [
+                                {
+                                    "priceType": "TAX",
+                                    "typeCode": "IVA   ",
+                                    "price": 15.39,
+                                    "rate": 16,
+                                    "basePrice": 96.21
+                                }
+                            ]
+                        },
+                        {
+                            "name": "FUEL SURCHARGE",
+                            "serviceCode": "FF",
+                            "localServiceCode": "FF",
+                            "serviceTypeCode": "SCH",
+                            "price": 24.55,
+                            "isCustomerAgreement": false,
+                            "isMarketedService": false,
+                            "priceBreakdown": [
+                                {
+                                    "priceType": "TAX",
+                                    "typeCode": "IVA   ",
+                                    "price": 3.39,
+                                    "rate": 16,
+                                    "basePrice": 21.16
+                                },
+                                {
+                                    "priceType": "DISCOUNT",
+                                    "typeCode": "S",
+                                    "price": 21.17,
+                                    "rate": 50.01,
+                                    "basePrice": 42.33
+                                }
+                            ]
+                        },
+                        {
+                            "name": "SHIPMENT INSURANCE",
+                            "serviceCode": "II",
+                            "localServiceCode": "II",
+                            "serviceTypeCode": "XCH",
+                            "price": 99.77,
+                            "isCustomerAgreement": false,
+                            "isMarketedService": true,
+                            "priceBreakdown": [
+                                {
+                                    "priceType": "TAX",
+                                    "typeCode": "IVA   ",
+                                    "price": 13.76,
+                                    "rate": 16,
+                                    "basePrice": 86.01
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "currencyType": "PULCL",
+                    "priceCurrency": "MXN",
+                    "breakdown": [
+                        {
+                            "name": "EXPRESS DOMESTIC",
+                            "price": 226.88,
+                            "priceBreakdown": [
+                                {
+                                    "priceType": "TAX",
+                                    "typeCode": "IVA   ",
+                                    "price": 31.29,
+                                    "rate": 16,
+                                    "basePrice": 195.59
+                                },
+                                {
+                                    "priceType": "DISCOUNT",
+                                    "typeCode": "S",
+                                    "price": 195.59,
+                                    "rate": 50,
+                                    "basePrice": 391.18
+                                }
+                            ]
+                        },
+                        {
+                            "name": "MULTIPIECE SHIPMENT",
+                            "serviceCode": "YE",
+                            "localServiceCode": "YE",
+                            "serviceTypeCode": "SCH",
+                            "price": 111.6,
+                            "isCustomerAgreement": false,
+                            "isMarketedService": true,
+                            "priceBreakdown": [
+                                {
+                                    "priceType": "TAX",
+                                    "typeCode": "IVA   ",
+                                    "price": 15.39,
+                                    "rate": 16,
+                                    "basePrice": 96.21
+                                }
+                            ]
+                        },
+                        {
+                            "name": "FUEL SURCHARGE",
+                            "serviceCode": "FF",
+                            "localServiceCode": "FF",
+                            "serviceTypeCode": "SCH",
+                            "price": 24.55,
+                            "isCustomerAgreement": false,
+                            "isMarketedService": false,
+                            "priceBreakdown": [
+                                {
+                                    "priceType": "TAX",
+                                    "typeCode": "IVA   ",
+                                    "price": 3.39,
+                                    "rate": 16,
+                                    "basePrice": 21.16
+                                },
+                                {
+                                    "priceType": "DISCOUNT",
+                                    "typeCode": "S",
+                                    "price": 21.17,
+                                    "rate": 50.01,
+                                    "basePrice": 42.33
+                                }
+                            ]
+                        },
+                        {
+                            "name": "SHIPMENT INSURANCE",
+                            "serviceCode": "II",
+                            "localServiceCode": "II",
+                            "serviceTypeCode": "XCH",
+                            "price": 99.77,
+                            "isCustomerAgreement": false,
+                            "isMarketedService": true,
+                            "priceBreakdown": [
+                                {
+                                    "priceType": "TAX",
+                                    "typeCode": "IVA   ",
+                                    "price": 13.76,
+                                    "rate": 16,
+                                    "basePrice": 86.01
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "currencyType": "BASEC",
+                    "priceCurrency": "EUR",
+                    "breakdown": [
+                        {
+                            "name": "EXPRESS DOMESTIC",
+                            "price": 12.29,
+                            "priceBreakdown": [
+                                {
+                                    "priceType": "TAX",
+                                    "typeCode": "IVA   ",
+                                    "price": 1.7,
+                                    "rate": 16,
+                                    "basePrice": 10.59
+                                },
+                                {
+                                    "priceType": "DISCOUNT",
+                                    "typeCode": "S",
+                                    "price": 10.6,
+                                    "rate": 50,
+                                    "basePrice": 21.19
+                                }
+                            ]
+                        },
+                        {
+                            "name": "MULTIPIECE SHIPMENT",
+                            "serviceCode": "YE",
+                            "localServiceCode": "YE",
+                            "serviceTypeCode": "SCH",
+                            "price": 6.04,
+                            "isCustomerAgreement": false,
+                            "isMarketedService": true,
+                            "priceBreakdown": [
+                                {
+                                    "priceType": "TAX",
+                                    "typeCode": "IVA   ",
+                                    "price": 0.83,
+                                    "rate": 16,
+                                    "basePrice": 5.21
+                                }
+                            ]
+                        },
+                        {
+                            "name": "FUEL SURCHARGE",
+                            "serviceCode": "FF",
+                            "localServiceCode": "FF",
+                            "serviceTypeCode": "SCH",
+                            "price": 1.32,
+                            "isCustomerAgreement": false,
+                            "isMarketedService": false,
+                            "priceBreakdown": [
+                                {
+                                    "priceType": "TAX",
+                                    "typeCode": "IVA   ",
+                                    "price": 0.18,
+                                    "rate": 16,
+                                    "basePrice": 1.14
+                                },
+                                {
+                                    "priceType": "DISCOUNT",
+                                    "typeCode": "S",
+                                    "price": 1.15,
+                                    "rate": 50.01,
+                                    "basePrice": 2.29
+                                }
+                            ]
+                        },
+                        {
+                            "name": "SHIPMENT INSURANCE",
+                            "serviceCode": "II",
+                            "localServiceCode": "II",
+                            "serviceTypeCode": "XCH",
+                            "price": 5.41,
+                            "isCustomerAgreement": false,
+                            "isMarketedService": true,
+                            "priceBreakdown": [
+                                {
+                                    "priceType": "TAX",
+                                    "typeCode": "IVA   ",
+                                    "price": 0.75,
+                                    "rate": 16,
+                                    "basePrice": 4.66
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "pickupCapabilities": {
+                "nextBusinessDay": false,
+                "localCutoffDateAndTime": "2024-06-25T15:00:00",
+                "GMTCutoffTime": "18:00:00",
+                "pickupEarliest": "10:00:00",
+                "pickupLatest": "18:00:00",
+                "originServiceAreaCode": "MEX",
+                "originFacilityAreaCode": "FMX",
+                "pickupAdditionalDays": 0,
+                "pickupDayOfWeek": 2
+            },
+            "deliveryCapabilities": {
+                "deliveryTypeCode": "QDDF",
+                "estimatedDeliveryDateAndTime": "2024-06-26T23:59:00",
+                "destinationServiceAreaCode": "MEX",
+                "destinationFacilityAreaCode": "HMX",
+                "deliveryAdditionalDays": 0,
+                "deliveryDayOfWeek": 3,
+                "totalTransitDays": 1
+            },
+            "pricingDate": "2024-06-21"
+        },
+        {
+            "productName": "ECONOMY SELECT DOMESTIC",
+            "productCode": "G",
+            "localProductCode": "G",
+            "localProductCountryCode": "MX",
+            "networkTypeCode": "DD",
+            "isCustomerAgreement": false,
+            "weight": {
+                "volumetric": 0.02,
+                "provided": 6,
+                "unitOfMeasurement": "metric"
+            },
+            "totalPrice": [
+                {
+                    "currencyType": "BILLC",
+                    "priceCurrency": "MXN",
+                    "price": 558.46
+                },
+                {
+                    "currencyType": "PULCL",
+                    "priceCurrency": "MXN",
+                    "price": 558.46
+                },
+                {
+                    "currencyType": "BASEC",
+                    "priceCurrency": "EUR",
+                    "price": 30.25
+                }
+            ],
+            "totalPriceBreakdown": [
+                {
+                    "currencyType": "BILLC",
+                    "priceCurrency": "MXN",
+                    "priceBreakdown": [
+                        {
+                            "typeCode": "STTXA",
+                            "price": 77.03
+                        },
+                        {
+                            "typeCode": "SPRQT",
+                            "price": 290.42
+                        },
+                        {
+                            "typeCode": "STDIS",
+                            "price": 168.29
+                        }
+                    ]
+                },
+                {
+                    "currencyType": "PULCL",
+                    "priceCurrency": "MXN",
+                    "priceBreakdown": [
+                        {
+                            "typeCode": "STTXA",
+                            "price": 77.03
+                        },
+                        {
+                            "typeCode": "SPRQT",
+                            "price": 290.42
+                        },
+                        {
+                            "typeCode": "STDIS",
+                            "price": 168.29
+                        }
+                    ]
+                },
+                {
+                    "currencyType": "BASEC",
+                    "priceCurrency": "EUR",
+                    "priceBreakdown": [
+                        {
+                            "typeCode": "STTXA",
+                            "price": 4.17
+                        },
+                        {
+                            "typeCode": "SPRQT",
+                            "price": 15.73
+                        },
+                        {
+                            "typeCode": "STDIS",
+                            "price": 9.12
+                        }
+                    ]
+                }
+            ],
+            "detailedPriceBreakdown": [
+                {
+                    "currencyType": "BILLC",
+                    "priceCurrency": "MXN",
+                    "breakdown": [
+                        {
+                            "name": "ECONOMY SELECT DOMESTIC",
+                            "price": 290.42,
+                            "priceBreakdown": [
+                                {
+                                    "priceType": "TAX",
+                                    "typeCode": "IVA   ",
+                                    "price": 40.06,
+                                    "rate": 16,
+                                    "basePrice": 250.36
+                                },
+                                {
+                                    "priceType": "DISCOUNT",
+                                    "typeCode": "W",
+                                    "price": 140.82,
+                                    "rate": 36,
+                                    "basePrice": 391.18
+                                }
+                            ]
+                        },
+                        {
+                            "name": "MULTIPIECE SHIPMENT",
+                            "serviceCode": "YE",
+                            "localServiceCode": "YE",
+                            "serviceTypeCode": "SCH",
+                            "price": 111.6,
+                            "isCustomerAgreement": false,
+                            "isMarketedService": true,
+                            "priceBreakdown": [
+                                {
+                                    "priceType": "TAX",
+                                    "typeCode": "IVA   ",
+                                    "price": 15.39,
+                                    "rate": 16,
+                                    "basePrice": 96.21
+                                }
+                            ]
+                        },
+                        {
+                            "name": "FUEL SURCHARGE",
+                            "serviceCode": "FF",
+                            "localServiceCode": "FF",
+                            "serviceTypeCode": "SCH",
+                            "price": 56.67,
+                            "isCustomerAgreement": false,
+                            "isMarketedService": false,
+                            "priceBreakdown": [
+                                {
+                                    "priceType": "TAX",
+                                    "typeCode": "IVA   ",
+                                    "price": 7.82,
+                                    "rate": 16,
+                                    "basePrice": 48.85
+                                },
+                                {
+                                    "priceType": "DISCOUNT",
+                                    "typeCode": "W",
+                                    "price": 27.47,
+                                    "rate": 35.99,
+                                    "basePrice": 76.32
+                                }
+                            ]
+                        },
+                        {
+                            "name": "SHIPMENT INSURANCE",
+                            "serviceCode": "II",
+                            "localServiceCode": "II",
+                            "serviceTypeCode": "XCH",
+                            "price": 99.77,
+                            "isCustomerAgreement": false,
+                            "isMarketedService": true,
+                            "priceBreakdown": [
+                                {
+                                    "priceType": "TAX",
+                                    "typeCode": "IVA   ",
+                                    "price": 13.76,
+                                    "rate": 16,
+                                    "basePrice": 86.01
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "currencyType": "PULCL",
+                    "priceCurrency": "MXN",
+                    "breakdown": [
+                        {
+                            "name": "ECONOMY SELECT DOMESTIC",
+                            "price": 290.42,
+                            "priceBreakdown": [
+                                {
+                                    "priceType": "TAX",
+                                    "typeCode": "IVA   ",
+                                    "price": 40.06,
+                                    "rate": 16,
+                                    "basePrice": 250.36
+                                },
+                                {
+                                    "priceType": "DISCOUNT",
+                                    "typeCode": "W",
+                                    "price": 140.82,
+                                    "rate": 36,
+                                    "basePrice": 391.18
+                                }
+                            ]
+                        },
+                        {
+                            "name": "MULTIPIECE SHIPMENT",
+                            "serviceCode": "YE",
+                            "localServiceCode": "YE",
+                            "serviceTypeCode": "SCH",
+                            "price": 111.6,
+                            "isCustomerAgreement": false,
+                            "isMarketedService": true,
+                            "priceBreakdown": [
+                                {
+                                    "priceType": "TAX",
+                                    "typeCode": "IVA   ",
+                                    "price": 15.39,
+                                    "rate": 16,
+                                    "basePrice": 96.21
+                                }
+                            ]
+                        },
+                        {
+                            "name": "FUEL SURCHARGE",
+                            "serviceCode": "FF",
+                            "localServiceCode": "FF",
+                            "serviceTypeCode": "SCH",
+                            "price": 56.67,
+                            "isCustomerAgreement": false,
+                            "isMarketedService": false,
+                            "priceBreakdown": [
+                                {
+                                    "priceType": "TAX",
+                                    "typeCode": "IVA   ",
+                                    "price": 7.82,
+                                    "rate": 16,
+                                    "basePrice": 48.85
+                                },
+                                {
+                                    "priceType": "DISCOUNT",
+                                    "typeCode": "W",
+                                    "price": 27.47,
+                                    "rate": 35.99,
+                                    "basePrice": 76.32
+                                }
+                            ]
+                        },
+                        {
+                            "name": "SHIPMENT INSURANCE",
+                            "serviceCode": "II",
+                            "localServiceCode": "II",
+                            "serviceTypeCode": "XCH",
+                            "price": 99.77,
+                            "isCustomerAgreement": false,
+                            "isMarketedService": true,
+                            "priceBreakdown": [
+                                {
+                                    "priceType": "TAX",
+                                    "typeCode": "IVA   ",
+                                    "price": 13.76,
+                                    "rate": 16,
+                                    "basePrice": 86.01
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "currencyType": "BASEC",
+                    "priceCurrency": "EUR",
+                    "breakdown": [
+                        {
+                            "name": "ECONOMY SELECT DOMESTIC",
+                            "price": 15.73,
+                            "priceBreakdown": [
+                                {
+                                    "priceType": "TAX",
+                                    "typeCode": "IVA   ",
+                                    "price": 2.17,
+                                    "rate": 16,
+                                    "basePrice": 13.56
+                                },
+                                {
+                                    "priceType": "DISCOUNT",
+                                    "typeCode": "W",
+                                    "price": 7.63,
+                                    "rate": 36,
+                                    "basePrice": 21.19
+                                }
+                            ]
+                        },
+                        {
+                            "name": "MULTIPIECE SHIPMENT",
+                            "serviceCode": "YE",
+                            "localServiceCode": "YE",
+                            "serviceTypeCode": "SCH",
+                            "price": 6.04,
+                            "isCustomerAgreement": false,
+                            "isMarketedService": true,
+                            "priceBreakdown": [
+                                {
+                                    "priceType": "TAX",
+                                    "typeCode": "IVA   ",
+                                    "price": 0.83,
+                                    "rate": 16,
+                                    "basePrice": 5.21
+                                }
+                            ]
+                        },
+                        {
+                            "name": "FUEL SURCHARGE",
+                            "serviceCode": "FF",
+                            "localServiceCode": "FF",
+                            "serviceTypeCode": "SCH",
+                            "price": 3.07,
+                            "isCustomerAgreement": false,
+                            "isMarketedService": false,
+                            "priceBreakdown": [
+                                {
+                                    "priceType": "TAX",
+                                    "typeCode": "IVA   ",
+                                    "price": 0.42,
+                                    "rate": 16,
+                                    "basePrice": 2.65
+                                },
+                                {
+                                    "priceType": "DISCOUNT",
+                                    "typeCode": "W",
+                                    "price": 1.49,
+                                    "rate": 35.99,
+                                    "basePrice": 4.14
+                                }
+                            ]
+                        },
+                        {
+                            "name": "SHIPMENT INSURANCE",
+                            "serviceCode": "II",
+                            "localServiceCode": "II",
+                            "serviceTypeCode": "XCH",
+                            "price": 5.41,
+                            "isCustomerAgreement": false,
+                            "isMarketedService": true,
+                            "priceBreakdown": [
+                                {
+                                    "priceType": "TAX",
+                                    "typeCode": "IVA   ",
+                                    "price": 0.75,
+                                    "rate": 16,
+                                    "basePrice": 4.66
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "pickupCapabilities": {
+                "nextBusinessDay": false,
+                "localCutoffDateAndTime": "2024-06-25T18:00:00",
+                "GMTCutoffTime": "18:00:00",
+                "pickupEarliest": "10:00:00",
+                "pickupLatest": "18:00:00",
+                "originServiceAreaCode": "MEX",
+                "originFacilityAreaCode": "FMX",
+                "pickupAdditionalDays": 0,
+                "pickupDayOfWeek": 2
+            },
+            "deliveryCapabilities": {
+                "deliveryTypeCode": "QDDC",
+                "estimatedDeliveryDateAndTime": "2024-06-26T23:59:00",
+                "destinationServiceAreaCode": "MEX",
+                "destinationFacilityAreaCode": "HMX",
+                "deliveryAdditionalDays": 0,
+                "deliveryDayOfWeek": 3,
+                "totalTransitDays": 1
+            },
+            "pricingDate": "2024-06-21"
+        }
+    ],
+    "exchangeRates": [
+        {
+            "currentExchangeRate": 0.05418,
+            "currency": "MXN",
+            "baseCurrency": "EUR"
+        },
+        {
+            "currentExchangeRate": 0.05418,
+            "currency": "MXN",
+            "baseCurrency": "EUR"
+        }
+    ]
+}

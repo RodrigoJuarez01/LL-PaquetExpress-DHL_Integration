@@ -1,0 +1,99 @@
+{
+    "plannedShippingDateAndTime": "2024-06-22T19:19:40 GMT-06:00",
+    "pickup": {
+        "isRequested": false,
+        "closeTime": "18:00",
+        "location": "reception",
+        "specialInstructions": [
+            {
+                "value": "Por favor tocar el timbre",
+                "typeCode": "TBD"
+            }
+        ]
+    },
+    "productCode": "N",
+    "localProductCode": "N",
+    "accounts": [
+        {
+            "typeCode": "shipper",
+            "number": "985524658"
+        }
+    ],
+    "customerDetails": {
+        "shipperDetails": {
+            "postalAddress": {
+                "postalCode": "15700",
+                "cityName": "Ciudad de México-",
+                "countryCode": "MX",
+                "addressLine1": "AVENIDA FUERZA AEREA MEXICANA 540",
+                "addressLine2": "COLONIA FEDERAL",
+                "addressLine3": "VENUSTIANO CARRANZA",
+                "countyName": "Cualquier cosa",
+                "provinceName": "Ciudad de México",
+                "countryName": "MEXICOS"
+            },
+            "contactInformation": {
+                "email": "ejemplo@dominio.com",
+                "phone": "(222) 230 5300",
+                "mobilePhone": "(222) 230 5300",
+                "companyName": "DHL EXPRESS",
+                "fullName": "MILOS TEODORI"
+            },
+            "typeCode": "business"
+        },
+        "receiverDetails": {
+            "postalAddress": {
+                "postalCode": "08830",
+                "cityName": "Ciudad de México-",
+                "countryCode": "MX",
+                "addressLine1": "PLAYA LANGOSTA #69",
+                "addressLine2": "MILITAR MARTE",
+                "addressLine3": "IZTACALCO",
+                "countyName": "Cualquier cosa",
+                "provinceName": "IZTACALCO",
+                "countryName": "MEXICOS"
+            },
+            "contactInformation": {
+                "email": "test@prueba.com",
+                "phone": "+5555555555",
+                "mobilePhone": "+5599999999",
+                "companyName": "COMPAÑIA",
+                "fullName": "PEDRO PEREZ"
+            },
+            "typeCode": "direct_consumer"
+        }
+    },
+    "content": {
+        "packages": [
+            {
+                "weight": 22.501,
+                "dimensions": {
+                    "length": 15.001,
+                    "width": 15.001,
+                    "height": 40.001
+                },
+               
+                "description": "Descripcion del contenido de la pieza"
+            }
+            
+        ],
+        
+        "isCustomsDeclarable": false,
+        "description": "Producto frágil",
+        "incoterm": "DAP",
+        "unitOfMeasurement": "metric"
+    },
+    "shipmentNotification": [
+        {
+            "typeCode": "email",
+            "receiverId": "prueba@testing.com",
+            "languageCode": "spa",
+            "languageCountryCode": "MX",
+            "bespokeMessage": "Si tienes dudas o comentarios acerca de tu envío, mándanos un mensaje al 5555555555"
+        }
+    ],
+    "estimatedDeliveryDate": {
+        "isRequested": false,
+        "typeCode": "QDDC"
+    }
+}

@@ -1,0 +1,72 @@
+{
+    "customerDetails": {
+        "shipperDetails": {
+            "postalCode": "53000",
+            "cityName": "Naucalpan",
+            "countryCode": "MX",
+            "addressLine1": "601 Mountain Dr"
+        },
+        "receiverDetails": {
+            "postalCode": "15700",
+            "cityName": "Venustiano Carranza",
+            "countryCode": "MX",
+            "addressLine1": "V Parku 2038/10"
+        }
+    },
+    "accounts": [
+        {
+            "typeCode": "shipper",
+            "number": "985524658"
+        }
+    ],
+    "productsAndServices": [
+        {
+            "productCode": "N",
+            "localProductCode": "N",
+            "valueAddedServices": [
+                {
+                    "serviceCode": "II",
+                    "localServiceCode": "II",
+                    "value": 69.00,
+                    "currency": "MXN"
+                }
+            ]
+        },
+        {
+            "productCode": "G",
+            "localProductCode": "G",
+            "valueAddedServices": [
+                {
+                    "serviceCode": "II",
+                    "localServiceCode": "II",
+                    "value": 69.00,
+                    "currency": "MXN"
+                }
+            ]
+        }
+    ],
+    "plannedShippingDateAndTime": "2024-06-25T13:00:00GMT+00:00",
+    "unitOfMeasurement": "metric",
+    "isCustomsDeclarable": false,
+    "requestAllValueAddedServices": false,
+    "returnStandardProductsOnly": false,
+    "nextBusinessDay": false,
+    "packages": [
+        {
+            "weight": 3.1,
+            "dimensions": {
+                "length": 12,
+                "width": 2,
+                "height": 2
+            }
+        },
+        {
+            "weight": 2.2,
+            "dimensions": {
+                "length": 12,
+                "width": 2,
+                "height": 2
+            }
+        }
+    ]
+}
