@@ -1,0 +1,66 @@
+.dhl-header {
+    background-color: #FFCC00; /* Color amarillo de DHL */
+    padding: 10px;
+}
+.dhl-header img {
+    height: 22px;
+}
+.header-text {
+    color: #000; /* Color negro para el texto */
+    font-size: 16px;
+    font-weight: bold;
+}
+.background-grey {
+    background-color: #f8f9fa; /* Color gris claro */
+    padding: 10px;
+}
+.inner-container {
+    background-color: #fff; /* Fondo blanco para el contenido del formulario */
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+.btn-dhl {
+    background-color: #28a745; /* Color verde */
+    border-color: #28a745;
+    color: #fff;
+}
+.btn-dhl:hover {
+    background-color: #218838; /* Un tono más oscuro de verde para el hover */
+    border-color: #1e7e34;
+}
+.card-body-clickable:hover {
+    cursor: pointer;
+    background-color: #f2f2f2;
+}
+.list-group-item {
+    background-color: transparent;
+}
+.tracking-pill {
+    padding: 0.5rem;
+}
+.tab-title {
+    font-size: 1.2rem;
+    font-weight: 500;
+}
+#autocompleteResults div:hover {
+    background-color: #f0f0f0;
+}
+.spinner-wrapper {
+    background-color: #fff;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s ease-in-out;
+    opacity: 0.9;
+}
+.spinner-border {
+    height: 4rem;
+    width: 4rem;
+}

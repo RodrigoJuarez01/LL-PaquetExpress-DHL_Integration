@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<title>DHL Widget</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="css/main.css" rel="stylesheet" crossorigin="anonymous">
+    <link href="css/tracking.css" rel="stylesheet" crossorigin="anonymous">
+    <style>
+
+    </style>
+</head>
+
+<body>
+	<script src="https://js.zohostatic.com/zohofinance/v1/zf_sdk.js"></script>
+	<script>
+		
+
+		window.onload = function () {
+			
+            const urlParams = new URLSearchParams(window.location.search);
+            const shipmentTrackingNumber = urlParams.get('shipmentTrackingNumber');
+            console.log('Shipment Tracking Number:', shipmentTrackingNumber);
+			
+			ZFAPPS.extension.init().then(function (App) {
+
+                
+                //tracking?shipmentTrackingNumber=9356579890&trackingView=all-checkpoints&levelOfDetail=shipment
+				const trackingOptions = {
+                    url: 'https://express.api.dhl.com/mydhlapi/test/tracking',
+                      method: "GET" ,
+                      connection_link_name: 'dhl_api_conn',
+                      url_query: [{
+                          key: 'shipmentTrackingNumber',
+                          value: '9356579890'
+                      },{
+                        key: 'trackingView',
+                        value: 'all-checkpoints'
+                    },
+                    {
+                        key: 'levelOfDetail',
+                        value: 'shipment'
+                    }],
+                    header:[
+                        {
+                            key:'Accept',
+                            value:'*/*'
+                        },
+                        {
+                            key:'Accept-Encoding',
+                            value:'gzip, deflate, br'
+                        },
+                        {
+                            key:'Connection',
+                            value:'keep-alive'
+					}]
+                  };
+                  
+                  console.log('Tracking Options:', trackingOptions);
+                  ZFAPPS.request(trackingOptions).then(function(trackingAPIResponse) {
+                    console.log('Tracking API Response:', trackingAPIResponse);
+					// Handle the response as needed
+					const trackingBody = JSON.parse(trackingAPIResponse.data.body);
+					console.log('trackingBody: ');
+					console.log(trackingBody);
+                  }).catch(function(err) {
+                      //error Handling
+                        console.log('Tracking error: ', err);
+                  });
+                  
+                
+					
+
+                
+
+				
+
+				
+
+			
+
+
+
+			});
+
+			
+
+            const shipmentsBody = {
+                "shipments": [
+                    {
+                        "shipmentTrackingNumber": "9356579890",
+                        "status": "Success",
+                        "shipmentTimestamp": "2024-03-31T21:33:19",
+                        "productCode": "P",
+                        "description": "Sunglasses",
+                        "shipperDetails": {
+                            "name": "",
+                            "postalAddress": {
+                                "cityName": "",
+                                "postalCode": "",
+                                "countryCode": "AU"
+                            },
+                            "serviceArea": [
+                                {
+                                    "code": "SYD",
+                                    "description": "Sydney-AU"
+                                }
+                            ]
+                        },
+                        "receiverDetails": {
+                            "name": "",
+                            "postalAddress": {
+                                "cityName": "",
+                                "postalCode": "",
+                                "countryCode": "DE"
+                            },
+                            "serviceArea": [
+                                {
+                                    "code": "QFB",
+                                    "description": "Freiburg-DE",
+                                    "facilityCode": "QFB"
+                                }
+                            ]
+                        },
+                        "totalWeight": 0.58,
+                        "unitOfMeasurements": "metric",
+                        "shipperReferences": [
+                            {
+                                "value": "PMUS200195612",
+                                "typeCode": "CU"
+                            }
+                        ],
+                        "events": [
+                            {
+                                "date": "2024-04-02",
+                                "time": "09:01:19",
+                                "typeCode": "PU",
+                                "description": "Shipment picked up",
+                                "serviceArea": [
+                                    {
+                                        "code": "SYD",
+                                        "description": "Sydney-AU"
+                                    }
+                                ]
+                            },
+                            {
+                                "date": "2024-04-02",
+                                "time": "18:22:04",
+                                "typeCode": "AF",
+                                "description": "Arrived at DHL Sort Facility  SYDNEY-AUSTRALIA",
+                                "serviceArea": [
+                                    {
+                                        "code": "SYD",
+                                        "description": "Sydney-AU"
+                                    }
+                                ]
+                            },
+                            {
+                                "date": "2024-04-02",
+                                "time": "18:30:20",
+                                "typeCode": "PL",
+                                "description": "Processed at SYDNEY-AUSTRALIA",
+                                "serviceArea": [
+                                    {
+                                        "code": "SYD",
+                                        "description": "Sydney-AU"
+                                    }
+                                ]
+                            },
+                            {
+                                "date": "2024-04-02",
+                                "time": "20:07:58",
+                                "typeCode": "DF",
+                                "description": "Shipment has departed from a DHL facility SYDNEY-AUSTRALIA",
+                                "serviceArea": [
+                                    {
+                                        "code": "SYD",
+                                        "description": "Sydney-AU"
+                                    }
+                                ]
+                            },
+                            {
+                                "date": "2024-04-03",
+                                "time": "04:39:01",
+                                "typeCode": "AF",
+                                "description": "Arrived at DHL Sort Facility  SINGAPORE-SINGAPORE",
+                                "serviceArea": [
+                                    {
+                                        "code": "SIN",
+                                        "description": "Singapore-SG"
+                                    }
+                                ]
+                            },
+                            {
+                                "date": "2024-04-03",
+                                "time": "07:49:39",
+                                "typeCode": "PL",
+                                "description": "Processed at SINGAPORE-SINGAPORE",
+                                "serviceArea": [
+                                    {
+                                        "code": "SIN",
+                                        "description": "Singapore-SG"
+                                    }
+                                ]
+                            },
+                            {
+                                "date": "2024-04-04",
+                                "time": "03:32:58",
+                                "typeCode": "DF",
+                                "description": "Shipment has departed from a DHL facility SINGAPORE-SINGAPORE",
+                                "serviceArea": [
+                                    {
+                                        "code": "SIN",
+                                        "description": "Singapore-SG"
+                                    }
+                                ]
+                            },
+                            {
+                                "date": "2024-04-04",
+                                "time": "13:01:47",
+                                "typeCode": "TR",
+                                "description": "Shipment is in transit to destination",
+                                "serviceArea": [
+                                    {
+                                        "code": "BAH",
+                                        "description": "Bahrain-BH"
+                                    }
+                                ]
+                            },
+                            {
+                                "date": "2024-04-04",
+                                "time": "21:21:58",
+                                "typeCode": "DF",
+                                "description": "Shipment has departed from a DHL facility BAHRAIN-BAHRAIN",
+                                "serviceArea": [
+                                    {
+                                        "code": "BAH",
+                                        "description": "Bahrain-BH"
+                                    }
+                                ]
+                            },
+                            {
+                                "date": "2024-04-04",
+                                "time": "20:26:04",
+                                "typeCode": "RR",
+                                "description": "Customs clearance status updated. Note - The Customs clearance process may start while the shipment is in transit to the destination. ",
+                                "serviceArea": [
+                                    {
+                                        "code": "LEJ",
+                                        "description": "Leipzig-DE"
+                                    }
+                                ]
+                            },
+                            {
+                                "date": "2024-04-05",
+                                "time": "03:54:47",
+                                "typeCode": "AF",
+                                "description": "Arrived at DHL Sort Facility  LEIPZIG-GERMANY",
+                                "serviceArea": [
+                                    {
+                                        "code": "LEJ",
+                                        "description": "Leipzig-DE"
+                                    }
+                                ]
+                            },
+                            {
+                                "date": "2024-04-05",
+                                "time": "04:34:59",
+                                "typeCode": "IC",
+                                "description": "Processed for clearance at LEIPZIG-GERMANY",
+                                "serviceArea": [
+                                    {
+                                        "code": "LEJ",
+                                        "description": "Leipzig-DE"
+                                    }
+                                ]
+                            },
+                            {
+                                "date": "2024-04-05",
+                                "time": "04:35:40",
+                                "typeCode": "RR",
+                                "description": "Customs clearance status updated. Note - The Customs clearance process may start while the shipment is in transit to the destination. ",
+                                "serviceArea": [
+                                    {
+                                        "code": "LEJ",
+                                        "description": "Leipzig-DE"
+                                    }
+                                ]
+                            },
+                            {
+                                "date": "2024-04-05",
+                                "time": "04:35:46",
+                                "typeCode": "CR",
+                                "description": "Clearance processing complete at LEIPZIG-GERMANY",
+                                "serviceArea": [
+                                    {
+                                        "code": "LEJ",
+                                        "description": "Leipzig-DE"
+                                    }
+                                ]
+                            },
+                            {
+                                "date": "2024-04-05",
+                                "time": "04:48:46",
+                                "typeCode": "PL",
+                                "description": "Processed at LEIPZIG-GERMANY",
+                                "serviceArea": [
+                                    {
+                                        "code": "LEJ",
+                                        "description": "Leipzig-DE"
+                                    }
+                                ]
+                            },
+                            {
+                                "date": "2024-04-05",
+                                "time": "09:33:04",
+                                "typeCode": "PY",
+                                "description": "Payment is received and recorded for shipment related fees",
+                                "serviceArea": [
+                                    {
+                                        "code": "QFB",
+                                        "description": "Freiburg-DE"
+                                    }
+                                ]
+                            },
+                            {
+                                "date": "2024-04-05",
+                                "time": "10:32:46",
+                                "typeCode": "OH",
+                                "description": "Shipment is on hold",
+                                "serviceArea": [
+                                    {
+                                        "code": "LEJ",
+                                        "description": "Leipzig-DE"
+                                    }
+                                ]
+                            },
+                            {
+                                "date": "2024-04-07",
+                                "time": "18:41:20",
+                                "typeCode": "DF",
+                                "description": "Shipment has departed from a DHL facility LEIPZIG-GERMANY",
+                                "serviceArea": [
+                                    {
+                                        "code": "LEJ",
+                                        "description": "Leipzig-DE"
+                                    }
+                                ]
+                            },
+                            {
+                                "date": "2024-04-08",
+                                "time": "05:27:12",
+                                "typeCode": "AR",
+                                "description": "Arrived at DHL Delivery Facility  FREIBURG-GERMANY",
+                                "serviceArea": [
+                                    {
+                                        "code": "QFB",
+                                        "description": "Freiburg-DE"
+                                    }
+                                ]
+                            },
+                            {
+                                "date": "2024-04-08",
+                                "time": "07:35:19",
+                                "typeCode": "WC",
+                                "description": "Shipment is out with courier for delivery",
+                                "serviceArea": [
+                                    {
+                                        "code": "QFB",
+                                        "description": "Freiburg-DE"
+                                    }
+                                ]
+                            },
+                            {
+                                "date": "2024-04-08",
+                                "time": "09:47:26",
+                                "typeCode": "NH",
+                                "description": "Delivery attempted but no response at Consignee address",
+                                "serviceArea": [
+                                    {
+                                        "code": "QFB",
+                                        "description": "Freiburg-DE"
+                                    }
+                                ]
+                            },
+                            {
+                                "date": "2024-04-08",
+                                "time": "10:53:45",
+                                "typeCode": "CC",
+                                "description": "Awaiting collection by the consignee",
+                                "serviceArea": [
+                                    {
+                                        "code": "QFB",
+                                        "description": "Freiburg-DE"
+                                    }
+                                ]
+                            },
+                            {
+                                "date": "2024-04-08",
+                                "time": "14:39:43",
+                                "typeCode": "OK",
+                                "description": "Delivered",
+                                "serviceArea": [
+                                    {
+                                        "code": "QFB",
+                                        "description": "Freiburg-DE"
+                                    }
+                                ],
+                                "signedBy": ""
+                            }
+                        ],
+                        "numberOfPieces": 1
+                    }
+                ]
+            };
+            
+                    const trackingBody = shipmentsBody.shipments[0];
+                    const eventsContainer = document.getElementById('trackingEvents'); // Assuming you have a container for the events
+                    trackingBody.events.sort((a, b) => new Date(b.date + ' ' + b.time) - new Date(a.date + ' ' + a.time));
+                    trackingBody.events.forEach((event, index) => {
+
+                        const trackingDayOfWeek = new Date(event.date).toLocaleDateString('es-MX', { weekday: 'long' }).charAt(0).toUpperCase() + new Date(event.date).toLocaleDateString('es-MX', { weekday: 'long' }).slice(1);
+                        //let trackingDate = new Date(event.date).toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' }).replace(/ de /g, ' ');
+                        let trackingDate = event.date.split('-')[2].replace(/^0+/, '') + ' ' + new Date(event.date).toLocaleDateString('es-MX', { month: 'long', year: 'numeric' }).replace(/ de /g, ' ');
+                        console.log('Tracking Date:', trackingDate);
+                        console.log('event.date:', event.date);
+                        trackingDate = trackingDate.replace(/\b\w/g, (c) => c.toUpperCase());
+                        const trackingTime = event.time.slice(0, 5);
+                        const trackingDescription = event.description;
+                        const trackingServiceAreaDesc = event.serviceArea[0].description;
+                        //const trackingNumOfPieces = trackingBody.numberOfPieces;
+                        const trackingNumOfPieces = trackingBody.numberOfPieces === 1 ? "1 Pieza" : `${trackingBody.numberOfPieces} Piezas`;
+
+                        //Create the row for this event
+                        const row = document.createElement("div");
+                        row.className = "tracking-item";
+                        row.id = `trackingEventRow${index}`;
+                        row.innerHTML = `
+                            
+                                <div class="tracking-icon status-intransit" id="trackingStatus${index}">
+                                    <svg class="svg-inline--fa fa-circle fa-w-16" aria-hidden="true" data-prefix="fas" data-icon="circle" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg="">
+                                    <path fill="currentColor" d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8z"></path>
+                                    </svg>
+                                </div>
+                                <div class="tracking-date">
+                                    <span id="trackingDayOfWeek${index}">
+                                        ${trackingDayOfWeek}
+                                    </span>
+                                    <h5 id="trackingDate${index}">${trackingDate}</h5>
+                                    
+                                    <span id="trackingTime${index}">
+                                        ${trackingTime}
+                                    </span>
+                                </div>
+                                <div class="tracking-content">
+                                    <div id="trackingDescription${index}">${trackingDescription}</div>
+                                    <span id="trackingServiceAreaDesc${index}">${trackingServiceAreaDesc}</span>
+                                    <span id="trackingNumOfPieces${index}">${trackingNumOfPieces}</span>
+
+                                </div>
+                            
+                        `;
+                        eventsContainer.appendChild(row);
+
+
+
+                   
+
+
+                    });
+
+                    const lastEvent = trackingBody.events[0];
+                    console.log('Last Event:', lastEvent);
+
+                    
+                    if (lastEvent.typeCode !== "OK") {
+                        //Create the row for this event
+                        const row = document.createElement("div");
+                        row.className = "tracking-item-pending";
+                        row.id = `pendingTrackingEvent`;
+                        row.innerHTML = `
+                            
+                                
+                                    <div class="tracking-icon status-intransit">
+                                        <svg class="svg-inline--fa fa-circle fa-w-16" aria-hidden="true" data-prefix="fas" data-icon="circle" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg="">
+                                        <path fill="currentColor" d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8z"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="tracking-date">
+                                       &nbsp; 
+                                    </div>
+                                    <div class="tracking-content">
+                                        Actividad de rastreo pendiente
+                                    </div>
+                                
+                            
+                        `;
+                        eventsContainer.prepend(row);
+                        
+                    } 
+                    
+                    // Updating the class of the last event icon
+                    const lastStatusDiv = document.getElementById(`trackingStatus0`);
+                    lastStatusDiv.className = 'tracking-icon status-current blinker';
+
+
+
+                    const groupedPackagesByShipment = {
+                        "2478264272": [
+                            {
+                                "warehouse_name": "DCA CEDIS CDMX",
+                                "zip": "06700",
+                                "address": "Querétaro no.229",
+                                "address2": "Col. Roma Norte",
+                                "address1": "Querétaro no.229",
+                                "phone": "5555744254",
+                                "attention": "JC 4",
+                                "state": "Ciudad de México",
+                                "city": "Cuauhtémoc",
+                                "branch_name": "Dermi Co",
+                                "email": "no_existe@solvisconsulting.com",
+                                "warehouse_id": "4031306000000092026",
+                                "pte_almacen": "DCA CEDIS CDMX",
+                                "package_id": "4031306000011839393",
+                                "package_number": "PKG-02263",
+                                "customer_id": "4031306000000341137",
+                                "shipment_id": "4031306000012413003",
+                                "shipment_number": "SHP-01490",
+                                "shipment_status": "shipped",
+                                "shipment_tracking_number": "2478264272"
+                            },
+                            {
+                                "warehouse_name": "DCA CEDIS CDMX",
+                                "zip": "06700",
+                                "address": "Querétaro no.229",
+                                "address2": "Col. Roma Norte",
+                                "address1": "Querétaro no.229",
+                                "phone": "5555744254",
+                                "attention": "JC 4",
+                                "state": "Ciudad de México",
+                                "city": "Cuauhtémoc",
+                                "branch_name": "Dermi Co",
+                                "email": "no_existe@solvisconsulting.com",
+                                "warehouse_id": "4031306000000092026",
+                                "pte_almacen": "DCA CEDIS CDMX",
+                                "package_id": "4031306000011839495",
+                                "package_number": "PKG-02264",
+                                "customer_id": "4031306000000341137",
+                                "shipment_id": "4031306000012410069",
+                                "shipment_number": "SHP-01491",
+                                "shipment_status": "shipped",
+                                "shipment_tracking_number": "2478264272"
+                            }
+                        ],
+                        "2478275026": [
+                            {
+                                "warehouse_name": "DCA CEDIS CDMX",
+                                "zip": "06700",
+                                "address": "Querétaro no.229",
+                                "address2": "Col. Roma Norte",
+                                "address1": "Querétaro no.229",
+                                "phone": "5555744254",
+                                "attention": "JC 4",
+                                "state": "Ciudad de México",
+                                "city": "Cuauhtémoc",
+                                "branch_name": "Dermi Co",
+                                "email": "no_existe@solvisconsulting.com",
+                                "warehouse_id": "4031306000000092026",
+                                "pte_almacen": "DCA CEDIS CDMX",
+                                "package_id": "4031306000011826074",
+                                "package_number": "PKG-02265",
+                                "customer_id": "4031306000000341137",
+                                "shipment_id": "4031306000012478002",
+                                "shipment_number": "SHP-01493",
+                                "shipment_status": "shipped",
+                                "shipment_tracking_number": "2478275026"
+                            }
+                        ]
+                    };
+
+
+                    const trackingCardsContainer = document.getElementById("trackingCards");
+                    let trackingCardsEl = '';
+                    
+
+                    Object.keys(groupedPackagesByShipment).forEach((trackingNumber, index) => {
+                        const packages = groupedPackagesByShipment[trackingNumber];
+                        let packagesEl = '';
+
+                        packages.forEach((package) => {
+                            const packageEl = `
+                                    <div class="col-6 mb-4">
+                                        <button type="button" class="btn btn-warning disabled">
+                                            ${package.package_number}
+                                            <span class="badge text-bg-secondary">
+                                                ${package.shipment_number}
+                                            </span>
+                                        </button>
+                                    </div>
+                            `;
+
+                            packagesEl += packageEl;
+
+                        });
+
+                        const cardEl = `
+                            <div class="col-6 mb-4" id="trackingCard${index}">
+                                <div class="card">
+                                    <div class="card-body">
+
+                                        <h5 class="card-title">Tracking# - ${trackingNumber}</h5>
+                                        <p class="card-text">
+                                            Paquetes
+                                        </p>
+
+                                        <div class="row" id="packagesRow${index}">
+                                            ${packagesEl}
+                                            
+                                        </div>
+
+                                        <div class="d-grid mb-2">
+                                            <button class="btn btn-primary" type="button" data-tracking-number="${trackingNumber}" id="trackingNumberBtn${index}" onclick="handleTrackingButtonClick(this)">
+                                                Rastrear
+                                            </button>
+                                        </div>
+                                            
+                                    </div>
+                                </div>
+                            </div>    
+                        `;
+
+                        trackingCardsEl += cardEl;
+                        
+
+                        
+
+                        
+                        
+                        
+                    });
+
+                    trackingCardsContainer.innerHTML = trackingCardsEl;
+
+                    
+                    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+                    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+
+		};
+            
+
+
+        function handleTrackingButtonClick(thisButton) {
+            const trackingNumber = thisButton.dataset.trackingNumber;
+            console.log('Tracking Number:', trackingNumber);
+            // Do something with the tracking number
+        }
+
+
+	</script>
+	<header class="dhl-header d-flex justify-content-between align-items-center">
+        <img src="ui/img/dhl-3.svg" alt="DHL Express Logo">
+        <div class="header-text">Integración</div>
+    </header>
+	<!-- *********************************************************************************************************************** -->
+    <!--
+
+    
+    -->
+
+	<div class="background-grey">
+	
+        <div class="container inner-container mt-4 mb-5">
+
+            <div class="d-flex justify-content-center">
+                <div class="spinner-border" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+              </div>
+
+            <h5 class="card-title"
+			data-bs-toggle="tooltip" data-bs-placement="top"
+			data-bs-custom-class="custom-tooltip"
+			data-bs-title="This top tooltip is themed via CSS variables.">
+		  Custom tooltip
+		</h5>
+
+                
+                    
+            
+            <div class="row" id="trackingCards">
+                
+                
+            </div>
+
+            
+
+                <div class="row">
+            
+                    <div class="col-md-12 col-lg-12">
+                        
+                        <div id="tracking">
+                            <div class="tracking-list" id="trackingEvents">
+
+                                
+                                
+                                
+                             
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            
+                
+                
+                
+                
+                
+
+
+                
+
+
+                
+
+            
+        </div>
+
+	</div>
+	<!-- *********************************************************************************************************************** -->
+
+	<script src="./js/extension.js" charset="utf-8"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</body>
+
+</html>
