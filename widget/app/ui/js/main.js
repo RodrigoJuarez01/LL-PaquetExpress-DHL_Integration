@@ -1,6 +1,6 @@
 import { showRequestErrorToast } from "./features/errorToast.js";
 import { initializeShipmentView } from './shipping/shipment-view.js';
-import ZohoService from "../../logic/services/zoho.service.js"
+import ZohoService from "../../core/services/zoho.service.js"
 
 
 let appData = {};
@@ -122,7 +122,7 @@ window.onload = function () {
 
         const spinner = document.getElementById('spinnerWrapper');
         try {
-            spinner.style.display = 'flex'; // Muestra el spinner
+            spinner.style.display = 'flex'; 
 
             appData = await ZohoService.initializeAppData();
 

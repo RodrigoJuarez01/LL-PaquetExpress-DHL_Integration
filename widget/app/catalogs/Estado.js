@@ -1,4 +1,4 @@
-const pcsAndStates = [
+export const pcsAndStates = [
 	{
 		"state":"Ciudad de México",
 		"code":"09"

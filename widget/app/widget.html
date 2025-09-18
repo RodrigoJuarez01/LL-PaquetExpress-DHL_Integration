@@ -229,12 +229,6 @@
 						<h5>Contenido de su envío</h5>
 						<div class="col-md">
 							<div class="form-floating">
-								<textarea class="form-control" id="descripcionInput" placeholder="Descripción"
-									maxlength="70" oninput="updateCharacterCount()"></textarea>
-								<div class="invalid-feedback"></div>
-								<small id="characterCount" class="mt-1" style="display: none;">70 caracteres
-									restantes</small>
-
 								<script>
 									function updateCharacterCount() {
 										const textarea = document.getElementById("descripcionInput");
@@ -244,6 +238,13 @@
 										characterCount.style.display = "block";
 									}
 								</script>
+								<textarea class="form-control" id="descripcionInput" placeholder="Descripción"
+									maxlength="70" oninput="updateCharacterCount()"></textarea>
+								<div class="invalid-feedback"></div>
+								<small id="characterCount" class="mt-1" style="display: none;">70 caracteres
+									restantes</small>
+
+
 								<label for="descripcionInput">Descripción</label>
 							</div>
 						</div>

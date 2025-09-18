@@ -1,4 +1,8 @@
-export function handleAutocomplete(targetId, autocompleteContainerId) {
+import { pcsAndNeighborhoods } from "../../../../catalogs/CPs.min.js";
+import { pcsAndMunicipalities } from "../../../../catalogs/Municipio.min.js";
+import { pcsAndStates } from "../../../../catalogs/Estado.js";
+
+export function handleAutocomplete(targetId, autocompleteContainerId, elementsDOM) {
 
     const autocompleteResults = document.getElementById(autocompleteContainerId);
     autocompleteResults.style.backgroundColor = '#f9f9f9';
@@ -57,14 +61,17 @@ export function handleAutocomplete(targetId, autocompleteContainerId) {
                         document.getElementById(targetId).value = obj[0];
                         console.log('selected key: ', obj[0]);
                         autocompleteResults.innerHTML = ''; // Limpia los resultados después de seleccionar
+                        
                         if (targetId.includes("sender")) {
-                            senderDireccion2Input.value = neighbourhood;
-                            senderCiudadInput.value = mnpltyName;
-                            senderEstadoInput.value = stateName;
+                            const sender = elementsDOM.form.sender;
+                            sender.direccion2Input.value = neighbourhood;
+                            sender.ciudadInput.value = mnpltyName;
+                            sender.estadoInput.value = stateName;
                         } else if (targetId.includes("receiver")) {
-                            receiverDireccion2Input.value = neighbourhood;
-                            receiverCiudadInput.value = mnpltyName;
-                            receiverEstadoInput.value = stateName;
+                            const receiver = elementsDOM.form.receiver;
+                            receiver.direccion2Input.value = neighbourhood;
+                            receiver.ciudadInput.value = mnpltyName;
+                            receiver.estadoInput.value = stateName;
                         }
                     };
                     autocompleteResults.appendChild(div);
