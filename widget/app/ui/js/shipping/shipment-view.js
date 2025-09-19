@@ -1,7 +1,8 @@
 import { handleAutocomplete } from "./features/autocompleteZipCode.js";
-import { setDateTimeFieldAttributes, hideFirstStepElements, handleRateRequest } from "./features/form.js";
+import { setDateTimeFieldAttributes, hideFirstStepElements, handleRateSelection, _collectFormData } from "./features/form.js";
 import { validateShipmentForm } from "./features/formValidation.js";
-
+import { ShippingService } from "../../../core/services/shipping.service.js";
+import { showRequestErrorToast } from "../features/errorToast.js";
 
 const elements = {
     form: {
@@ -19,23 +20,104 @@ const viewState = {
 };
 
 function handlePackageSelectionChange(event) {
-    const checkbox = event.target; // Obtenemos el input que cambió
+    const checkbox = event.target; 
     const packageId = checkbox.value;
 
     console.log("handlePackageSelectionChange activada");
 
     if (checkbox.checked) {
-        // Añade el ID si no está ya en la lista
         if (!viewState.selectedPackageIds.includes(packageId)) {
             viewState.selectedPackageIds.push(packageId);
         }
     } else {
-        // Quita el ID si el checkbox se desmarca
         viewState.selectedPackageIds = viewState.selectedPackageIds.filter(id => id !== packageId);
     }
 
     console.log('Paquetes seleccionados:', viewState.selectedPackageIds);
 }
+
+
+function setupRateSelectionListeners() {
+    const selectButtons = document.querySelectorAll('.js-select-rate-btn');
+    
+    selectButtons.forEach(button => {
+        button.addEventListener('click', handleRateSelection);
+    });
+}
+
+function renderRatesView(rates) {
+    const ratesContainer = document.getElementById("ratesContainerResponse");
+    // const formContainer = document.getElementById("shipmentFormContainer"); 
+    
+    const providerLogos = {
+        'dhl': 'ui/img/dhl-2.png',
+        'paquetexpress': 'ui/img/paquetexpress-logo.svg'
+    };
+
+    const ratesHTML = rates.map(rate => {
+        const originalDataJson = btoa(JSON.stringify(rate.originalData));
+
+        return `
+            <div class="row rate-row align-items-center py-3 border-bottom">
+                <div class="col-md-3">
+                    <img src="${providerLogos[rate.provider] || ''}" alt="${rate.provider}" class="provider-logo">
+                    <span>${rate.serviceName}</span>
+                </div>
+                <div class="col-md-3 text-center">${rate.estimatedDelivery}</div>
+                <div class="col-md-3 text-center"><b>$${rate.price} ${rate.currency}</b></div>
+                <div class="col-md-3 text-center">
+                    <button type="button" class="btn btn-primary js-select-rate-btn" data-rate-json="${originalDataJson}">
+                        Seleccionar
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join(''); 
+
+
+    ratesContainer.innerHTML = `
+        <div class="alert alert-secondary">Selecciona una tarifa de envío.</div>
+        <div class="row rate-header fw-bold py-2 border-bottom">
+            <div class="col-md-3">Servicio</div>
+            <div class="col-md-3 text-center">Entrega Estimada</div>
+            <div class="col-md-3 text-center">Precio</div>
+            <div class="col-md-3 text-center"></div>
+        </div>
+        ${ratesHTML}
+    `;
+
+    ratesContainerResponse.style.display = "block";
+    const firstStepElements = document.getElementsByClassName("first-step");
+    for (let i = 0; i < firstStepElements.length; i++) {
+        firstStepElements[i].style.display = "none";
+    }
+    
+    ratesContainer.style.display = 'block';
+
+    setupRateSelectionListeners();
+}
+
+export async function handleRateRequest(formElements) {
+    
+    try {
+        elements.spinner.style.display = 'flex';
+
+        const formData = _collectFormData(formElements.form);
+
+        const rates = await ShippingService.getRates('dhl', formData);
+
+        renderRatesView(rates);
+
+    } catch (error) {
+        console.error("Error al obtener tarifas:", error);
+        showRequestErrorToast(error.message, 7000);
+        // showRequestErrorToast("No se pudieron obtener las tarifas.");
+    } finally {
+        elements.spinner.style.display = 'none';
+    }
+
+}
+
 
 
 function cacheDOMElements() {

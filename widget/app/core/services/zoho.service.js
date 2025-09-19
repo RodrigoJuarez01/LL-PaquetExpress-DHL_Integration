@@ -126,7 +126,6 @@ async function _fetchRawData() {
         return {
             errors: errors
         }
-        // showRequestErrorToast('Fetching data error: ' + error.message, 10000);
     }
 }
 

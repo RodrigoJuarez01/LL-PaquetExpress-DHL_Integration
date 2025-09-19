@@ -1,7 +1,5 @@
 //
-let plannedShippingDateAndTime;
-
-function _collectFormData(formElements) {
+export function _collectFormData(formElements) {
     const formData = {
         sender: {},
         receiver: {},
@@ -25,152 +23,6 @@ function _collectFormData(formElements) {
     return formData;
 }
 
-export function handleRateRequest(formElements) {
-    
-    try {
-        elements.spinner.style.display = 'flex';
-
-        const formData = _collectFormData(elements.form);
-
-        const rates = await ShippingService.getRates('dhl', formData);
-
-        renderRatesView(rates);
-
-    } catch (error) {
-        console.error("Error al obtener tarifas:", error);
-        // showRequestErrorToast("No se pudieron obtener las tarifas.");
-    } finally {
-        elements.spinner.style.display = 'none';
-    }
-
-
-
-    ZFAPPS.request(ratesOptions).then(ratesAPIResponse => {
-        console.log('Rates API Response:', ratesAPIResponse);
-        logRequest(ratesOptions, ratesAPIResponse);
-        checkDHLResponse(ratesAPIResponse);
-        // Handle the response as needed
-        const ratesBody = JSON.parse(ratesAPIResponse.data.body);
-        console.log('ratesBody: ');
-        console.log(ratesBody);
-        checkDHLResponseBody(ratesBody);
-        checkDHLRatesResponseBody(ratesBody);
-
-        //
-        // Assuming ratesBody is already defined and contains the JSON structure similar to rate_response.json
-        const ratesContainer = document.getElementById("ratesContainer");
-        // Iterate over the products array
-
-        ratesBody.products.forEach((product, index) => {
-            // Create a Bootstrap card for each product
-            const productCard = document.createElement("div");
-            productCard.className = "card mb-3";
-            let productCardBody = `<div class="card-body">
-                <h5 class="card-title">Product ${index + 1}: ${product.productName}</h5>`;
-
-            // Iterate over the attributes of each product
-            Object.entries(product).forEach(([key, value]) => {
-                productCardBody += `<p class="card-text"><strong>${key}:</strong> ${JSON.stringify(value)}</p>`;
-            });
-
-            productCardBody += `</div>`;
-            productCard.innerHTML = productCardBody;
-            // Append the product card to the rates container
-            ratesContainer.appendChild(productCard);
-        });
-
-        // Iterate over the exchangeRates array
-        ratesBody.exchangeRates.forEach((exchangeRate, index) => {
-            // Create a Bootstrap card for each exchange rate
-            const exchangeRateCard = document.createElement("div");
-            exchangeRateCard.className = "card mb-3";
-            let exchangeRateCardBody = `<div class="card-body">
-                <h5 class="card-title">Exchange Rate ${index + 1}</h5>`;
-
-            // Iterate over the attributes of each exchange rate
-            Object.entries(exchangeRate).forEach(([key, value]) => {
-                exchangeRateCardBody += `<p class="card-text"><strong>${key}:</strong> ${JSON.stringify(value)}</p>`;
-            });
-
-            exchangeRateCardBody += `</div>`;
-            exchangeRateCard.innerHTML = exchangeRateCardBody;
-            // Append the exchange rate card to the rates container
-            ratesContainer.appendChild(exchangeRateCard);
-        });
-        //
-        //
-        //
-        const ratesContainerResponse = document.getElementById("ratesContainerResponse");
-
-        ratesBody.products.forEach((product, index) => {
-            // Find the price object with priceCurrency equal to MXN
-            const priceObj = product.totalPrice.find(price => price.priceCurrency === "MXN");
-            const priceValue = priceObj ? priceObj.price : "N/A";
-            if (priceValue === 'N/A') {
-                return;
-            }
-
-            // Extract productName
-            const productName = product.productName;
-
-            // Extract and format estimatedDeliveryDateAndTime
-            const deliveryDate = new Date(product.deliveryCapabilities.estimatedDeliveryDateAndTime);
-            let dayOfWeek = deliveryDate.toLocaleString('default', { weekday: 'long' });
-            dayOfWeek = dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1);
-            const monthAndDay = deliveryDate.toLocaleString('default', { month: 'long', day: 'numeric' });
-            const time = deliveryDate.toLocaleTimeString('default', { hour: '2-digit', minute: '2-digit' });
-            product.price = priceValue;
-            const productJson = btoa(JSON.stringify(product));
-
-            // Create the row for this product
-            const row = document.createElement("div");
-            row.className = "row justify-content-center mt-4";
-            row.innerHTML = `
-                    <div class="col-md-3 text-center align-items-center">
-                        <h6 id="productNameResp${index}">${productName}</h6>
-                        <h6 id="monthAndDayResp${index}">${monthAndDay}</h6>
-                        <h6 id="dayOfWeekResp${index}">${dayOfWeek}</h6>
-                    </div>
-                    <div class="col-md-3 d-flex align-items-center justify-content-center">
-                        <h6 id="timeResp${index}">${time}</h6>
-                    </div>
-                    <div class="col-md-3 d-flex align-items-center justify-content-center">
-                        <h6 id="priceResp${index}">MXN <span id="priceSpanResp${index}">${priceValue}</span></h6>
-                    </div>
-                    <div class="col-md-3 d-flex align-items-center justify-content-center">
-                        <button id="selectResp${index}" type="button" class="btn btn-primary" onclick="handleSelect('${productJson}')">Seleccionar</button>
-                    </div>
-                    </div>
-                    </div>
-                `;
-
-            // Append the row to the ratesContainerResponse
-            ratesContainerResponse.appendChild(row);
-        });
-
-
-        ratesContainerResponse.style.display = "block";
-        const firstStepElements = document.getElementsByClassName("first-step");
-        for (let i = 0; i < firstStepElements.length; i++) {
-            firstStepElements[i].style.display = "none";
-        }
-
-        spinnerWrapper.style.display = 'none';
-        //
-    }).catch(error => {
-        logRequest(ratesOptions, error);
-        showRequestErrorToast(error.message, 7000);
-    });
-
-
-
-}
-
-
-
-
-
-
 export function hideFirstStepElements() {
     const firstStepElements = document.getElementsByClassName('first-step');
     for (let i = 0; i < firstStepElements.length; i++) {
@@ -181,12 +33,18 @@ export function hideFirstStepElements() {
 
 
 
-function handleSelect(product) {
+export function handleRateSelection(event) {
+    
+     const rateJsonBase64 = button.dataset.rateJson;
+
+    // 3. El resto de tu código es exactamente igual
     spinnerWrapper.style.display = 'flex';
-    const decodedProduct = atob(product);
+    const decodedProduct = atob(rateJsonBase64);
     const parsedProduct = JSON.parse(decodedProduct);
+
     console.log("Decoded product:", parsedProduct);
-    console.log("Type of decodedProduct:", typeof parsedProduct);
+    console.log("Type of decodedProduct:", typeof parsedProduct);const button = event.currentTarget;
+
 
     const productCode = parsedProduct.productCode;
     const localProductCode = parsedProduct.localProductCode;
@@ -194,160 +52,28 @@ function handleSelect(product) {
     console.log("Selected productCode:", productCode);
     console.log("Selected localProductCode:", localProductCode);
 
-    // INICIO DHL **********************************************************************************
-    // Create an array to store the package objects
-    const shipmentsPackages = [];
-
-    // Use a for loop to iterate over each cantidadValue
-    for (let i = 0; i < cantidadValue; i++) {
-
-        // Create a package object
-        const packageObj = {
-            weight: pesoValue,
-            dimensions: {
-                length: longitudValue,
-                width: anchoValue,
-                height: alturaValue
-            },
-            "description": descripcionValue
-
-        };
-
-        // Add the package object to the shipmentsPackages array
-        shipmentsPackages.push(packageObj);
-    }
-    console.log('shipmentsPackages: ', shipmentsPackages);
-
-    const shipmentsOptions = {
-        url: dhlBaseUrl + dhlUrlComplement + '/shipments?strictValidation=false&bypassPLTError=false&validateDataOnly=false',
-        method: "POST",
-        connection_link_name: dhlConnectionLinkName,
-        header: [{
-            key: 'Content-Type',
-            value: 'application/json'
-        },
-        {
-            key: 'Accept',
-            value: 'application/json'
-        },
-        {
-            key: 'Accept-Encoding',
-            value: 'gzip, deflate, br'
-        },
-        {
-            key: 'Connection',
-            value: 'keep-alive'
-        }],
-        body: {
-            mode: 'raw',
-            raw: {
-                "plannedShippingDateAndTime": plannedShippingDateAndTime,
-                "pickup": {
-                    "isRequested": false,
-                    "closeTime": "18:00",
-                    "location": "reception"
-
-                },
-                "productCode": productCode,
-                "localProductCode": localProductCode,
-                "accounts": [
-                    {
-                        "typeCode": "shipper",
-                        "number": "985524658"
-                    }
-                ],
-                "customerDetails": {
-                    "shipperDetails": {
-                        "postalAddress": {
-                            "postalCode": senderCodigoPostalValue,
-                            "cityName": senderCiudadValue,
-                            "countryCode": "MX",
-                            "addressLine1": senderDireccionValue,
-                            "addressLine2": senderDireccion2Value,
-                            //"addressLine3": senderDireccion3Value,
-                            "countyName": senderCiudadValue,
-                            "provinceName": senderEstadoValue,
-                            "countryName": "MEXICO"
-                        },
-                        "contactInformation": {
-                            "email": senderEmailValue,
-                            "phone": senderTelefonoValue,
-                            "companyName": senderEmpresaValue,
-                            "fullName": senderNombreValue
-                        },
-                        "typeCode": "business"
-                    },
-                    "receiverDetails": {
-                        "postalAddress": {
-                            "postalCode": receiverCodigoPostalValue,
-                            "cityName": receiverCiudadValue,
-                            "countryCode": "MX",
-                            "addressLine1": receiverDireccionValue,
-                            "addressLine2": receiverDireccion2Value,
-                            //"addressLine3": receiverDireccion3Value,
-                            "countyName": receiverCiudadValue,
-                            "provinceName": receiverEstadoValue,
-                            "countryName": "MEXICO"
-                        },
-                        "contactInformation": {
-                            "email": receiverEmailValue,
-                            "phone": receiverTelefonoValue,
-                            "companyName": receiverEmpresaValue,
-                            "fullName": receiverNombreValue
-                        },
-                        "typeCode": "direct_consumer"
-                    }
-                },
-                "content": {
-                    "packages": shipmentsPackages,
-
-                    "isCustomsDeclarable": false,
-                    "description": descripcionValue,
-                    "incoterm": "DAP",
-                    "unitOfMeasurement": "metric"
-                },
-                "estimatedDeliveryDate": {
-                    "isRequested": false,
-                    "typeCode": "QDDC"
-                }
-            }
-
-        }
-
-    };
-
-    console.log(' - shipmentsOptions: ');
-    console.log(shipmentsOptions);
-    ZFAPPS.request(shipmentsOptions).then(function (shipmentsAPIResponse) {
-
-        //response Handling
-        console.log('Request to DHL shipments: ');
-        console.log(shipmentsAPIResponse);
-        const shipmentsBody = JSON.parse(shipmentsAPIResponse.data.body);
-        console.log('shipmentsBody: ');
-        console.log(shipmentsBody);
-        checkDHLResponse(shipmentsAPIResponse);
-        checkDHLResponseBody(shipmentsBody);
-        checkDHLShipmentsResponseBody(shipmentsBody);
-
-        const ratesContainerResponse = document.getElementById('ratesContainerResponse');
-        ratesContainerResponse.style.display = 'none';
-        shipmentTrackingNumber = shipmentsBody.shipmentTrackingNumber;
-        trackingUrl = shipmentsBody.trackingUrl;
-        parsedProduct.plannedShippingDateAndTime = plannedShippingDateAndTime;
-        displayAndDownloadPDFs(shipmentsBody);
-        upsertZohoShipment(shipmentsBody, parsedProduct);
-        //
-        spinnerWrapper.style.display = 'none';
-        //
-        ZFAPPS.invoke('REFRESH_DATA', 'salesorder').then(() => {
-            console.log('Refresh salesorder successfully');
-        });
 
 
-    }).catch(function (error) {
-        showRequestErrorToast(error.message, 7000);
+
+
+    const ratesContainerResponse = document.getElementById('ratesContainerResponse');
+    ratesContainerResponse.style.display = 'none';
+
+    // shipmentTrackingNumber = shipmentsBody.shipmentTrackingNumber;
+    // trackingUrl = shipmentsBody.trackingUrl;
+    
+    parsedProduct.plannedShippingDateAndTime = plannedShippingDateAndTime;
+    displayAndDownloadPDFs(shipmentsBody);
+    upsertZohoShipment(shipmentsBody, parsedProduct);
+    //
+    spinnerWrapper.style.display = 'none';
+    //
+    ZFAPPS.invoke('REFRESH_DATA', 'salesorder').then(() => {
+        console.log('Refresh salesorder successfully');
     });
+
+
+        // showRequestErrorToast(error.message, 7000);
     // FIN DHL **********************************************************************************
 
 }

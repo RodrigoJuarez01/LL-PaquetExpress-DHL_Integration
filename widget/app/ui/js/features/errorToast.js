@@ -19,7 +19,7 @@ export function showRequestErrorToast(message, delay) {
 
 //showRequestErrorToast(error.message, 7000);
 //checkDHLResponse(ratesAPIResponse);
-function checkDHLResponse(response) {
+export function checkDHLResponse(response) {
     const responseData = response.data;
     if(responseData.status_code != 200 && responseData.status_code != 201) {
         let formattedMessage = `${responseData.status_message} - Status: ${responseData.status_code}`;
@@ -42,7 +42,7 @@ function checkDHLResponse(response) {
     }
 }
 
-function checkDHLResponseBody(body) {
+export function checkDHLResponseBody(body) {
     if(body.hasOwnProperty('status') && body.hasOwnProperty('title')) {
         let formattedMessage = '';
         const title = body.title;
@@ -95,7 +95,7 @@ function checkDHLePODResponseBody(body) {
     }
 }
 
-function checkDHLRatesResponseBody(body) {
+export function checkDHLRatesResponseBody(body) {
     let formattedMessage = '';
     if(!body.hasOwnProperty('products') || body.products.length == 0) {
         formattedMessage = 'No se encontraron productos/servicios.'

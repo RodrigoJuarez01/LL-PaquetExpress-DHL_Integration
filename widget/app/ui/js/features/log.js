@@ -1,4 +1,4 @@
-function logRequest(requestOptions, response) {
+export function logRequest(requestOptions, response) {
     
     let successResponse = {};
     let rawResponse = {};
