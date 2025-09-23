@@ -64,3 +64,8 @@
     height: 4rem;
     width: 4rem;
 }
+.provider-logo {
+    max-height: 40px; /* Ajusta este valor a lo que se vea mejor */
+    width: auto;      /* Mantiene la proporción de la imagen */
+    margin-right: 15px; /* Añade un poco de espacio a la derecha */
+}

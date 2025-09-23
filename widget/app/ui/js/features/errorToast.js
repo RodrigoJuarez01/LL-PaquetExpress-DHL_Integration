@@ -104,7 +104,7 @@ export function checkDHLRatesResponseBody(body) {
     }
 }
 
-function checkDHLShipmentsResponseBody(body) {
+export function checkDHLShipmentsResponseBody(body) {
     let formattedMessage = '';
     if(!body.hasOwnProperty('documents') || body.documents.length == 0) {
         formattedMessage = 'No se obtuvo la etiqueta.'

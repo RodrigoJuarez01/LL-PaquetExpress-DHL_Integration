@@ -1,5 +1,7 @@
 import { initializeShipmentView } from './shipping/shipment-view.js';
 import ZohoService from "../../core/services/zoho.service.js"
+import { ConfigService } from '../../core/services/config.service.js';
+
 
 
 let appData = {};
@@ -122,6 +124,8 @@ window.onload = function () {
         const spinner = document.getElementById('spinnerWrapper');
         try {
             spinner.style.display = 'flex'; 
+
+            await ConfigService.init();
 
             appData = await ZohoService.initializeAppData();
 

@@ -22,6 +22,10 @@ export const ShippingService = {
 
         // return combinedAndSortedRates;
         return ;
-    }
+    },
 
+    async createShipment(providerName, formData, selectedRateData){
+        return await providers[providerName].createShipment(formData, selectedRateData);
+    }
+    
 };

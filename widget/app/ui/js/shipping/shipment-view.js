@@ -1,8 +1,9 @@
 import { handleAutocomplete } from "./features/autocompleteZipCode.js";
-import { setDateTimeFieldAttributes, hideFirstStepElements, handleRateSelection, _collectFormData } from "./features/form.js";
+import { setDateTimeFieldAttributes, hideFirstStepElements, _collectFormData } from "./features/form.js";
 import { validateShipmentForm } from "./features/formValidation.js";
 import { ShippingService } from "../../../core/services/shipping.service.js";
 import { showRequestErrorToast } from "../features/errorToast.js";
+import { upsertZohoShipment, displayAndDownloadPDFs } from "./features/shipping.js";
 
 const elements = {
     form: {
@@ -19,8 +20,57 @@ const viewState = {
     selectedPackageIds: []
 };
 
+
+async function handleRateSelection(event) {
+
+    
+    // 3. El resto de tu código es exactamente igual
+    const button = event.currentTarget;
+    const rateJsonBase64 = button.dataset.rateJson;
+    const selectedRateData = JSON.parse(atob(rateJsonBase64));
+
+
+    console.log("selectedRateData", selectedRateData);
+    // console.log("Type of decodedProduct:", typeof parsedProduct);
+
+    const productCode = selectedRateData.productCode;
+    const localProductCode = selectedRateData.localProductCode;
+    // Do something with the productCode and localProductCode
+    console.log("Selected productCode:", productCode);
+    console.log("Selected localProductCode:", localProductCode);
+
+    try {
+        // elements.spinner.style.display = 'flex';
+
+        const formData = _collectFormData(elements.form);
+
+        
+        // const ratesContainerResponse = document.getElementById('ratesContainerResponse');
+        // ratesContainerResponse.style.display = 'none';
+        
+        selectedRateData.plannedShippingDateAndTime = formData.sender.plannedShippingDateAndTime;
+
+        const shipmentResult = await ShippingService.createShipment('dhl', formData, selectedRateData);
+        
+        displayAndDownloadPDFs(shipmentResult);
+        upsertZohoShipment(shipmentResult, selectedRateData);
+        //
+        elements.spinner.style.display = 'none';
+        //
+        ZFAPPS.invoke('REFRESH_DATA', 'salesorder');
+
+
+    } catch (error) {
+        console.error("Error al crear el envío:", error);
+        // showRequestErrorToast("No se pudo crear la guía.");
+    } finally {
+        elements.spinner.style.display = 'none';
+    }
+
+}
+
 function handlePackageSelectionChange(event) {
-    const checkbox = event.target; 
+    const checkbox = event.target;
     const packageId = checkbox.value;
 
     console.log("handlePackageSelectionChange activada");
@@ -39,7 +89,7 @@ function handlePackageSelectionChange(event) {
 
 function setupRateSelectionListeners() {
     const selectButtons = document.querySelectorAll('.js-select-rate-btn');
-    
+
     selectButtons.forEach(button => {
         button.addEventListener('click', handleRateSelection);
     });
@@ -48,7 +98,7 @@ function setupRateSelectionListeners() {
 function renderRatesView(rates) {
     const ratesContainer = document.getElementById("ratesContainerResponse");
     // const formContainer = document.getElementById("shipmentFormContainer"); 
-    
+
     const providerLogos = {
         'dhl': 'ui/img/dhl-2.png',
         'paquetexpress': 'ui/img/paquetexpress-logo.svg'
@@ -72,7 +122,7 @@ function renderRatesView(rates) {
                 </div>
             </div>
         `;
-    }).join(''); 
+    }).join('');
 
 
     ratesContainer.innerHTML = `
@@ -91,14 +141,14 @@ function renderRatesView(rates) {
     for (let i = 0; i < firstStepElements.length; i++) {
         firstStepElements[i].style.display = "none";
     }
-    
+
     ratesContainer.style.display = 'block';
 
     setupRateSelectionListeners();
 }
 
 export async function handleRateRequest(formElements) {
-    
+
     try {
         elements.spinner.style.display = 'flex';
 

@@ -33,50 +33,6 @@ export function hideFirstStepElements() {
 
 
 
-export function handleRateSelection(event) {
-    
-     const rateJsonBase64 = button.dataset.rateJson;
-
-    // 3. El resto de tu código es exactamente igual
-    spinnerWrapper.style.display = 'flex';
-    const decodedProduct = atob(rateJsonBase64);
-    const parsedProduct = JSON.parse(decodedProduct);
-
-    console.log("Decoded product:", parsedProduct);
-    console.log("Type of decodedProduct:", typeof parsedProduct);const button = event.currentTarget;
-
-
-    const productCode = parsedProduct.productCode;
-    const localProductCode = parsedProduct.localProductCode;
-    // Do something with the productCode and localProductCode
-    console.log("Selected productCode:", productCode);
-    console.log("Selected localProductCode:", localProductCode);
-
-
-
-
-
-    const ratesContainerResponse = document.getElementById('ratesContainerResponse');
-    ratesContainerResponse.style.display = 'none';
-
-    // shipmentTrackingNumber = shipmentsBody.shipmentTrackingNumber;
-    // trackingUrl = shipmentsBody.trackingUrl;
-    
-    parsedProduct.plannedShippingDateAndTime = plannedShippingDateAndTime;
-    displayAndDownloadPDFs(shipmentsBody);
-    upsertZohoShipment(shipmentsBody, parsedProduct);
-    //
-    spinnerWrapper.style.display = 'none';
-    //
-    ZFAPPS.invoke('REFRESH_DATA', 'salesorder').then(() => {
-        console.log('Refresh salesorder successfully');
-    });
-
-
-        // showRequestErrorToast(error.message, 7000);
-    // FIN DHL **********************************************************************************
-
-}
 
 
 export function setDateTimeFieldAttributes(input) {
