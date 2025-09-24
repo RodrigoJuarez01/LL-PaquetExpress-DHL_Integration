@@ -20,9 +20,8 @@ async function _fetchRawData() {
 
         console.log('***dhlUrlComplement:', dhlUrlComplement);
 
-        const salesorderResponse = await ZFAPPS.get('salesorder');
-        const salesorderId = salesorderResponse.salesorder.salesorder_id; //
-        const salesorderNumber = salesorderResponse.salesorder.salesorder_number; //
+        const salesorderId = ConfigService.getSalesOrderID();
+        const salesorderNumber = ConfigService.getSalesOrderNumber();
         console.log('***Sales Order ID:', salesorderId);
 
         const warehousesOptions = {
@@ -110,7 +109,7 @@ async function _fetchRawData() {
             warehouses: werehousesBody.warehouses,
             salesOrder: salesOrdersBody.salesorder,
             soShippingAddress: soShippingAddress,
-            contact:{
+            contact: {
                 soContactPerson: soContactPerson,
                 contactFromAPI: contactFromAPI,
             },
@@ -354,15 +353,87 @@ function _validateBusinessRules(processedData) {
     return { isValid: isValid, error: errorMsg };
 }
 
+function attachPDF(base64File, fileName, endpointUrl) {
+    //Base64 to File conversion
+    let bstr = atob(base64File);
+    let length = bstr.length;
+    let u8arr = new Uint8Array(length);
 
-function updateSalesOrderData(shipment, product){
+    const inventoryConnectionLinkName = ConfigService.getInventoryConn();
+
+    while (length--) {
+        u8arr[length] = bstr.charCodeAt(length);
+    }
+
+    const FileData = new File([u8arr], fileName, {
+        type: "application/pdf"
+    });
+
+    const attachmentsOptions = {
+        url: endpointUrl,
+        method: "POST" ,
+        attachments: [{
+            key: "attachment",
+            value: FileData
+        }],
+        connection_link_name: inventoryConnectionLinkName
+    };
+    console.log('attachmentsOptions: ', attachmentsOptions);
+    ZFAPPS.request(attachmentsOptions).then(function(attachmentsAPIResponse) {
+        console.log(attachmentsAPIResponse);
+        const attachmentsBody = JSON.parse(attachmentsAPIResponse.data.body);
+        console.log('attachments Body: ');
+        console.log(attachmentsBody);
+        
+    }).catch(function(error) {
+        //error Handling
+        console.log('error on request to attachments: ');
+        console.log(error);
+        
+    });	
+
+}
+
+
+
+
+
+function formatPDFFileName(trackingNumber) {
+    const date = new Date();
+    const options = { 
+        year: '2-digit', 
+        month: 'long', 
+        day: '2-digit', 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        second: '2-digit' };
+    
+    const formattedDateTime = date.toLocaleString('es-ES', options)
+                            .replace(/, /g, '_')
+                            .replace(/[\s]/g, '-')
+                            .replace(/-de-|--/g, '-');
+    
+    const fileName = `DHL_${trackingNumber}_${formattedDateTime}.pdf`;
+    return fileName;
+}
+
+
+
+function updateShipmentOrdersFields(shipment, product, packagesAndWarehouse, selectedPackageIds) {
     //4031306000011839495
     //4031306000011839393,4031306000011839495
+
+    const salesorderId = ConfigService.getSalesOrderID();
+    const salesorderNumber = ConfigService.getSalesOrderNumber();
+    const inventoryConnectionLinkName = ConfigService.getInventoryConn();
+    const orgId = ConfigService.getOrgId();
+
+
     const shipmentDate = product.plannedShippingDateAndTime.split('T')[0];
     const notDeliveredPackages = packagesAndWarehouse
         .filter(obj => obj.shipment_id && obj.shipment_number && selectedPackageIds.includes(obj.package_id));
     console.log('notDeliveredPackages: ', notDeliveredPackages);
-    
+
     const packagesWithoutShipment = packagesAndWarehouse
         .filter(obj => !obj.shipment_id && !obj.shipment_number && selectedPackageIds.includes(obj.package_id));
     console.log('packagesWithoutShipment: ', packagesWithoutShipment);
@@ -370,53 +441,56 @@ function updateSalesOrderData(shipment, product){
     let notDeliveredPackagesIds = notDeliveredPackages.map(obj => obj.package_id).join(',');
     let packagesWithoutShipmentIds = packagesWithoutShipment.map(obj => obj.package_id).join(',');
 
-    const auxLabelSuccessMsg = document.getElementById('auxLabelSuccessMsg');
+    // const auxLabelSuccessMsg = document.getElementById('auxLabelSuccessMsg');
+
+    let auxSuccessMessage = "";
+    let success = true;
 
     if (notDeliveredPackages.length > 0) {
         //
         const pck = notDeliveredPackages[0];
         console.log('package: ', pck);
-        const attachmentUrl = 'https://www.zohoapis.com/inventory/v1/shipmentorders/'+pck.shipment_id+'/attachment?organization_id='+orgId;
+        const attachmentUrl = 'https://www.zohoapis.com/inventory/v1/shipmentorders/' + pck.shipment_id + '/attachment?organization_id=' + orgId;
         const updateOptions = {
-            url: 'https://www.zohoapis.com/inventory/v1/shipmentorders/'+pck.shipment_id+'?organization_id='+orgId+'&package_ids='+notDeliveredPackagesIds+'&salesorder_id='+salesorderId,
-              method: "PUT",
-              header:[{
-                      key: 'Content-Type',
-                    value: 'application/json'
-              }],
-              body: {
-                  mode: 'raw',
-                  
-                  raw: {
+            url: 'https://www.zohoapis.com/inventory/v1/shipmentorders/' + pck.shipment_id + '?organization_id=' + orgId + '&package_ids=' + notDeliveredPackagesIds + '&salesorder_id=' + salesorderId,
+            method: "PUT",
+            header: [{
+                key: 'Content-Type',
+                value: 'application/json'
+            }],
+            body: {
+                mode: 'raw',
+
+                raw: {
                     'date': shipmentDate,
                     'tracking_number': shipment.trackingNumber,
                     'delivery_method': 'DHL',
                     'tracking_link': shipment.trackingUrl,
                     'shipping_charge': product.price,
-                    'service': product.productName+' - '
-                    +product.productCode+' - '
-                    +product.localProductCode+' - '
-                    +product.deliveryCapabilities.estimatedDeliveryDateAndTime,
+                    'service': product.productName + ' - '
+                        + product.productCode + ' - '
+                        + product.localProductCode + ' - '
+                        + product.deliveryCapabilities.estimatedDeliveryDateAndTime,
                     'expected_delivery_date': product
-                    .deliveryCapabilities
-                    .estimatedDeliveryDateAndTime
+                        .deliveryCapabilities
+                        .estimatedDeliveryDateAndTime
                 }
-              },
-              connection_link_name: inventoryConnectionLinkName
+            },
+            connection_link_name: inventoryConnectionLinkName
         };
-          
-        ZFAPPS.request(updateOptions).then(function(updateZohoShipmentAPIResponse) {
+
+        ZFAPPS.request(updateOptions).then(function (updateZohoShipmentAPIResponse) {
             //response Handling
             console.log('updateZohoShipment responseJSON: ', updateZohoShipmentAPIResponse);
             const updateShipmentBody = JSON.parse(updateZohoShipmentAPIResponse.data.body);
             console.log('updateShipmentBody: ', updateShipmentBody);
             const shipmentId = updateShipmentBody.shipmentorder.shipment_id;
             const shipmentNumber = updateShipmentBody.shipmentorder.shipment_number;
-            attachPDF(shipment.labelsPdfContent[0].content, formatPDFFileName(shipment.shipmentTrackingNumber), attachmentUrl);
+            attachPDF(shipment.labelsPdfContent[0].content, formatPDFFileName(shipment.trackingNumber), attachmentUrl);
 
-            const updatedShipmentLink = 'https://inventory.zoho.com/app/'+orgId+'#/salesorders/'+salesorderId+'/shipments/'+shipmentId;
+            const updatedShipmentLink = 'https://inventory.zoho.com/app/' + orgId + '#/salesorders/' + salesorderId + '/shipments/' + shipmentId;
 
-            const auxSuccessMessage = `
+            auxSuccessMessage = `
                         <strong style="display: block; margin-top: 4px;">
                             &nbsp;Envío actualizado: 
                             <a class="link-opacity-50-hover" href="${updatedShipmentLink}" target="_blank">
@@ -424,13 +498,15 @@ function updateSalesOrderData(shipment, product){
                             </a>
                         </strong>
                     `;
-            auxLabelSuccessMsg.innerHTML = auxSuccessMessage;
+            // auxLabelSuccessMsg.innerHTML = auxSuccessMessage;
 
-          }).catch(function(error) {
-              //error Handling
-              console.log('error on updateZohoShipment: ', error);
-              showRequestErrorToast('Update Shipment Error: ' + error.message, 7000);
-          }); 
+        }).catch(function (error) {
+            //error Handling
+            console.log('error on updateZohoShipment: ', error);
+            // showRequestErrorToast('Update Shipment Error: ' + error.message, 7000);
+            auxSuccessMessage = 'Update Shipment Error: ' + error.message;
+            success = false
+        });
     }
 
     if (packagesWithoutShipment.length > 0) {
@@ -440,48 +516,48 @@ function updateSalesOrderData(shipment, product){
             .estimatedDeliveryDateAndTime.split('T')[0]);
         //
         const createOptions = {
-            url: 'https://www.zohoapis.com/inventory/v1/shipmentorders?organization_id='+orgId + '&package_ids='+packagesWithoutShipmentIds+'&salesorder_id='+salesorderId,
-              method: "POST",
-              header:[{
-                      key: 'Content-Type',
-                    value: 'application/json'
-              }],
-              body: {
-                  mode: 'raw',
-                  
-                  raw: {
+            url: 'https://www.zohoapis.com/inventory/v1/shipmentorders?organization_id=' + orgId + '&package_ids=' + packagesWithoutShipmentIds + '&salesorder_id=' + salesorderId,
+            method: "POST",
+            header: [{
+                key: 'Content-Type',
+                value: 'application/json'
+            }],
+            body: {
+                mode: 'raw',
+
+                raw: {
                     //'shipment_number': 'SHP-DHL'+shipmentsBody.shipmentTrackingNumber+'-'+shipmentsBody.shipmentTrackingNumber,
                     //'date': `${new Date().toISOString().split('T')[0]}`,
                     'date': shipmentDate,
-                    'tracking_number': shipment.shipmentTrackingNumber,
+                    'tracking_number': shipment.trackingNumber,
                     'delivery_method': 'DHL',
                     'tracking_link': shipment.trackingUrl,
                     'shipping_charge': product.price,
-                    'service': product.productName+' - '
-                    +product.productCode+' - '
-                    +product.localProductCode+' - '
-                    +product.deliveryCapabilities.estimatedDeliveryDateAndTime,
+                    'service': product.productName + ' - '
+                        + product.productCode + ' - '
+                        + product.localProductCode + ' - '
+                        + product.deliveryCapabilities.estimatedDeliveryDateAndTime,
                     'expected_delivery_date': product
-                    .deliveryCapabilities
-                    .estimatedDeliveryDateAndTime
+                        .deliveryCapabilities
+                        .estimatedDeliveryDateAndTime
                 }
-              },
-              connection_link_name: inventoryConnectionLinkName
-          };
-          console.log('createOptions: ', createOptions);
-          ZFAPPS.request(createOptions).then(function(createZohoShipmentAPIResponse) {
-                //response Handling
-                console.log('createZohoShipment responseJSON: ', createZohoShipmentAPIResponse);
-                const createShipmentBody = JSON.parse(createZohoShipmentAPIResponse.data.body);
-                console.log('createShipmentBody: ', createShipmentBody);
-                const shipmentId = createShipmentBody.shipmentorder.shipment_id;
-                const shipmentNumber = createShipmentBody.shipmentorder.shipment_number;
-                const attachmentUrl = 'https://www.zohoapis.com/inventory/v1/shipmentorders/'+shipmentId+'/attachment?organization_id='+orgId;
-                console.log('attachmentUrl: ', attachmentUrl);
-                attachPDF(shipment.documents[0].content, formatPDFFileName(shipment.shipmentTrackingNumber), attachmentUrl);
-                const createdShipmentLink = 'https://inventory.zoho.com/app/'+orgId+'#/salesorders/'+salesorderId+'/shipments/'+shipmentId;
+            },
+            connection_link_name: inventoryConnectionLinkName
+        };
+        console.log('createOptions: ', createOptions);
+        ZFAPPS.request(createOptions).then(function (createZohoShipmentAPIResponse) {
+            //response Handling
+            console.log('createZohoShipment responseJSON: ', createZohoShipmentAPIResponse);
+            const createShipmentBody = JSON.parse(createZohoShipmentAPIResponse.data.body);
+            console.log('createShipmentBody: ', createShipmentBody);
+            const shipmentId = createShipmentBody.shipmentorder.shipment_id;
+            const shipmentNumber = createShipmentBody.shipmentorder.shipment_number;
+            const attachmentUrl = 'https://www.zohoapis.com/inventory/v1/shipmentorders/' + shipmentId + '/attachment?organization_id=' + orgId;
+            console.log('attachmentUrl: ', attachmentUrl);
+            attachPDF(shipment.labelsPdfContent[0].content, formatPDFFileName(shipment.trackingNumber), attachmentUrl);
+            const createdShipmentLink = 'https://inventory.zoho.com/app/' + orgId + '#/salesorders/' + salesorderId + '/shipments/' + shipmentId;
 
-                const auxSuccessMessage = `
+            auxSuccessMessage = `
                         <strong style="display: block; margin-top: 4px;">
                             &nbsp;Envío creado: 
                             <a class="link-opacity-50-hover" href="${createdShipmentLink}" target="_blank">
@@ -489,17 +565,19 @@ function updateSalesOrderData(shipment, product){
                             </a>
                         </strong>
                     `;
-                auxLabelSuccessMsg.innerHTML = auxSuccessMessage;
+            // auxLabelSuccessMsg.innerHTML = auxSuccessMessage;
 
-          }).catch(function(error) {
-              //error Handling
-              console.log('error on createZohoShipment: ', error);
-              showRequestErrorToast('Create Shipment Error: ' + error.message, 7000);
-          }); 
+        }).catch(function (error) {
+            //error Handling
+            console.log('error on createZohoShipment: ', error);
+            // showRequestErrorToast('Create Shipment Error: ' + error.message, 7000);
+            auxSuccessMessage = 'Update Shipment Error: ' + error.message;
+            success = false;
+        });
 
     }
 
-    
+    return {resultMessage: auxSuccessMessage, success};
 
 }
 
@@ -527,6 +605,10 @@ const ZohoService = {
                 validation: { isValid: false, error: 'Ocurrió un error inesperado al obtener los datos de Zoho.' }
             };
         }
+    },
+
+    async upsertZohoShipment(shipment, rate, packagesAndWarehouse, selectedPackageIds){
+        return updateShipmentOrdersFields(shipment, rate, packagesAndWarehouse, selectedPackageIds);    
     }
 };
 

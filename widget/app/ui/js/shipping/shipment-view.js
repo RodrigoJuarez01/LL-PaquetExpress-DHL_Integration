@@ -3,7 +3,8 @@ import { setDateTimeFieldAttributes, hideFirstStepElements, _collectFormData } f
 import { validateShipmentForm } from "./features/formValidation.js";
 import { ShippingService } from "../../../core/services/shipping.service.js";
 import { showRequestErrorToast } from "../features/errorToast.js";
-import { upsertZohoShipment, displayAndDownloadPDFs } from "./features/shipping.js";
+import { displayAndDownloadPDFs } from "./features/shipping.js";
+import ZohoService from "../../../core/services/zoho.service.js"
 
 const elements = {
     form: {
@@ -13,7 +14,8 @@ const elements = {
     },
     warehouseCardsContainer: null,
     shipmentAlertMessageRow: null,
-    spinner: null
+    spinner: null,
+    appData: null
 };
 
 const viewState = {
@@ -23,7 +25,7 @@ const viewState = {
 
 async function handleRateSelection(event) {
 
-    
+
     // 3. El resto de tu código es exactamente igual
     const button = event.currentTarget;
     const rateJsonBase64 = button.dataset.rateJson;
@@ -44,16 +46,26 @@ async function handleRateSelection(event) {
 
         const formData = _collectFormData(elements.form);
 
-        
+
         // const ratesContainerResponse = document.getElementById('ratesContainerResponse');
         // ratesContainerResponse.style.display = 'none';
-        
+
         selectedRateData.plannedShippingDateAndTime = formData.sender.plannedShippingDateAndTime;
 
         const shipmentResult = await ShippingService.createShipment('dhl', formData, selectedRateData);
-        
+
         displayAndDownloadPDFs(shipmentResult);
-        upsertZohoShipment(shipmentResult, selectedRateData);
+
+        console.log("elements.appData", elements.appData);
+
+        const { resultMessage, success } = await ZohoService.upsertZohoShipment(shipmentResult, selectedRateData, elements.appData.data.packagesAndWarehouse, viewState.selectedPackageIds);
+
+        if (success) {
+            const auxLabelSuccessMsg = document.getElementById('auxLabelSuccessMsg');
+            auxLabelSuccessMsg.innerHTML = resultMessage;
+        } else {
+            showRequestErrorToast(resultMessage, 7000);
+        }
         //
         elements.spinner.style.display = 'none';
         //
@@ -354,6 +366,8 @@ export function initializeShipmentView(appData) {
     if (elements.warehouseCardsContainer) {
         elements.warehouseCardsContainer.innerHTML = warehouseHTML;
     }
+
+    elements.appData = appData;
 
     setupEventListeners(appData);
 
