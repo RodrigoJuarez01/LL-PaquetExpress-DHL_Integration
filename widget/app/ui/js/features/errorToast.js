@@ -69,7 +69,7 @@ export function checkDHLResponseBody(body) {
     }
 }
 
-function checkDHLTrackingResponseBody(body) {
+export function checkDHLTrackingResponseBody(body) {
     let formattedMessage = '';
     if(!body.hasOwnProperty('shipments') || body.shipments.length == 0) {
 

@@ -1,5 +1,5 @@
 import { logRequest } from "../../../ui/js/features/log.js";
-import { checkDHLResponse, checkDHLResponseBody, checkDHLRatesResponseBody, checkDHLShipmentsResponseBody } from "../../../ui/js/features/errorToast.js";
+import { checkDHLResponse, checkDHLResponseBody, checkDHLRatesResponseBody, checkDHLShipmentsResponseBody, checkDHLTrackingResponseBody } from "../../../ui/js/features/errorToast.js";
 import { ConfigService } from '../../services/config.service.js';
 
 const DHL_BASE_URL = "https://express.api.dhl.com/mydhlapi";
@@ -211,7 +211,7 @@ export class DhlAdapter {
 
         const DHL_URL_COMPLEMENT = ConfigService.getOrgId() == '808492068' ? '/test' : '';
 
- 
+
         const shipmentOptions = {
             url: DHL_BASE_URL + DHL_URL_COMPLEMENT + '/shipments?strictValidation=false&bypassPLTError=false&validateDataOnly=false',
             method: 'POST',
@@ -240,7 +240,7 @@ export class DhlAdapter {
         const response = await ZFAPPS.request(shipmentOptions);
         console.log("response", response);
         const shipmentBody = JSON.parse(response.data.body);
-        
+
         console.log(JSON.stringify(shipmentBody, null, 2));
 
         checkDHLResponse(response);
@@ -250,8 +250,78 @@ export class DhlAdapter {
         return {
             provider: 'dhl',
             trackingNumber: shipmentBody.shipmentTrackingNumber,
-            labelsPdfContent: shipmentBody.documents.map((doc) => { return {content: doc.content, contentLenght: doc.content.length} }),
+            labelsPdfContent: shipmentBody.documents.map((doc) => { return { content: doc.content, contentLenght: doc.content.length } }),
             trackingUrl: shipmentBody.trackingUrl
+        };
+    }
+
+    async trackShipment(trackingNumber) {
+
+        const tNumbersForTesting = ['2775523063', '3660208860', '7661769404', '7349581960', '4540441264', '9356579890'];
+
+        trackingNumber = orgId == '808492068' ? tNumbersForTesting[3] : trackingNumber;
+        console.log('trackingNumber:', trackingNumber);
+
+        const trackingOptions = {
+            url: `${DHL_BASE_URL}/tracking`,
+            method: "GET",
+            connection_link_name: dhlConnectionLinkName,
+            url_query: [{
+                key: 'shipmentTrackingNumber',
+                value: trackingNumber
+            }, {
+                key: 'trackingView',
+                value: 'all-checkpoints'
+            },
+            {
+                key: 'levelOfDetail',
+                value: 'shipment'
+            }],
+            header: [{
+                key: 'Accept',
+                value: '*/*'
+            },
+            {
+                key: 'Accept-Encoding',
+                value: 'gzip, deflate, br'
+            },
+            {
+                key: 'Connection',
+                value: 'keep-alive'
+            }]
+        };
+
+        console.log('Tracking Options:', trackingOptions);
+
+        const response = await ZFAPPS.request(trackingOptions);
+
+        checkDHLResponse(response);
+
+        const trackingBodyArray = JSON.parse(response.data.body);
+
+        checkDHLTrackingResponseBody(trackingBodyArray);
+
+        const trackingBody = trackingBodyArray.shipments[0];
+
+        const events = trackingBody.events
+            .sort((a, b) => new Date(b.date + ' ' + b.time) - new Date(a.date + ' ' + a.time))
+            .map(event => ({
+                date: event.date,
+                time: event.time.slice(0, 5),
+                description: event.description,
+                location: event.serviceArea[0].description
+            }));
+
+        return {
+            provider: 'dhl',
+            trackingNumber: trackingBody.id,
+            status: trackingBody.status.status,
+            summary: {
+                origin: trackingBody.origin.address.addressLocality,
+                destination: trackingBody.destination.address.addressLocality,
+                numberOfPieces: trackingBody.numberOfPieces
+            },
+            events: events
         };
     }
 

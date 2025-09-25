@@ -371,7 +371,7 @@ function attachPDF(base64File, fileName, endpointUrl) {
 
     const attachmentsOptions = {
         url: endpointUrl,
-        method: "POST" ,
+        method: "POST",
         attachments: [{
             key: "attachment",
             value: FileData
@@ -379,18 +379,18 @@ function attachPDF(base64File, fileName, endpointUrl) {
         connection_link_name: inventoryConnectionLinkName
     };
     console.log('attachmentsOptions: ', attachmentsOptions);
-    ZFAPPS.request(attachmentsOptions).then(function(attachmentsAPIResponse) {
+    ZFAPPS.request(attachmentsOptions).then(function (attachmentsAPIResponse) {
         console.log(attachmentsAPIResponse);
         const attachmentsBody = JSON.parse(attachmentsAPIResponse.data.body);
         console.log('attachments Body: ');
         console.log(attachmentsBody);
-        
-    }).catch(function(error) {
+
+    }).catch(function (error) {
         //error Handling
         console.log('error on request to attachments: ');
         console.log(error);
-        
-    });	
+
+    });
 
 }
 
@@ -400,19 +400,20 @@ function attachPDF(base64File, fileName, endpointUrl) {
 
 function formatPDFFileName(trackingNumber) {
     const date = new Date();
-    const options = { 
-        year: '2-digit', 
-        month: 'long', 
-        day: '2-digit', 
-        hour: '2-digit', 
-        minute: '2-digit', 
-        second: '2-digit' };
-    
+    const options = {
+        year: '2-digit',
+        month: 'long',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    };
+
     const formattedDateTime = date.toLocaleString('es-ES', options)
-                            .replace(/, /g, '_')
-                            .replace(/[\s]/g, '-')
-                            .replace(/-de-|--/g, '-');
-    
+        .replace(/, /g, '_')
+        .replace(/[\s]/g, '-')
+        .replace(/-de-|--/g, '-');
+
     const fileName = `DHL_${trackingNumber}_${formattedDateTime}.pdf`;
     return fileName;
 }
@@ -577,10 +578,9 @@ function updateShipmentOrdersFields(shipment, product, packagesAndWarehouse, sel
 
     }
 
-    return {resultMessage: auxSuccessMessage, success};
+    return { resultMessage: auxSuccessMessage, success };
 
 }
-
 
 
 const ZohoService = {
@@ -607,9 +607,49 @@ const ZohoService = {
         }
     },
 
-    async upsertZohoShipment(shipment, rate, packagesAndWarehouse, selectedPackageIds){
-        return updateShipmentOrdersFields(shipment, rate, packagesAndWarehouse, selectedPackageIds);    
+    async upsertZohoShipment(shipment, rate, packagesAndWarehouse, selectedPackageIds) {
+        return updateShipmentOrdersFields(shipment, rate, packagesAndWarehouse, selectedPackageIds);
+    },
+
+    async markShipmentAsDelivered(shipmentId) {
+
+        const success = true;
+        const errorMsg = "";
+
+        try {
+            const orgId = ConfigService.getOrgId();
+
+            const updateOptions = {
+                url: 'https://www.zohoapis.com/inventory/v1/shipmentorders/' + shipmentId + '/status/delivered?organization_id=' + orgId,
+                method: "POST",
+                header: [{
+                    key: 'Content-Type',
+                    value: 'application/json'
+                }],
+                body: {
+                    mode: 'raw',
+                    raw: {}
+                },
+                connection_link_name: inventoryConnectionLinkName
+            };
+            console.log('updateOptions: ', updateOptions);
+
+            response = await ZFAPPS.request(updateOptions)
+            //response Handling
+            console.log('shipmentorders response: ', response);
+
+        } catch (error) {
+           success = false;
+           errorMsg = error;
+        }
+
+
+        return { success, errorMsg};
+
+        // showRequestErrorToast('Update Shipment Error: ' + error.message, 7000);
+
     }
+
 };
 
 export default ZohoService;
