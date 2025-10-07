@@ -116,6 +116,7 @@ function renderRatesView(rates) {
         'paquetexpress': 'ui/img/paquetexpress-logo.png'
     };
 
+    
     const ratesHTML = rates.map(rate => {
         const originalDataJson = btoa(JSON.stringify(rate.originalData));
 
@@ -166,7 +167,7 @@ export async function handleRateRequest(formElements) {
 
         const formData = _collectFormData(formElements.form);
 
-        const rates = await ShippingService.getRates('paquetexpress', formData);
+        const rates = await ShippingService.getAllRates(formData);
 
         renderRatesView(rates);
 
