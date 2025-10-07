@@ -257,9 +257,11 @@ export class DhlAdapter {
 
     async trackShipment(trackingNumber) {
 
-        const tNumbersForTesting = ['2775523063', '3660208860', '7661769404', '7349581960', '4540441264', '9356579890'];
+        // const tNumbersForTesting = ['2775523063', '3660208860', '7661769404', '7349581960', '4540441264', '9356579890'];
 
-        trackingNumber = orgId == '808492068' ? tNumbersForTesting[3] : trackingNumber;
+        // console.log("trackingNumber", trackingNumber);
+
+        // trackingNumber = ConfigService.getOrgId() == '808492068' ? tNumbersForTesting[3] : trackingNumber;
         console.log('trackingNumber:', trackingNumber);
 
         const trackingOptions = {
@@ -295,9 +297,13 @@ export class DhlAdapter {
 
         const response = await ZFAPPS.request(trackingOptions);
 
+        console.log("tracking response ", response);
+
         checkDHLResponse(response);
 
         const trackingBodyArray = JSON.parse(response.data.body);
+
+        console.log("trackingBodyArray", trackingBodyArray);
 
         checkDHLTrackingResponseBody(trackingBodyArray);
 
