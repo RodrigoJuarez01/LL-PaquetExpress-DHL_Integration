@@ -1,8 +1,9 @@
 import { DhlAdapter } from '../providers/dhl/adapter.js';
+import { PaquetexpressAdapter } from '../providers/paquetexpress/adapter.js';
 
 const providers = {
     dhl: new DhlAdapter(),
-    // paquetexpress: new PaquetexpressAdapter() 
+    paquetexpress: new PaquetexpressAdapter() 
 };
 
 export const ShippingService = {
@@ -30,6 +31,9 @@ export const ShippingService = {
 
     async trackShipment(providerName, trackingNumber){
         return await providers[providerName].trackShipment(trackingNumber);
+    },
+
+    async getProofOfDelivery(providerName, trackingNumber){
+        return await providers[providerName].getProofOfDelivery(trackingNumber);
     }
-    
 };

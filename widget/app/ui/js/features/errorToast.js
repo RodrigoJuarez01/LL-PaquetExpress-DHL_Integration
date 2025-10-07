@@ -86,7 +86,7 @@ export function checkDHLTrackingResponseBody(body) {
     }
 }
 
-function checkDHLePODResponseBody(body) {
+export function checkDHLePODResponseBody(body) {
     let formattedMessage = '';
     if(!body.hasOwnProperty('documents') || body.documents.length == 0) {
         formattedMessage = 'No se encontraron documentos para el número de guía proporcionado.'

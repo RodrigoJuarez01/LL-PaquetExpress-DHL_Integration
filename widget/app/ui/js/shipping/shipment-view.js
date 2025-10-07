@@ -113,7 +113,7 @@ function renderRatesView(rates) {
 
     const providerLogos = {
         'dhl': 'ui/img/dhl-2.png',
-        'paquetexpress': 'ui/img/paquetexpress-logo.svg'
+        'paquetexpress': 'ui/img/paquetexpress-logo.png'
     };
 
     const ratesHTML = rates.map(rate => {
@@ -166,7 +166,7 @@ export async function handleRateRequest(formElements) {
 
         const formData = _collectFormData(formElements.form);
 
-        const rates = await ShippingService.getRates('dhl', formData);
+        const rates = await ShippingService.getRates('paquetexpress', formData);
 
         renderRatesView(rates);
 

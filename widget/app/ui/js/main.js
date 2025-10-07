@@ -1,5 +1,6 @@
 import { initializeShipmentView } from './shipping/shipment-view.js';
 import { initializeTrackingView } from './tracking/tracking-view.js';
+import { initializePodView } from './proof-of-delivery/pod-view.js';
 import ZohoService from "../../core/services/zoho.service.js"
 import { ConfigService } from '../../core/services/config.service.js';
 
@@ -10,7 +11,7 @@ const tabContainer = document.getElementById('tab-content-container');
 const viewInitializers = {
     'view-create-shipment': initializeShipmentView,
     'view-tracking': initializeTrackingView,
-    // 'view-pod': initializePodView
+    'view-pod': initializePodView
 };
 
 function loadView(viewId) {

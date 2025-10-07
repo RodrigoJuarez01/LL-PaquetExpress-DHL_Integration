@@ -1,5 +1,5 @@
 import { logRequest } from "../../../ui/js/features/log.js";
-import { checkDHLResponse, checkDHLResponseBody, checkDHLRatesResponseBody, checkDHLShipmentsResponseBody, checkDHLTrackingResponseBody } from "../../../ui/js/features/errorToast.js";
+import { checkDHLResponse, checkDHLResponseBody, checkDHLRatesResponseBody, checkDHLShipmentsResponseBody, checkDHLTrackingResponseBody, checkDHLePODResponseBody } from "../../../ui/js/features/errorToast.js";
 import { ConfigService } from '../../services/config.service.js';
 
 const DHL_BASE_URL = "https://express.api.dhl.com/mydhlapi";
@@ -325,4 +325,43 @@ export class DhlAdapter {
         };
     }
 
+
+    async getProofOfDelivery(trackingNumber) {
+        const orgId = ConfigService.getOrgId();
+        const dhlUrlComplement = orgId === '808492068' ? '/test' : '';
+        // const tNumbersForTesting = ['2775523063', '3660208860', '7661769404', '7349581960', '4540441264', '9356579890'];
+
+        const podOptions = {
+            url: `${DHL_BASE_URL}/shipments/${trackingNumber}/proof-of-delivery`,
+            method: "GET",
+            connection_link_name: dhlConnectionLinkName,
+            header: [{
+                key: 'Accept',
+                value: '*/*'
+            },
+            {
+                key: 'Accept-Encoding',
+                value: 'gzip, deflate, br'
+            },
+            {
+                key: 'Connection',
+                value: 'keep-alive'
+            }]
+        };
+
+        const response = await ZFAPPS.request(podOptions);
+        
+        checkDHLResponse(response);
+        console.log('POD API Response:', response);
+        console.log('shipmentsBody: ');
+        const podBody = JSON.parse(response.data.body);
+        console.log(podBody);
+        checkDHLResponseBody(podBody);
+        checkDHLePODResponseBody(podBody);
+
+        return {
+            provider: 'dhl',
+            pdfsBase64: podBody.documents.map(doc => doc.content) 
+        };
+    }
 }
