@@ -264,6 +264,8 @@ export class DhlAdapter {
         // trackingNumber = ConfigService.getOrgId() == '808492068' ? tNumbersForTesting[3] : trackingNumber;
         console.log('trackingNumber:', trackingNumber);
 
+        trackingNumber = ConfigService.getOrgId() == '808492068' ? "8314579276" : trackingNumber;
+
         const trackingOptions = {
             url: `${DHL_BASE_URL}/tracking`,
             method: "GET",
@@ -323,8 +325,8 @@ export class DhlAdapter {
             trackingNumber: trackingBody.id,
             status: trackingBody.status.status,
             summary: {
-                origin: trackingBody.origin.address.addressLocality,
-                destination: trackingBody.destination.address.addressLocality,
+                origin: trackingBody.shipperDetails.serviceArea[0].description,
+                destination: trackingBody.receiverDetails.serviceArea[0].description,
                 numberOfPieces: trackingBody.numberOfPieces
             },
             events: events

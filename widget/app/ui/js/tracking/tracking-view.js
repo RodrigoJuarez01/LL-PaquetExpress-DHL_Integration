@@ -98,7 +98,7 @@ async function handleTrackingButtonClick(event) {
 		renderTrackingTimeline(trackingResult);
 
 
-		const lastEvent = trackingBody.events[0];
+		const lastEvent = trackingResult.events[0];
 		console.log('Last Event:', lastEvent);
 
 
