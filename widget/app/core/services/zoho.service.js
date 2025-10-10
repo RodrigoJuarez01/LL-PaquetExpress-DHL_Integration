@@ -468,13 +468,11 @@ function updateShipmentOrdersFields(shipment, product, packagesAndWarehouse, sel
                     'delivery_method': 'DHL',
                     'tracking_link': shipment.trackingUrl,
                     'shipping_charge': product.price,
-                    'service': product.productName + ' - '
+                    'service': product.serviceName + ' - '
                         + product.productCode + ' - '
                         + product.localProductCode + ' - '
-                        + product.deliveryCapabilities.estimatedDeliveryDateAndTime,
-                    'expected_delivery_date': product
-                        .deliveryCapabilities
-                        .estimatedDeliveryDateAndTime
+                        + product.estimatedDelivery,
+                    'expected_delivery_date': product.estimatedDelivery
                 }
             },
             connection_link_name: inventoryConnectionLinkName
@@ -512,9 +510,9 @@ function updateShipmentOrdersFields(shipment, product, packagesAndWarehouse, sel
 
     if (packagesWithoutShipment.length > 0) {
         const pck = packagesWithoutShipment[0];
-        console.log('expected_delivery_date: ', product
-            .deliveryCapabilities
-            .estimatedDeliveryDateAndTime.split('T')[0]);
+        // console.log('expected_delivery_date: ', product
+        //     .deliveryCapabilities
+        //     .estimatedDeliveryDateAndTime.split('T')[0]);
         //
         const createOptions = {
             url: 'https://www.zohoapis.com/inventory/v1/shipmentorders?organization_id=' + orgId + '&package_ids=' + packagesWithoutShipmentIds + '&salesorder_id=' + salesorderId,
@@ -534,13 +532,11 @@ function updateShipmentOrdersFields(shipment, product, packagesAndWarehouse, sel
                     'delivery_method': 'DHL',
                     'tracking_link': shipment.trackingUrl,
                     'shipping_charge': product.price,
-                    'service': product.productName + ' - '
+                    'service': product.estimatedDelivery + ' - '
                         + product.productCode + ' - '
                         + product.localProductCode + ' - '
-                        + product.deliveryCapabilities.estimatedDeliveryDateAndTime,
-                    'expected_delivery_date': product
-                        .deliveryCapabilities
-                        .estimatedDeliveryDateAndTime
+                        + product.estimatedDelivery,
+                    'expected_delivery_date': product.estimatedDelivery
                 }
             },
             connection_link_name: inventoryConnectionLinkName

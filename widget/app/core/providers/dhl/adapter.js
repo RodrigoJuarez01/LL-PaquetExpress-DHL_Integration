@@ -99,6 +99,8 @@ export class DhlAdapter {
                 weekday: 'long', month: 'long', day: 'numeric'
             });
 
+
+
             return {
                 provider: 'dhl',
                 serviceName: product.productName,
@@ -106,8 +108,10 @@ export class DhlAdapter {
                 currency: 'MXN',
                 // estimatedDelivery: product.deliveryCapabilities.estimatedDeliveryDateAndTime,
                 estimatedDelivery: formattedDate,
+                originalData: product,
+                
                 productCode: product.productCode,
-                originalData: product
+                localProductCode: product.localProductCode,
             };
         }).filter(rate => rate.price > 0);;
 
@@ -366,7 +370,7 @@ export class DhlAdapter {
         };
 
         const response = await ZFAPPS.request(podOptions);
-        
+
         checkDHLResponse(response);
         console.log('POD API Response:', response);
         console.log('shipmentsBody: ');
@@ -377,7 +381,7 @@ export class DhlAdapter {
 
         return {
             provider: 'dhl',
-            pdfsBase64: podBody.documents.map(doc => doc.content) 
+            pdfsBase64: podBody.documents.map(doc => doc.content)
         };
     }
 }

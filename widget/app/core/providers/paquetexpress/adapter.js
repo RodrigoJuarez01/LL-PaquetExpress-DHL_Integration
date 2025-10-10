@@ -18,14 +18,20 @@ export class PaquetexpressAdapter {
 
         const quotations = responseBody.body.response.data.quotations;
 
+        
         const cleanRates = quotations.map(quote => {
+
+            const cleanDeliveryDate = quote.serviceInfoDescr.replace('Entrega estimada el ', '');
+            
             return {
                 provider: 'paquetexpress',
                 serviceName: quote.serviceName,
                 price: quote.amount.totalAmnt,
                 currency: 'MXN',
-                estimatedDelivery: quote.serviceInfoDescr,
-                originalData: quote
+                estimatedDelivery: cleanDeliveryDate,
+                originalData: quote,
+                productCode: quote.id,
+                localProductCode: quote.idRef,
             };
         });
 
@@ -120,6 +126,32 @@ export class PaquetexpressAdapter {
         return this._transformResponse(responseBody);
     }
 
+    // async getLabel(trackingNumber) {
+
+    //     const requestHeaders = { "key": "Content-Type", "value": "application/json" };
+
+    //     const labelOptions = {
+    //         url: `${PAQUETEXPRESS_BASE_URL}/wsReportPaquetexpress/GenCartaPorte?trackingNoGen=${trackingNumber}&measure=4x6`,
+    //         method: 'GET',
+    //         encoding: 'base64'
+    //     };
+
+    //     console.log("labelOptions", labelOptions);
+
+    //     const response = await ZFAPPS.request(labelOptions);
+
+    //     console.log("labelResponse", response);
+    //     console.log("labelResponseBody", response.data.body);
+    //     const fileData = response.data.body;
+
+    //     console.log("El 'body' de la respuesta es:", fileData);
+    //     console.log("Tipo de dato:", typeof fileData);
+    //     console.log("¿Es un Blob?", fileData instanceof Blob);
+
+
+    //     return fileData instanceof Blob;
+    // }
+
     async createShipment(formData, selectedRateData) {
         console.log("Creando envío con PaquetExpress...");
 
@@ -210,11 +242,11 @@ export class PaquetexpressAdapter {
             ],
             listRefs: [
                 {
-                    grGuiaRefr: "A" 
+                    grGuiaRefr: "A"
                 }
             ],
 
-            typeSrvcId: selectedRateData.id
+            typeSrvcId: selectedRateData.productCode
         };
 
         const pqxRequestBody = {
@@ -238,16 +270,36 @@ export class PaquetexpressAdapter {
 
         console.log("generación guía response: ", JSON.stringify(response, null, 2));
 
+        const responseBody = JSON.parse(response.data.body);
+
+        const pqxResponseBody = responseBody.body;
+
+        const responseData = pqxResponseBody.response;
+        if (!responseData || !responseData.success) {
+            throw new Error("No se pudo generar la guía");
+        }
+
+
+        const trackingNumber = responseData.data;
+
+        // const labelResponse = await this.getLabel(trackingNumber);
+
+        const label = `${PAQUETEXPRESS_BASE_URL}/wsReportPaquetexpress/GenCartaPorte?trackingNoGen=${trackingNumber}&measure=4x6`
+
         return {
             provider: 'paquetexpress',
-            trackingNumber: 'PQX1234567890',
-            trackingUrl: 'https://rastreo.paquetexpress.com.mx/',
-            labelPdfBase64: '...' // PDF de prueba en Base64
-        };
-    }
+            trackingNumber: trackingNumber,
+            trackingUrl: `https://rastreo.paquetexpress.com.mx?guia=${trackingNumber}`,
+            labelsPdfContent: [{ content: label }],
 
-    _transformShipmentResponse(responseBody) {
-        // Aquí transformarás la respuesta de PaquetExpress al `StandardShipmentResult`
+        };
+
+        // return {
+        //     provider: 'paquetexpress',
+        //     trackingNumber: 'PQX1234567890',
+        //     trackingUrl: 'https://rastreo.paquetexpress.com.mx/',
+        //     labelPdfBase64: '...' // PDF de prueba en Base64
+        // };
     }
 
 

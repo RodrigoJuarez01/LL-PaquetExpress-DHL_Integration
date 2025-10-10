@@ -110,20 +110,20 @@ function setupRateSelectionListeners() {
     });
 }
 
-    function renderRatesView(rates) {
-        const ratesContainer = document.getElementById("ratesContainerResponse");
-        // const formContainer = document.getElementById("shipmentFormContainer"); 
+function renderRatesView(rates) {
+    const ratesContainer = document.getElementById("ratesContainerResponse");
+    // const formContainer = document.getElementById("shipmentFormContainer"); 
 
-        const providerLogos = {
-            'dhl': 'ui/img/dhl-2.png',
-            'paquetexpress': 'ui/img/paquetexpress-logo.png'
-        };
+    const providerLogos = {
+        'dhl': 'ui/img/dhl-2.png',
+        'paquetexpress': 'ui/img/paquetexpress-logo.png'
+    };
 
 
-        const ratesHTML = rates.map(rate => {
-            const originalDataJson = btoa(JSON.stringify(rate.originalData));
+    const ratesHTML = rates.map(rate => {
+        const originalDataJson = btoa(JSON.stringify(rate));
 
-            return `
+        return `
                 <div class="row rate-row align-items-center py-3 border-bottom">
                     <div class="col-md-3">
                         <img src="${providerLogos[rate.provider] || ''}" alt="${rate.provider}" class="provider-logo">
@@ -138,7 +138,7 @@ function setupRateSelectionListeners() {
                     </div>
                 </div>
             `;
-        }).join('');
+    }).join('');
 
 
     ratesContainer.innerHTML = `
@@ -392,6 +392,13 @@ function populateReceiverForm(appData) {
     elements.form.receiver.paisInput.value = 'Mexico';								//postalAddress.countryName *Debemos agregar postalAddress.countryCode = MX
 
     const parsedAddr = parseAddress(soShippingAddress.address);
+
+    const originalAddressEl = document.getElementById('receiverOriginalAddress');
+
+    if (originalAddressEl && appData.rawData.soShippingAddress) {
+        originalAddressEl.textContent = appData.rawData.soShippingAddress.address;
+    }
+
     elements.form.receiver.calleInput.value = parsedAddr.street;  // Asumiendo que ahora tienes 'calleInput'
     elements.form.receiver.numeroInput.value = parsedAddr.number; // y 'numeroInput' en tu objeto 'elements'
 

@@ -3,23 +3,36 @@
 
 export function displayAndDownloadPDFs(shipment) {
     const pdfContainer = document.getElementById('pdfContainer');
-    const successMessage = `
+    let headerHTML = `
             <div class="alert alert-secondary d-flex align-items-center mb-4" role="alert">
                 <div>
                     <i class="bi-file-earmark-pdf-fill" style="font-size: 1.1rem; color: rgb(10, 10, 10);"></i>
-                    &nbsp; <strong>La guía fue generada correctamente.</strong>
+                    &nbsp; <strong>Guía ${shipment.trackingNumber} creada con éxito.</strong>
                 </div>
                 <div id="auxLabelSuccessMsg"></div>
             </div>
     `;
-    pdfContainer.innerHTML = successMessage;
-    console.log("shipment?.labelsPdfContent?.length: ", shipment?.labelsPdfContent?.length);
-    console.log("shipment?.labelsPdfContent ", shipment?.labelsPdfContent);
+
+    if (shipment.provider === 'paquetexpress') {
+        headerHTML += `
+            <div class="mb-3">
+                <p class="form-text">La etiqueta debería aparecer a continuación. Si no carga, puedes abrirla directamente.</p>
+                <a href="${shipment.labelsPdfContent[0].content}" target="_blank" class="btn btn-secondary">
+                    <i class="bi-box-arrow-up-right"></i> Abrir Etiqueta en Nueva Pestaña
+                </a>
+            </div>
+        `;
+    }
+
+    pdfContainer.innerHTML = headerHTML;
+
+    console.log("shipment data: ", shipment);
+
     shipment?.labelsPdfContent.forEach((doc, index) => {
         console.log("index: ", index);
         console.log("Document content length: ", doc?.contentLenght);
         console.log("Document content: ", doc.content);
-        const pdfContent = `data:application/pdf;base64,${doc.content}`;
+        const pdfContent = shipment.provider === 'paquetexpress' ? doc.content : `data:application/pdf;base64,${doc.content}`;
         const iframe = document.createElement('iframe');
         iframe.style.width = '100%';
         iframe.style.height = '700px';
@@ -32,7 +45,7 @@ export function displayAndDownloadPDFs(shipment) {
 }
 
 
-function getMexicoCityDateTimeWithNMinutesAdded( minutesToAdd ) {
+function getMexicoCityDateTimeWithNMinutesAdded(minutesToAdd) {
     // Create a Date object for the current date and time
     const now = new Date();
     // Add N minutes
@@ -61,7 +74,7 @@ function getMexicoCityDateTimeWithNMinutesAdded( minutesToAdd ) {
     // Assuming GMT-6 for Mexico City standard time
     const finalString = `${isoDate}T${isoTime} GMT-06:00`;
     return finalString;
-  }
+}
 
 
 //Retrieves the current date and time for shipping purposes.
@@ -95,7 +108,7 @@ function getDateTimeForShipping() {
     // Assuming GMT-6 for Mexico City standard time
     const finalString = `${isoDate}T${isoTime} GMT-06:00`;
     return finalString;
-    
+
 }
 
 function getShippingDateTimeBasedOnCurrentTime() {
@@ -103,7 +116,7 @@ function getShippingDateTimeBasedOnCurrentTime() {
     const currentTime = now.getHours() + now.getMinutes() / 60;
 
     if (currentTime < 17.5) {
-        return getMexicoCityDateTimeWithNMinutesAdded(15); 
+        return getMexicoCityDateTimeWithNMinutesAdded(15);
     } else {
         return getDateTimeForShipping();
     }
