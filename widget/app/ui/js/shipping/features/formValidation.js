@@ -156,7 +156,7 @@ export function validateShipmentForm(elements, viewState) {
     validateInputLength(sender.nombreInput, 4, 255, false, "El nombre debe tener entre 4 y 255 caracteres.");
     validateInputLength(sender.empresaInput, 4, 100, false, "El nombre de la empresa debe tener entre 4 y 100 caracteres.");
     validateInputLength(sender.paisInput, 3, 35, false, "El país debe tener entre 3 y 35 caracteres.");
-    validateInputLength(sender.direccionInput, 1, 45, false, "La dirección debe tener entre 1 y 45 caracteres.");
+    // validateInputLength(sender.direccionInput, 1, 45, false, "La dirección debe tener entre 1 y 45 caracteres.");
     validateInputLength(sender.direccion2Input, 1, 45, false, "La línea de dirección 2 debe tener entre 1 y 45 caracteres.");
     validateInputLength(sender.direccion3Input, 1, 45, true, "La línea de dirección 3 debe tener entre 1 y 45 caracteres.");
     validateInputLength(sender.codigoPostalInput, 4, 5, false, "El código postal debe tener entre 4 y 5 caracteres.");
@@ -169,7 +169,7 @@ export function validateShipmentForm(elements, viewState) {
     validateInputLength(receiver.nombreInput, 4, 255, false, "El nombre debe tener entre 4 y 255 caracteres.");
     validateInputLength(receiver.empresaInput, 4, 100, false, "El nombre de la empresa debe tener entre 4 y 100 caracteres.");
     validateInputLength(receiver.paisInput, 3, 35, false, "El país debe tener entre 3 y 35 caracteres.");
-    validateInputLength(receiver.direccionInput, 1, 45, false, "La dirección debe tener entre 1 y 45 caracteres.");
+    // validateInputLength(receiver.direccionInput, 1, 45, false, "La dirección debe tener entre 1 y 45 caracteres.");
     validateInputLength(receiver.direccion2Input, 1, 45, false, "La línea de dirección 2 debe tener entre 1 y 45 caracteres.");
     validateInputLength(receiver.direccion3Input, 1, 45, true, "La línea de dirección 3 debe tener entre 1 y 45 caracteres.");
     validateInputLength(receiver.codigoPostalInput, 4, 5, false, "El código postal debe tener entre 4 y 5 caracteres.");

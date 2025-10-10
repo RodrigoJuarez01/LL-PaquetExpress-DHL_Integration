@@ -4,6 +4,7 @@ import { validateShipmentForm } from "./features/formValidation.js";
 import { ShippingService } from "../../../core/services/shipping.service.js";
 import { showRequestErrorToast } from "../features/errorToast.js";
 import { displayAndDownloadPDFs } from "./features/shipping.js";
+import { warehouseAddressMap } from "../../../catalogs/warehouse-adress-map.js";
 import ZohoService from "../../../core/services/zoho.service.js"
 
 const elements = {
@@ -31,6 +32,8 @@ async function handleRateSelection(event) {
     const rateJsonBase64 = button.dataset.rateJson;
     const selectedRateData = JSON.parse(atob(rateJsonBase64));
 
+    const provider = button.dataset.provider;
+
 
     console.log("selectedRateData", selectedRateData);
     // console.log("Type of decodedProduct:", typeof parsedProduct);
@@ -52,7 +55,7 @@ async function handleRateSelection(event) {
 
         selectedRateData.plannedShippingDateAndTime = formData.sender.plannedShippingDateAndTime;
 
-        const shipmentResult = await ShippingService.createShipment('dhl', formData, selectedRateData);
+        const shipmentResult = await ShippingService.createShipment(provider, formData, selectedRateData);
 
         displayAndDownloadPDFs(shipmentResult);
 
@@ -107,35 +110,35 @@ function setupRateSelectionListeners() {
     });
 }
 
-function renderRatesView(rates) {
-    const ratesContainer = document.getElementById("ratesContainerResponse");
-    // const formContainer = document.getElementById("shipmentFormContainer"); 
+    function renderRatesView(rates) {
+        const ratesContainer = document.getElementById("ratesContainerResponse");
+        // const formContainer = document.getElementById("shipmentFormContainer"); 
 
-    const providerLogos = {
-        'dhl': 'ui/img/dhl-2.png',
-        'paquetexpress': 'ui/img/paquetexpress-logo.png'
-    };
+        const providerLogos = {
+            'dhl': 'ui/img/dhl-2.png',
+            'paquetexpress': 'ui/img/paquetexpress-logo.png'
+        };
 
-    
-    const ratesHTML = rates.map(rate => {
-        const originalDataJson = btoa(JSON.stringify(rate.originalData));
 
-        return `
-            <div class="row rate-row align-items-center py-3 border-bottom">
-                <div class="col-md-3">
-                    <img src="${providerLogos[rate.provider] || ''}" alt="${rate.provider}" class="provider-logo">
-                    <span>${rate.serviceName}</span>
+        const ratesHTML = rates.map(rate => {
+            const originalDataJson = btoa(JSON.stringify(rate.originalData));
+
+            return `
+                <div class="row rate-row align-items-center py-3 border-bottom">
+                    <div class="col-md-3">
+                        <img src="${providerLogos[rate.provider] || ''}" alt="${rate.provider}" class="provider-logo">
+                        <span>${rate.serviceName}</span>
+                    </div>
+                    <div class="col-md-3 text-center">${rate.estimatedDelivery}</div>
+                    <div class="col-md-3 text-center"><b>$${rate.price} ${rate.currency}</b></div>
+                    <div class="col-md-3 text-center">
+                        <button type="button" class="btn btn-primary js-select-rate-btn" data-rate-json="${originalDataJson}" data-provider="${rate.provider}"> 
+                            Seleccionar
+                        </button>
+                    </div>
                 </div>
-                <div class="col-md-3 text-center">${rate.estimatedDelivery}</div>
-                <div class="col-md-3 text-center"><b>$${rate.price} ${rate.currency}</b></div>
-                <div class="col-md-3 text-center">
-                    <button type="button" class="btn btn-primary js-select-rate-btn" data-rate-json="${originalDataJson}">
-                        Seleccionar
-                    </button>
-                </div>
-            </div>
-        `;
-    }).join('');
+            `;
+        }).join('');
 
 
     ratesContainer.innerHTML = `
@@ -188,7 +191,9 @@ function cacheDOMElements() {
     elements.form.sender.nombreInput = document.getElementById('senderNombre');
     elements.form.sender.empresaInput = document.getElementById('senderEmpresa');
     elements.form.sender.paisInput = document.getElementById('senderPais');
-    elements.form.sender.direccionInput = document.getElementById('senderDireccion');
+    // elements.form.sender.direccionInput = document.getElementById('senderDireccion');
+    elements.form.sender.calleInput = document.getElementById('senderCalle');
+    elements.form.sender.numeroInput = document.getElementById('senderNumero');
     elements.form.sender.direccion2Input = document.getElementById('senderDireccion2');
     elements.form.sender.direccion3Input = document.getElementById('senderDireccion3');
     elements.form.sender.codigoPostalInput = document.getElementById('senderCodigoPostal');
@@ -201,7 +206,9 @@ function cacheDOMElements() {
     elements.form.receiver.nombreInput = document.getElementById('receiverNombre');
     elements.form.receiver.empresaInput = document.getElementById('receiverEmpresa');
     elements.form.receiver.paisInput = document.getElementById('receiverPais');
-    elements.form.receiver.direccionInput = document.getElementById('receiverDireccion');
+    // elements.form.receiver.direccionInput = document.getElementById('receiverDireccion');
+    elements.form.receiver.calleInput = document.getElementById('receiverCalle');
+    elements.form.receiver.numeroInput = document.getElementById('receiverNumero');
     elements.form.receiver.direccion2Input = document.getElementById('receiverDireccion2');
     elements.form.receiver.direccion3Input = document.getElementById('receiverDireccion3');
     elements.form.receiver.codigoPostalInput = document.getElementById('receiverCodigoPostal');
@@ -271,7 +278,50 @@ function renderWarehouseCards(groupedPackages) {
     return allCardsHTML;
 }
 
-// EN: shipment-view.js
+/**
+ * Intenta separar una dirección completa en calle, número y detalles de interior.
+ * @param {string} fullAddress - La dirección completa.
+ * @returns {{street: string, number: string, interior: string}}
+ */
+function parseAddress(fullAddress) {
+    let streetLine = fullAddress;
+    let interior = '';
+
+    // --- PASO 1: Busca y separa los detalles de "interior" ---
+    const interiorKeywords = ['PISO', 'INT', 'INTERIOR', 'DPTO', 'DEPARTAMENTO', 'LOCAL', 'OFICINA'];
+    // Creamos un regex para buscar cualquiera de estas palabras
+    const regexInterior = new RegExp(`\\b(${interiorKeywords.join('|')})\\s`, 'i');
+    const interiorMatch = fullAddress.match(regexInterior);
+
+    if (interiorMatch) {
+        // Si encuentra una palabra clave, divide la cadena en ese punto
+        const splitIndex = interiorMatch.index;
+        streetLine = fullAddress.substring(0, splitIndex).trim();
+        interior = fullAddress.substring(splitIndex).trim();
+    }
+
+    // --- PASO 2: Ahora, en la parte principal, busca la calle y el número ---
+    // Usamos una versión mejorada del primer regex, que busca el número al final de la cadena
+    const regexStreetNumber = /^(.*?)\s*(#?[\w\d-]+)\s*$/;
+    const streetNumberMatch = streetLine.match(regexStreetNumber);
+
+    if (streetNumberMatch) {
+        // ¡Éxito! Encontramos calle y número
+        return {
+            street: streetNumberMatch[1].trim(),
+            number: streetNumberMatch[2].trim(),
+            interior: interior // El que encontramos en el paso 1
+        };
+    } else {
+        // Fallback final: si no se pudo separar calle y número,
+        // todo es calle y el usuario lo arreglará.
+        return {
+            street: streetLine,
+            number: '',
+            interior: interior
+        };
+    }
+}
 
 function setupEventListeners(appData) {
     const { groupedPackages } = appData.data;
@@ -286,17 +336,25 @@ function setupEventListeners(appData) {
             // Obtenemos el ID del almacén desde el data-attribute
             const warehouseId = event.currentTarget.dataset.warehouseId;
             const warehouseData = groupedPackages[warehouseId][0];
+            const warehouseName = warehouseData.warehouse_name;
+
+            const warehouseCatalogAddress = warehouseAddressMap[warehouseName];
+
+            const num = warehouseCatalogAddress.interior ? `${warehouseCatalogAddress.number} Int. ${warehouseCatalogAddress.interior}` : warehouseCatalogAddress.number;
+
+            const parsedAddr = parseAddress(warehouseData.address);
+            elements.form.sender.calleInput.value = warehouseCatalogAddress.street;  // Asumiendo que ahora tienes 'calleInput'
+            elements.form.sender.numeroInput.value = num;
 
             console.log("elements.form.sender.nombreInput", elements.form.sender.nombreInput);
             elements.form.sender.nombreInput.value = warehouseData.attention;
             elements.form.sender.empresaInput.value = warehouseData.branch_name;
             elements.form.sender.paisInput.value = 'Mexico';
-            elements.form.sender.direccionInput.value = warehouseData.address;
-            elements.form.sender.direccion2Input.value = warehouseData.address2;
+            elements.form.sender.direccion2Input.value = warehouseCatalogAddress.colonia;
             elements.form.sender.direccion3Input.value = '';
-            elements.form.sender.codigoPostalInput.value = warehouseData.zip;
-            elements.form.sender.ciudadInput.value = warehouseData.city;
-            elements.form.sender.estadoInput.value = warehouseData.state;
+            elements.form.sender.codigoPostalInput.value = warehouseCatalogAddress.zipCode;
+            elements.form.sender.ciudadInput.value = warehouseCatalogAddress.city;
+            elements.form.sender.estadoInput.value = warehouseCatalogAddress.state;
             elements.form.sender.emailInput.value = warehouseData.email;
             elements.form.sender.telefonoInput.value = warehouseData.phone;
 
@@ -332,7 +390,12 @@ function populateReceiverForm(appData) {
     elements.form.receiver.nombreInput.value = soShippingAddress.attention;		//contactInformation.fullName
     elements.form.receiver.empresaInput.value = contact.contactFromAPI.company_name;		//contactInformation.companyName
     elements.form.receiver.paisInput.value = 'Mexico';								//postalAddress.countryName *Debemos agregar postalAddress.countryCode = MX
-    elements.form.receiver.direccionInput.value = soShippingAddress.address;		//postalAddress.addressLine1
+
+    const parsedAddr = parseAddress(soShippingAddress.address);
+    elements.form.receiver.calleInput.value = parsedAddr.street;  // Asumiendo que ahora tienes 'calleInput'
+    elements.form.receiver.numeroInput.value = parsedAddr.number; // y 'numeroInput' en tu objeto 'elements'
+
+    // elements.form.receiver.direccionInput.value = soShippingAddress.address;		//postalAddress.addressLine1
     elements.form.receiver.direccion2Input.value = soShippingAddress.street2;		//postalAddress.addressLine2
     elements.form.receiver.direccion3Input.value = '';
     elements.form.receiver.codigoPostalInput.value = soShippingAddress.zip;		//postalAddress.postalCode
@@ -340,6 +403,8 @@ function populateReceiverForm(appData) {
     elements.form.receiver.estadoInput.value = soShippingAddress.state;			//postalAddress.provinceName
     elements.form.receiver.emailInput.value = contact.soContactPerson.email;				//contactInformation.email
     elements.form.receiver.telefonoInput.value = soShippingAddress.phone;			//contactInformation.phone
+
+    // <small>Dirección en Zoho: <span>${appData.rawData.soShippingAddress.address}</span></small>
 }
 
 

@@ -1,6 +1,11 @@
 import { ConfigService } from '../../services/config.service.js';
 
-const PAQUETEXPRESS_BASE_URL = "https://qaglp.paquetexpress.com.mx/WsQuotePaquetexpress";
+const PAQUETEXPRESS_BASE_URL = "https://qaglp.paquetexpress.com.mx";
+const TOKEN_RATES = "3DE9B062CDDD4334E063350AA8C05C9E";
+const USER = "WSQLUNALABS";
+const PASSWORD = "1234";
+const TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJXU1FMVU5BTEFCUyJ9.3l0IkzwDyUqBUEuMjR5fv6Bnrxt8QgE4ssxksaHhCV4";
+const BILLCLNTID = "14221805";
 
 
 export class PaquetexpressAdapter {
@@ -33,9 +38,10 @@ export class PaquetexpressAdapter {
         // --- 1. DATOS DE CONFIGURACIÓN Y CREDENCIALES (Estáticos) ---
         const requestHeader = {
             security: {
-                user: "WSQLUNALABS",
-                type: 0,
-                token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJXU1FMVU5BTEFCUyJ9.3l0IkzwDyUqBUEuMjR5fv6Bnrxt8QgE4ssxksaHhCV4"
+                user: USER,
+                password: PASSWORD,
+                type: 1,
+                token: TOKEN_RATES
             },
             device: {
                 appName: null,
@@ -87,7 +93,6 @@ export class PaquetexpressAdapter {
             quoteServices: ["ALL"]
         };
 
-        // --- 4. CONSTRUCCIÓN DE LA PETICIÓN FINAL ---
         const pqxRequestBody = {
             header: requestHeader,
             body: {
@@ -96,7 +101,7 @@ export class PaquetexpressAdapter {
         };
 
         const pqxOptions = {
-            url: `${PAQUETEXPRESS_BASE_URL}/api/apiQuoter/v2/getQuotation`, // URL que te dieron
+            url: `${PAQUETEXPRESS_BASE_URL}/WsQuotePaquetexpress/api/apiQuoter/v2/getQuotation`,
             method: 'POST',
             body: { raw: JSON.stringify(pqxRequestBody), mode: 'raw' }
         };
@@ -118,47 +123,63 @@ export class PaquetexpressAdapter {
     async createShipment(formData, selectedRateData) {
         console.log("Creando envío con PaquetExpress...");
 
-        // --- 1. DATOS DE CONFIGURACIÓN Y CREDENCIALES ---
-        const requestHeader = { /*... tu objeto header con el token ...*/ };
+        const { sender, receiver, packageInfo } = formData;
 
-        // --- 2. "TRADUCCIÓN" DE LOS DATOS ---
+        const requestHeader = {
+            security: {
+                user: USER,
+                type: 0,
+                token: TOKEN
+            },
+            device: {
+                appName: null,
+                type: null,
+                ip: "barracuda",
+                idDevice: null
+            },
+            target: null,
+            output: null,
+            language: null
+        };
+
+
         const requestData = {
-            // Datos generales del envío
-            billClntId: "14221805", // Esto parece ser un ID de cliente fijo
+            billClntId: BILLCLNTID,
             pymtMode: "PAID",
-            comt: formData.packageInfo.descripcion, // Usamos la descripción del paquete
-
-            // Dirección de Origen (Sender)
+            comt: packageInfo.descripcionInput,
+            billRad: "REQUEST", // uien pagará la solicitud, sólo con REQUEST o ORIGIN pueden ser a crédito
+            pymtMode: "PAID", // Modo de pago (PAID=PAGADO, TO_PAY=Flete porcobrar)
+            pymtType: "C", // Tipo de pago (CREDITO, CONTADO) - N= CONTADO, C=CREDITO
             radGuiaAddrDTOList: [
                 {
-                    addrLin1: "MEXICO",
-                    addrLin3: formData.sender.estado,
-                    addrLin4: formData.sender.ciudad, // O municipio si lo tienes
-                    addrLin5: formData.sender.ciudad,
-                    addrLin6: "NA", // No tienes la colonia en el form, usamos un placeholder
-                    zipCode: formData.sender.codigoPostal,
-                    strtName: formData.sender.direccion,
-                    drnr: "0", // No tienes el número exterior, usamos un placeholder
-                    phno1: formData.sender.telefono,
-                    clntName: formData.sender.empresa,
-                    email: formData.sender.email,
-                    contacto: formData.sender.name,
+                    addrLin1: sender.paisInput,
+                    addrLin3: sender.estadoInput,
+                    addrLin4: sender.ciudadInput, // O municipio si lo tienes
+                    addrLin5: sender.ciudadInput,
+                    addrLin6: sender.direccion2Input,
+                    zipCode: sender.codigoPostalInput,
+                    strtName: sender.calleInput,
+                    drnr: sender.numeroInput,
+                    phno1: sender.telefonoInput,
+                    clntName: sender.empresaInput,
+                    email: sender.emailInput,
+                    contacto: sender.nombreInput,
                     addrType: "ORIGIN"
                 },
                 // Dirección de Destino (Receiver)
                 {
-                    addrLin1: "MEXICO",
-                    addrLin3: formData.receiver.estado,
-                    addrLin4: formData.receiver.ciudad, // O municipio
-                    addrLin5: formData.receiver.ciudad,
-                    addrLin6: "NA",
-                    zipCode: formData.receiver.codigoPostal,
-                    strtName: formData.receiver.direccion,
-                    drnr: "0",
-                    phno1: formData.receiver.telefono,
-                    clntName: formData.receiver.empresa,
-                    email: formData.receiver.email,
-                    contacto: formData.receiver.name,
+                    addrLin1: receiver.paisInput,
+                    addrLin3: receiver.estadoInput,
+                    addrLin4: receiver.ciudadInput, // O municipio
+                    addrLin5: receiver.ciudadInput,
+                    addrLin6: receiver.direccion2Input,
+                    zipCode: receiver.codigoPostalInput,
+                    strtName: receiver.calleInput, // Separar dirección?
+                    drnr: receiver.numeroInput,     // número ?
+                    phno1: receiver.telefonoInput,
+                    clntName: receiver.empresaInput,
+                    email: receiver.emailInput,
+                    contacto: receiver.nombreInput,
                     addrType: "DESTINATION"
                 }
             ],
@@ -166,36 +187,57 @@ export class PaquetexpressAdapter {
             // Detalles del Paquete
             radSrvcItemDTOList: [
                 {
-                    srvcId: "PACKETS",
-                    weight: formData.packageInfo.peso,
-                    volL: formData.packageInfo.longitud,
-                    volW: formData.packageInfo.ancho,
-                    volH: formData.packageInfo.altura,
-                    cont: formData.packageInfo.descripcion,
-                    qunt: formData.packageInfo.cantidad
+                    srvcId: "PACKETS", // PACKETS=Paquetes, ENVELOPES=Sobres 
+                    productIdSAT: "01010101", // Buscar
+                    weight: packageInfo.pesoInput,
+                    volL: packageInfo.longitudInput,
+                    volW: packageInfo.anchoInput,
+                    volH: packageInfo.alturaInput,
+                    cont: packageInfo.descripcionInput,
+                    qunt: packageInfo.cantidadInput
                 }
             ],
 
-            // ¡IMPORTANTE! El servicio que el usuario seleccionó
-            typeSrvcId: selectedRateData.originalData.id // Usamos el 'id' de la tarifa guardada
+            listSrvcItemDTO: [
+                {
+                    srvcId: "EAD",
+                    value1: ""
+                },
+                {
+                    srvcId: "RAD",
+                    value1: ""
+                },
+            ],
+            listRefs: [
+                {
+                    grGuiaRefr: "A" 
+                }
+            ],
+
+            typeSrvcId: selectedRateData.id
         };
 
-        // --- 3. CONSTRUCCIÓN DE LA PETICIÓN FINAL ---
         const pqxRequestBody = {
             header: requestHeader,
             body: {
-                request: { data: [requestData] } // OJO: `data` es un array que contiene un objeto
+                request: { data: [requestData] },
+                response: null
             }
         };
 
-        const pqxOptions = { /* ... url, method, connection, body ... */ };
 
-        // --- 4. LLAMADA A LA API Y PROCESAMIENTO ---
-        // const response = await ZFAPPS.request(pqxOptions);
-        // const responseBody = JSON.parse(response.data.body);
-        // return this._transformShipmentResponse(responseBody); // Debes crear este "traductor"
+        const pqxOptions = {
+            url: `${PAQUETEXPRESS_BASE_URL}/RadRestFul/api/rad/v1/guia`, // URL que te dieron
+            method: 'POST',
+            body: { raw: JSON.stringify(pqxRequestBody), mode: 'raw' }
+        };
 
-        // Por ahora, devolvemos un resultado de prueba
+        console.log("Enviando a PaquetExpress:", JSON.stringify(pqxRequestBody, null, 2));
+
+        const response = await ZFAPPS.request(pqxOptions);
+
+        console.log("generación guía response: ", JSON.stringify(response, null, 2));
+
         return {
             provider: 'paquetexpress',
             trackingNumber: 'PQX1234567890',

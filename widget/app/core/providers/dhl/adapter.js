@@ -26,19 +26,23 @@ export class DhlAdapter {
 
         const { sender, receiver } = formData;
 
+        const senderDireccion = `${sender.numeroInput} ${sender.calleInput}`;
+        const receiverDireccion = `${receiver.numeroInput} ${receiver.calleInput}`;
+
+
         const dhlRequestBody = {
             customerDetails: {
                 shipperDetails: {
                     postalCode: sender.codigoPostalInput,
                     cityName: sender.ciudadInput,
                     countryCode: "MX",
-                    addressLine1: sender.direccionInput
+                    addressLine1: senderDireccion
                 },
                 receiverDetails: {
                     postalCode: receiver.codigoPostalInput,
                     cityName: receiver.ciudadInput,
                     countryCode: "MX",
-                    addressLine1: receiver.direccionInput
+                    addressLine1: receiverDireccion
                 }
             },
             accounts: [
@@ -137,6 +141,10 @@ export class DhlAdapter {
         }
         console.log('shipmentsPackages: ', shipmentsPackages);
 
+        const senderDireccion = `${sender.numeroInput} ${sender.calleInput}`;
+        const receiverDireccion = `${receiver.numeroInput} ${receiver.calleInput}`;
+
+
         const dhlRequestBody = {
             plannedShippingDateAndTime: selectedRateData.plannedShippingDateAndTime,
             pickup: {
@@ -158,7 +166,7 @@ export class DhlAdapter {
                         postalCode: sender.codigoPostalInput,
                         cityName: sender.ciudadInput,
                         countryCode: "MX",
-                        addressLine1: sender.direccionInput,
+                        addressLine1: senderDireccion,
                         addressLine2: sender.direccion2Input,
                         // "ddressLine3": senderDireccion3Value,
                         countyName: sender.ciudadInput,
@@ -178,7 +186,7 @@ export class DhlAdapter {
                         postalCode: receiver.codigoPostalInput,
                         cityName: receiver.ciudadInput,
                         countryCode: "MX",
-                        addressLine1: receiver.direccionInput,
+                        addressLine1: receiverDireccion,
                         addressLine2: receiver.direccion2Input,
                         // "ddressLine3": receiverDireccion3Value,
                         countyName: receiver.ciudadInput,
