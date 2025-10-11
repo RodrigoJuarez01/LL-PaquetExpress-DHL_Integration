@@ -1,0 +1,9 @@
+{
+  "functions": {
+    "targets": [
+      "integracion_paqueterias_function"
+    ],
+    "ignore": [],
+    "source": "functions"
+  }
+}

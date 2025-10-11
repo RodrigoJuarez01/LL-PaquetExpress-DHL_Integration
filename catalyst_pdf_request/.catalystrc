@@ -1,0 +1,48 @@
+{
+  "defaults": {
+    "project": 2,
+    "env": 1
+  },
+  "actives": {
+    "project": 2,
+    "env": 1
+  },
+  "projects": [
+    {
+      "idx": 1,
+      "id": "26384000000024010",
+      "name": "getPaquetexpressLabel",
+      "domain": {
+        "id": "10106995873",
+        "name": "getpaquetexpresslabel-875780419.development"
+      },
+      "timezone": "America/Mexico_City",
+      "env": [
+        {
+          "idx": 1,
+          "id": "875780419",
+          "name": "Development",
+          "type": 3
+        }
+      ]
+    },
+    {
+      "idx": 2,
+      "id": "26384000000024079",
+      "name": "integracionPaqueterias",
+      "domain": {
+        "id": "10106995884",
+        "name": "integracionpaqueterias-875780419.development"
+      },
+      "timezone": "America/Mexico_City",
+      "env": [
+        {
+          "idx": 1,
+          "id": "875780419",
+          "name": "Development",
+          "type": 3
+        }
+      ]
+    }
+  ]
+}
