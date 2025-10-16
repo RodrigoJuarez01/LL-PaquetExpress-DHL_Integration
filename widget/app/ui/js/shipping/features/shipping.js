@@ -13,16 +13,16 @@ export function displayAndDownloadPDFs(shipment) {
             </div>
     `;
 
-    if (shipment.provider === 'paquetexpress') {
-        headerHTML += `
-            <div class="mb-3">
-                <p class="form-text">La etiqueta debería aparecer a continuación. Si no carga, puedes abrirla directamente.</p>
-                <a href="${shipment.labelsPdfContent[0].content}" target="_blank" class="btn btn-secondary">
-                    <i class="bi-box-arrow-up-right"></i> Abrir Etiqueta en Nueva Pestaña
-                </a>
-            </div>
-        `;
-    }
+    // if (shipment.provider === 'paquetexpress') {
+    //     headerHTML += `
+    //         <div class="mb-3">
+    //             <p class="form-text">La etiqueta debería aparecer a continuación. Si no carga, puedes abrirla directamente.</p>
+    //             <a href="${shipment.labelsPdfContent[0].content}" target="_blank" class="btn btn-secondary">
+    //                 <i class="bi-box-arrow-up-right"></i> Abrir Etiqueta en Nueva Pestaña
+    //             </a>
+    //         </div>
+    //     `;
+    // }
 
     pdfContainer.innerHTML = headerHTML;
 
@@ -32,7 +32,7 @@ export function displayAndDownloadPDFs(shipment) {
         console.log("index: ", index);
         console.log("Document content length: ", doc?.contentLenght);
         console.log("Document content: ", doc.content);
-        const pdfContent = shipment.provider === 'paquetexpress' ? doc.content : `data:application/pdf;base64,${doc.content}`;
+        const pdfContent =  `data:application/pdf;base64,${doc.content}`;
         const iframe = document.createElement('iframe');
         iframe.style.width = '100%';
         iframe.style.height = '700px';

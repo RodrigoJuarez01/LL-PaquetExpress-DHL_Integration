@@ -395,10 +395,13 @@ function attachPDF(base64File, fileName, endpointUrl) {
 }
 
 
+const providerNameShipmentSelector = {
+    'dhl': "DHL",
+    'paquetexpress': "Paquetexpress"
+};
 
 
-
-function formatPDFFileName(trackingNumber) {
+function formatPDFFileName(trackingNumber, providerName) {
     const date = new Date();
     const options = {
         year: '2-digit',
@@ -414,7 +417,7 @@ function formatPDFFileName(trackingNumber) {
         .replace(/[\s]/g, '-')
         .replace(/-de-|--/g, '-');
 
-    const fileName = `DHL_${trackingNumber}_${formattedDateTime}.pdf`;
+    const fileName = `${providerName}_${trackingNumber}_${formattedDateTime}.pdf`;
     return fileName;
 }
 
@@ -465,7 +468,7 @@ function updateShipmentOrdersFields(shipment, product, packagesAndWarehouse, sel
                 raw: {
                     'date': shipmentDate,
                     'tracking_number': shipment.trackingNumber,
-                    'delivery_method': 'DHL',
+                    'delivery_method': providerNameShipmentSelector[product.provider],
                     'tracking_link': shipment.trackingUrl,
                     'shipping_charge': product.price,
                     'service': product.serviceName + ' - '
@@ -478,6 +481,8 @@ function updateShipmentOrdersFields(shipment, product, packagesAndWarehouse, sel
             connection_link_name: inventoryConnectionLinkName
         };
 
+        console.log("updateOptions", updateOptions);
+
         ZFAPPS.request(updateOptions).then(function (updateZohoShipmentAPIResponse) {
             //response Handling
             console.log('updateZohoShipment responseJSON: ', updateZohoShipmentAPIResponse);
@@ -485,7 +490,7 @@ function updateShipmentOrdersFields(shipment, product, packagesAndWarehouse, sel
             console.log('updateShipmentBody: ', updateShipmentBody);
             const shipmentId = updateShipmentBody.shipmentorder.shipment_id;
             const shipmentNumber = updateShipmentBody.shipmentorder.shipment_number;
-            attachPDF(shipment.labelsPdfContent[0].content, formatPDFFileName(shipment.trackingNumber), attachmentUrl);
+            attachPDF(shipment.labelsPdfContent[0].content, formatPDFFileName(shipment.trackingNumber, providerNameShipmentSelector[product.provider]), attachmentUrl);
 
             const updatedShipmentLink = 'https://inventory.zoho.com/app/' + orgId + '#/salesorders/' + salesorderId + '/shipments/' + shipmentId;
 
@@ -529,7 +534,7 @@ function updateShipmentOrdersFields(shipment, product, packagesAndWarehouse, sel
                     //'date': `${new Date().toISOString().split('T')[0]}`,
                     'date': shipmentDate,
                     'tracking_number': shipment.trackingNumber,
-                    'delivery_method': 'DHL',
+                    'delivery_method': providerNameShipmentSelector[product.provider],
                     'tracking_link': shipment.trackingUrl,
                     'shipping_charge': product.price,
                     'service': product.estimatedDelivery + ' - '
@@ -551,7 +556,7 @@ function updateShipmentOrdersFields(shipment, product, packagesAndWarehouse, sel
             const shipmentNumber = createShipmentBody.shipmentorder.shipment_number;
             const attachmentUrl = 'https://www.zohoapis.com/inventory/v1/shipmentorders/' + shipmentId + '/attachment?organization_id=' + orgId;
             console.log('attachmentUrl: ', attachmentUrl);
-            attachPDF(shipment.labelsPdfContent[0].content, formatPDFFileName(shipment.trackingNumber), attachmentUrl);
+            attachPDF(shipment.labelsPdfContent[0].content, formatPDFFileName(shipment.trackingNumber, providerNameShipmentSelector[product.provider]), attachmentUrl);
             const createdShipmentLink = 'https://inventory.zoho.com/app/' + orgId + '#/salesorders/' + salesorderId + '/shipments/' + shipmentId;
 
             auxSuccessMessage = `
