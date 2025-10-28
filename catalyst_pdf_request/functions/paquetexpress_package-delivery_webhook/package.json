@@ -1,0 +1,9 @@
+{
+	"name": "paquetexpress_package-delivery_webhook",
+	"version": "1.0.0",
+	"main": "index.js",
+	"author": "user1@demo2.roiretornodeinversion.com",
+	"dependencies": {
+		"zcatalyst-sdk-node": "latest"
+	}
+}

@@ -1,7 +1,8 @@
 {
   "functions": {
     "targets": [
-      "integracion_paqueterias_function"
+      "integracion_paqueterias_function",
+      "paquetexpress_package-delivery_webhook"
     ],
     "ignore": [],
     "source": "functions"
