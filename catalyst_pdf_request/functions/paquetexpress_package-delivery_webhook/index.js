@@ -2,6 +2,8 @@
 
 const { IncomingMessage, ServerResponse } = require("http");
 var catalyst = require('zcatalyst-sdk-node');
+const axios = require('axios');
+const FormData = require('form-data');
 
 let app = null;
 
@@ -75,6 +77,104 @@ async function getOrgID(app) {
 	return orgID;
 }
 
+
+async function attachImage(base64Image, fileName, endpointUrl, baseUrl, accessToken) {
+
+    const base64Data = base64Image.split(',').pop(); 
+    const imageBuffer = Buffer.from(base64Data, 'base64');
+
+    const getMimeTypeFromFileName = (name) => {
+        const ext = name.split('.').pop().toLowerCase();
+        switch (ext) {
+            case 'jpg':
+            case 'jpeg': return 'image/jpeg';
+            case 'png':  return 'image/png';
+            case 'gif':  return 'image/gif';
+            case 'webp': return 'image/webp';
+            default:     return 'application/octet-stream';
+        }
+    };
+    const mimeType = getMimeTypeFromFileName(fileName);
+
+    const formData = new FormData();
+    
+    formData.append('attachment', imageBuffer, {
+        filename: fileName,
+        contentType: mimeType
+    });
+
+    const fullUrl = `${baseUrl}${endpointUrl}`;
+    console.log(`Enviando a (axios): ${fullUrl}`);
+
+    const config = {
+        headers: {
+            'Authorization': `Zoho-oauthtoken ${accessToken}`,
+            
+            ...formData.getHeaders()
+        }
+    };
+
+    try {
+        const response = await axios.post(fullUrl, formData, config);
+        
+        console.log('Respuesta de adjuntar imagen (axios):', response.data);
+        return { success: true, data: response.data };
+
+    } catch (error) {
+        console.error('Error al subir con Axios:', error.response ? error.response.data : error.message);
+        
+        let errorMsg = error.message;
+        if (error.response && error.response.data) {
+            errorMsg = error.response.data.message || JSON.stringify(error.response.data);
+        }
+        
+        return { success: false, errorMsg: errorMsg };
+    }
+
+}
+
+async function markShipmentAsDelivered(shipmentId, orgId, inventoryToken) {
+
+
+	let success = true;
+	let errorMsg = "";
+
+	try {
+		const url = `https://www.zohoapis.com/inventory/v1/shipmentorders/${shipmentId}/status/delivered?organization_id=${orgId}`;
+
+		const data = {};
+
+		const config = {
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': `Zoho-oauthtoken ` + inventoryToken
+			}
+		};
+
+		console.log('Enviando petición POST a:', url);
+
+		const response = await axios.post(url, data, config);
+
+		console.log('shipmentorders response: ', response.data);
+
+	} catch (error) {
+		success = false;
+
+		if (error.response) {
+			console.error('Error de respuesta:', error.response.data);
+			errorMsg = error.response.data.message || `Error ${error.response.status}`;
+		} else if (error.request) {
+			console.error('No se recibió respuesta:', error.request);
+			errorMsg = 'No se pudo conectar con el servidor.';
+		} else {
+			console.error('Error de configuración:', error.message);
+			errorMsg = error.message;
+		}
+	}
+
+	return { success, errorMsg };
+}
+
 module.exports = async (req, res) => {
 	var url = req.url;
 
@@ -95,10 +195,36 @@ module.exports = async (req, res) => {
 		}
 	};
 
-	fetch(`https://www.zohoapis.com/inventory/v1/shipmentorders?organization_id=${orgID}&tracking_number=${trackingNumber}`, options)
-		.then(response => response.json())
-		.then(response => console.log("response", response))
-		.catch(err => console.error(err));
+	try {
+		const shipmentOrderRequest = fetch(`https://www.zohoapis.com/inventory/v1/shipmentorders?organization_id=${orgID}&tracking_number=${trackingNumber}`, options)
+
+		const shipmentOrderResponse = await (await shipmentOrderRequest).json();
+
+		console.log("shipmentOrderResponse", shipmentOrderResponse);
+
+		const shipmentOrders = shipmentOrderResponse?.shipmentorders;
+
+		let shipmentsData = shipmentOrders.map(shipment => {
+			return {
+				shipmentID: shipment.shipment_id,
+				shipmentNumber: shipment.shipment_number,
+				provider: shipment.carrier
+			}
+		});
+
+		console.log("shipmentOrderResponse", shipmentOrderResponse);
+
+		for (const shipment of shipmentsData) {
+			markShipmentAsDelivered(shipment.shipmentID, orgID, inventoryToken);
+			attachImage(base64Image, fileName, endpointUrl, baseUrl, inventoryToken, org)
+		}
+
+
+
+	} catch (error) {
+		console.log(error);
+	}
+
 
 
 	switch (url) {
