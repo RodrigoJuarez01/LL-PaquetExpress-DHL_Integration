@@ -79,31 +79,35 @@ async function handleTrackingButtonClick(event) {
 
 	// console.log("thisButton.dataset", thisButton);
 
-	const button = event.currentTarget; 
+	const button = event.currentTarget;
 
 	elements.trackingNumber = button.dataset.trackingNumber;;
-	elements.shipmentId = button.dataset.shipmentId;;
-	console.log('Tracking Number:', elements.trackingNumber );
-	console.log('Shipment id:', elements.shipmentId );
+	elements.shipmentId = button.dataset.shipmentId;
+
+	const provider = button.dataset.provider;
+
+	console.log("provider", provider);
+	console.log('Tracking Number:', elements.trackingNumber);
+	console.log('Shipment id:', elements.shipmentId);
 
 	// try {
-		const packages = elements.groupedPackagesByShipment[elements.trackingNumber];
+	const packages = elements.groupedPackagesByShipment[elements.trackingNumber];
 
-		const packageIds = packages.map(pck => pck.package_id).join(',');
-		const pck = packages[0];
-		elements.shipmentId = pck.shipment_id;
+	const packageIds = packages.map(pck => pck.package_id).join(',');
+	const pck = packages[0];
+	elements.shipmentId = pck.shipment_id;
 
-		const trackingResult = await ShippingService.trackShipment('dhl', elements.trackingNumber);
+	const trackingResult = await ShippingService.trackShipment(provider, elements.trackingNumber);
 
-		renderTrackingTimeline(trackingResult);
-
-
-		const lastEvent = trackingResult.events[0];
-		console.log('Last Event:', lastEvent);
+	renderTrackingTimeline(trackingResult);
 
 
-		if (lastEvent.typeCode !== "OK") {
-			const pendingRowHTML = `
+	const lastEvent = trackingResult.events[0];
+	console.log('Last Event:', lastEvent);
+
+
+	if (lastEvent.typeCode !== "OK") {
+		const pendingRowHTML = `
                 <div class="tracking-item-pending" id="pendingTrackingEvent">
                     
                         <div class="tracking-icon status-intransit">
@@ -120,24 +124,24 @@ async function handleTrackingButtonClick(event) {
                     
                 
             `;
-			elements.trackingEventsContainer.insertAdjacentHTML('afterbegin', pendingRowHTML);
+		elements.trackingEventsContainer.insertAdjacentHTML('afterbegin', pendingRowHTML);
 
-		} else {
+	} else {
 
-			const { success, errorMsg } = ZohoService.markShipmentAsDelivered(shipmentId);
+		const { success, errorMsg } = ZohoService.markShipmentAsDelivered(shipmentId);
 
-			if (!success) {
-				showRequestErrorToast('Update Shipment Error: ' + errorMsg, 7000);
-			}
+		if (!success) {
+			showRequestErrorToast('Update Shipment Error: ' + errorMsg, 7000);
 		}
+	}
 
-		// const lastStatusDiv = document.getElementById(`trackingStatus0`);
-		// lastStatusDiv.className = 'tracking-icon status-current blinker';
+	// const lastStatusDiv = document.getElementById(`trackingStatus0`);
+	// lastStatusDiv.className = 'tracking-icon status-current blinker';
 
-		const firstIcon = document.querySelector('.js-tracking-icon');
-		if (firstIcon) {
-			firstIcon.classList.add('status-current', 'blinker');
-		}
+	const firstIcon = document.querySelector('.js-tracking-icon');
+	if (firstIcon) {
+		firstIcon.classList.add('status-current', 'blinker');
+	}
 
 	// } catch (error) {
 	// 	showRequestErrorToast(error.message, 7000);
@@ -147,12 +151,12 @@ async function handleTrackingButtonClick(event) {
 
 
 function setupTrackingButtonListeners(appData) {
-    const trackButtons = document.querySelectorAll('.js-track-btn');
-    trackButtons.forEach(button => {
-        button.addEventListener('click', (event) => {
-            handleTrackingButtonClick(event, appData);
-        });
-    });
+	const trackButtons = document.querySelectorAll('.js-track-btn');
+	trackButtons.forEach(button => {
+		button.addEventListener('click', (event) => {
+			handleTrackingButtonClick(event, appData);
+		});
+	});
 }
 
 function renderTrackingCards(groupedPackages) {
@@ -168,6 +172,8 @@ function renderTrackingCards(groupedPackages) {
 		console.log("trackingNumber", trackingNumber);
 		const packages = groupedPackages[trackingNumber];
 		let packagesEl = '';
+
+		const provider = packages[0].provider;
 
 
 		packages.forEach((pck) => {
@@ -202,7 +208,7 @@ function renderTrackingCards(groupedPackages) {
 						</div>
 
 						<div class="d-grid mb-2">
-							<button class="btn btn-primary js-track-btn" type="button" data-tracking-number="${trackingNumber}" id="trackingNumberBtn${index}" data-shipment-id="${packages[0].shipment_id}">
+							<button class="btn btn-primary js-track-btn" type="button" data-tracking-number="${trackingNumber}" id="trackingNumberBtn${index}" data-shipment-id="${packages[0].shipment_id}" data-provider="${provider}">
 								Rastrear
 							</button>
 						</div>
@@ -235,7 +241,7 @@ export function initializeTrackingView(appData) {
 
 	elements.trackingCardsContainer.innerHTML = trackingCardsHTML;
 
-	
+
 	setupTrackingButtonListeners();
 
 }

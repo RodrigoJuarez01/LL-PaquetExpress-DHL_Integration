@@ -37,7 +37,9 @@ export const ShippingService = {
         return await providers[providerName].trackShipment(trackingNumber);
     },
 
-    async getProofOfDelivery(providerName, trackingNumber) {
-        return await providers[providerName].getProofOfDelivery(trackingNumber);
+    async getProofOfDelivery(providerName, trackingNumber, shipmentID) {
+        console.log("providerName", providerName);
+        console.log("shipmentID", shipmentID);
+        return await providers[providerName].getProofOfDelivery(trackingNumber, shipmentID);
     }
 };

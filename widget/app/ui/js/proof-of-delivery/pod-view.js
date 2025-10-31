@@ -23,27 +23,41 @@ function renderPodResult(podResult, trackingNumber) {
 				</div>
 			</div>
 	`;
-	
+
 	podContainer.innerHTML = successMessage;
 
-    podResult.pdfsBase64.forEach(pdfBase64String => {
-        const pdfContent = `data:application/pdf;base64,${pdfBase64String}`;
-        const iframe = document.createElement('iframe');
-        iframe.src = pdfContent;
-        iframe.style.width = '100%';
-        iframe.style.height = '700px';
-        podContainer.appendChild(iframe); 
-    });
+	podResult.documents.forEach(doc => {
+		if (doc.type === 'pdf') {
+			const pdfContent = `data:application/pdf;base64,${doc.content}`;
+			const iframe = document.createElement('iframe');
+			iframe.src = pdfContent;
+			iframe.style.width = '100%';
+			iframe.style.height = '700px';
+			podContainer.appendChild(iframe);
+		}
+		else if (doc.type === 'image') {
+			const imgContent = `data:image/png;base64,${doc.content}`; // Asume PNG, puedes cambiarlo
+			const img = document.createElement('img');
+			img.src = imgContent;
+			img.style.width = '100%';
+			img.style.border = '1px solid #ccc';
+			podContainer.appendChild(img);
+		}
+	});
 
 }
 
 async function handlePodButtonClick(event) {
 	const trackingNumber = event.currentTarget.dataset.trackingNumber;
+	const shipmentID = event.currentTarget.dataset.shipmentId;
+	const provider = event.currentTarget.dataset.provider;
+
+	console.log("event.currentTarget.dataset", event.currentTarget.dataset);
 
 	try {
 		elements.spinner.style.display = 'flex';
 
-		const podResult = await ShippingService.getProofOfDelivery('dhl', trackingNumber);
+		const podResult = await ShippingService.getProofOfDelivery(provider, trackingNumber, shipmentID);
 
 		renderPodResult(podResult, trackingNumber);
 
@@ -67,7 +81,13 @@ function renderPodCards(groupedPackages) {
 	let podCardsHTML = '';
 
 	Object.keys(groupedPackages).forEach((trackingNumber, index) => {
+
 		if (trackingNumber === 'notShipped') return;
+
+		const shipmentID = groupedPackages[trackingNumber]?.[0]?.shipment_id
+		const provider = groupedPackages[trackingNumber]?.[0]?.provider
+
+
 
 		podCardsHTML += `
             <div class="col-6 mb-4" id="podCard${index}">
@@ -76,7 +96,7 @@ function renderPodCards(groupedPackages) {
                         <h5 class="card-title">Tracking# - ${trackingNumber}</h5>
                         <div class="d-grid mb-2">
                             <button class="btn btn-primary js-pod-btn" type="button" 
-                                    data-tracking-number="${trackingNumber}" id="podBtn${index}">
+                                    data-tracking-number="${trackingNumber}" data-shipment-id="${shipmentID}" data-provider="${provider}" id="podBtn${index}">
                                 Obtener prueba de entrega
                             </button>
                         </div>
@@ -93,7 +113,8 @@ export function initializePodView(appData) {
 	elements.podResultContainer = document.getElementById('podResultContainer');
 	elements.spinner = document.getElementById('spinnerWrapper');
 
-	
+	console.log("groupedPackagesByShipment", appData.data.groupedPackagesByShipment);
+
 	const podCardsHTML = renderPodCards(appData.data.groupedPackagesByShipment);
 	console.log("podCardsHTML", podCardsHTML);
 	elements.podCardsContainer.innerHTML = podCardsHTML;

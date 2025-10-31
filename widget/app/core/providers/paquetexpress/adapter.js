@@ -1,4 +1,5 @@
 import { ConfigService } from '../../services/config.service.js';
+import ZohoService from '../../services/zoho.service.js';
 
 const PAQUETEXPRESS_BASE_URL = "https://qaglp.paquetexpress.com.mx";
 const TOKEN_RATES = "3DE9B062CDDD4334E063350AA8C05C9E";
@@ -127,112 +128,112 @@ export class PaquetexpressAdapter {
         return this._transformResponse(responseBody);
     }
 
-    // async getLabel(trackingNumber) {
-
-
-    //     const labelOptions = {
-    //         url: `${CATALYST_LABEL_URL}?trackingNumber=${trackingNumber}&ZCFKEY=${CATALYST_API_KEY}`,
-    //         method: 'GET',
-
-    //     };
-
-    //     console.log("Enviando a catalyst:", labelOptions);
-
-    //     const response = await ZFAPPS.request(labelOptions);
-
-    //     console.log("labelResponse", response);
-
-    //     const catalystResponse = JSON.parse(response.data.body);
-    //     console.log("catalystResponse", catalystResponse);
-
-    //     return [{ content: catalystResponse?.labelPdfBase64 }];
-    // }
-
-
-
     async getLabel(trackingNumber) {
-          async function blobToBase64(blob) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onloadend = () => resolve(reader.result.split(',')[1]);
-                reader.onerror = reject;
-                reader.readAsDataURL(blob);
-            });
-        }
-
-        function binaryStringToBlob(binaryString) {
-            const len = binaryString.length;
-            const bytes = new Uint8Array(len);
-            for (let i = 0; i < len; i++) {
-                bytes[i] = binaryString.charCodeAt(i);
-            }
-            return new Blob([bytes], { type: 'application/pdf' });
-        }
-
-        try {
-            // --- PASO 1: Obtener la URL segura del webhook de Zoho ---
-            // (Equivalente a tu primera llamada `invokeUrl`)
-
-            const orgId = ConfigService.getOrgId();
 
 
-            const nameSpace = "ef6c8cc3-6eaa-4cb3-a9f6-8a7cf8859014";
+        const labelOptions = {
+            url: `${CATALYST_LABEL_URL}?trackingNumber=${trackingNumber}&ZCFKEY=${CATALYST_API_KEY}`,
+            method: 'GET',
 
-            // 1. Construimos la URL COMPLETA a mano, con AMBOS parámetros en la cadena
-            const fetchUrlEndpoint = `https://inventory.zoho.com/api/v1/settings/incomingwebhooks/iw__com_iutbg8_getpaqueteexpresslabel/url/fetch?organization_id=${orgId}&name_space=${nameSpace}`;
+        };
 
-            const fetchUrlOptions = {
-                // 2. Le pasamos la URL final y exacta
-                url: fetchUrlEndpoint,
-                method: 'GET',
-                connection_link_name: 'inventory_all',
-                // 3. Eliminamos por completo las claves 'params' y 'body' para esta llamada
-            };
+        console.log("Enviando a catalyst:", labelOptions);
 
-            console.log("Intentando con URL manual:", fetchUrlOptions);
-            const urlResponse = await ZFAPPS.request(fetchUrlOptions);
+        const response = await ZFAPPS.request(labelOptions);
 
-            console.log("urlResponse", urlResponse);
+        console.log("labelResponse", response);
 
-            const zapikeyUrl = JSON.parse(urlResponse.data.body).data.url;
+        const catalystResponse = JSON.parse(response.data.body);
+        console.log("catalystResponse", catalystResponse);
 
-            if (!zapikeyUrl) {
-                throw new Error("No se pudo obtener la URL del proxy de Zoho.");
-            }
-
-
-            const labelOptions = {
-                url: zapikeyUrl,
-                method: 'GET',
-                responseType: 'blob',
-                params: {
-                    trackingNoGen: trackingNumber
-                }
-            };
-
-            const labelResponse = await ZFAPPS.request(labelOptions);
-
-
-            const labelBody = JSON.parse(labelResponse.data.body);
-
-
-            if (labelBody.message === "success" && labelBody.response) {
-
-                const pdfBlob = binaryStringToBlob(labelBody.response.response);
-
-                const base64String = await blobToBase64(pdfBlob);
-
-                return [{ content: base64String }];
-
-            } else {
-                throw new Error("La llamada a través de la URL del proxy de Zoho falló.");
-            }
-
-        } catch (error) {
-            console.error("Error al obtener la etiqueta vía Zoho Webhook:", error);
-            throw error; // Relanza el error para que el controlador principal lo maneje
-        }
+        return [{ content: catalystResponse?.labelPdfBase64 }];
     }
+
+
+
+    // async getLabel(trackingNumber) {
+    //     async function blobToBase64(blob) {
+    //         return new Promise((resolve, reject) => {
+    //             const reader = new FileReader();
+    //             reader.onloadend = () => resolve(reader.result.split(',')[1]);
+    //             reader.onerror = reject;
+    //             reader.readAsDataURL(blob);
+    //         });
+    //     }
+
+    //     function binaryStringToBlob(binaryString) {
+    //         const len = binaryString.length;
+    //         const bytes = new Uint8Array(len);
+    //         for (let i = 0; i < len; i++) {
+    //             bytes[i] = binaryString.charCodeAt(i);
+    //         }
+    //         return new Blob([bytes], { type: 'application/pdf' });
+    //     }
+
+    //     try {
+    //         // --- PASO 1: Obtener la URL segura del webhook de Zoho ---
+    //         // (Equivalente a tu primera llamada `invokeUrl`)
+
+    //         const orgId = ConfigService.getOrgId();
+
+
+    //         const nameSpace = "ef6c8cc3-6eaa-4cb3-a9f6-8a7cf8859014";
+
+    //         // 1. Construimos la URL COMPLETA a mano, con AMBOS parámetros en la cadena
+    //         const fetchUrlEndpoint = `https://inventory.zoho.com/api/v1/settings/incomingwebhooks/iw__com_iutbg8_getpaqueteexpresslabel/url/fetch?organization_id=${orgId}&name_space=${nameSpace}`;
+
+    //         const fetchUrlOptions = {
+    //             // 2. Le pasamos la URL final y exacta
+    //             url: fetchUrlEndpoint,
+    //             method: 'GET',
+    //             connection_link_name: 'inventory_all',
+    //             // 3. Eliminamos por completo las claves 'params' y 'body' para esta llamada
+    //         };
+
+    //         console.log("Intentando con URL manual:", fetchUrlOptions);
+    //         const urlResponse = await ZFAPPS.request(fetchUrlOptions);
+
+    //         console.log("urlResponse", urlResponse);
+
+    //         const zapikeyUrl = JSON.parse(urlResponse.data.body).data.url;
+
+    //         if (!zapikeyUrl) {
+    //             throw new Error("No se pudo obtener la URL del proxy de Zoho.");
+    //         }
+
+
+    //         const labelOptions = {
+    //             url: zapikeyUrl,
+    //             method: 'GET',
+    //             responseType: 'blob',
+    //             params: {
+    //                 trackingNoGen: trackingNumber
+    //             }
+    //         };
+
+    //         const labelResponse = await ZFAPPS.request(labelOptions);
+
+
+    //         const labelBody = JSON.parse(labelResponse.data.body);
+
+
+    //         if (labelBody.message === "success" && labelBody.response) {
+
+    //             const pdfBlob = binaryStringToBlob(labelBody.response.response);
+
+    //             const base64String = await blobToBase64(pdfBlob);
+
+    //             return [{ content: base64String }];
+
+    //         } else {
+    //             throw new Error("La llamada a través de la URL del proxy de Zoho falló.");
+    //         }
+
+    //     } catch (error) {
+    //         console.error("Error al obtener la etiqueta vía Zoho Webhook:", error);
+    //         throw error; // Relanza el error para que el controlador principal lo maneje
+    //     }
+    // }
 
     async createShipment(formData, selectedRateData) {
         console.log("Creando envío con PaquetExpress...");
@@ -386,5 +387,47 @@ export class PaquetexpressAdapter {
         // };
     }
 
+    async getProofOfDelivery(trackingNumber, shipmentId) {
 
+        const signatureAttachment = await ZohoService.findAttachment(shipmentId);
+
+        return {
+            provider: 'paquetexpress',
+            trackingNumber: trackingNumber,
+            documents: [
+                {
+                    type: 'image',
+                    content: signatureAttachment
+                }
+            ]
+        };
+    }
+
+
+    async trackShipment(trackingNumber) {
+
+        
+
+        const events = trackingBody.events
+            .sort((a, b) => new Date(b.date + ' ' + b.time) - new Date(a.date + ' ' + a.time))
+            .map(event => ({
+                date: event.date,
+                time: event.time.slice(0, 5),
+                description: event.description,
+                location: event.serviceArea[0].description
+            }));
+
+        return {
+            provider: 'paquetexpress',
+            trackingNumber: trackingNumber,
+            status: trackingBody.status.status,
+            summary: {
+                origin: trackingBody.shipperDetails.serviceArea[0].description,
+                destination: trackingBody.receiverDetails.serviceArea[0].description,
+                numberOfPieces: trackingBody.numberOfPieces
+            },
+            events: events
+        };
+
+    }
 }

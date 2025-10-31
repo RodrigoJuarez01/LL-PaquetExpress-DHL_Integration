@@ -222,6 +222,7 @@ function _processAndGroupData(data) {
                     shipment_number: pck.shipment_number,
                     shipment_status: pck.shipment_order.shipment_status,
                     shipment_tracking_number: pck.shipment_order.tracking_number,
+                    provider: pck.delivery_method.toLowerCase()
                 };
 
                 packagesAndWarehouse.push(obj);
@@ -393,6 +394,7 @@ function attachPDF(base64File, fileName, endpointUrl) {
     });
 
 }
+
 
 
 const providerNameShipmentSelector = {
@@ -640,14 +642,80 @@ const ZohoService = {
             console.log('shipmentorders response: ', response);
 
         } catch (error) {
-           success = false;
-           errorMsg = error;
+            success = false;
+            errorMsg = error;
         }
 
 
-        return { success, errorMsg};
+        return { success, errorMsg };
 
         // showRequestErrorToast('Update Shipment Error: ' + error.message, 7000);
+
+    },
+
+    async findAttachment(shipmentId) {
+
+        const inventoryConnectionLinkName = ConfigService.getInventoryConn();
+        const orgId = ConfigService.getOrgId();
+
+        const shipmentEndpointUrl = `https://www.zohoapis.com/inventory/v1/shipmentorders/${shipmentId}?organization_id=${orgId}`;
+
+        const shipmentOptions = {
+            url: shipmentEndpointUrl,
+            method: "GET",
+            connection_link_name: inventoryConnectionLinkName
+        };
+
+        const shipmentResponse = await ZFAPPS.request(shipmentOptions)
+
+        const shipmentBody = JSON.parse(shipmentResponse.data.body);
+
+        const shipment = shipmentBody?.shipmentorder;
+
+        const documents = shipment?.documents;
+
+        const commonImageFormats = [
+            "jpeg",
+            "jpg",
+            "png",
+            "webp",
+            "svg",
+            "bmp",
+        ];
+
+        let fileID = null;
+
+        for(const doc of documents){
+            if (commonImageFormats.includes(doc?.file_type)) {
+                fileID = doc?.document_id;
+                break;
+            }
+        }
+        
+        console.log("fileID", fileID);
+
+        let attachmentBody = null;
+
+        if (fileID) {
+            const fileEndpointUrl = `https://www.zohoapis.com/inventory/v1/shipmentorders/${shipmentId}/documents/${fileID}?organization_id=${orgId}`
+
+            const getAttachmentOptions = {
+                url: fileEndpointUrl,
+                method: "GET",
+                connection_link_name: inventoryConnectionLinkName
+            };
+
+            const attachmentsResponse = await ZFAPPS.request(getAttachmentOptions)
+
+            console.log("attachmentsResponse", attachmentsResponse);
+
+            attachmentBody = attachmentsResponse.data.body;
+            console.log("attachmentBody", attachmentBody);
+        }
+
+        
+        return attachmentBody;
+
 
     }
 

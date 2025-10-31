@@ -3,7 +3,17 @@
 		"name": "paquetexpress_package-delivery_webhook",
 		"stack": "node20",
 		"type": "advancedio",
-		"env_variables": {}
+		"env_variables": {
+			"AUTH_URL": "https://accounts.zoho.com/oauth/v2/auth?response_type=code&client_id=1000.SF42CVRR64LS67XVAVAKCYS95RRMBC&scope=ZohoInventory.packages.ALL,ZohoInventory.shipmentorders.ALL,ZohoCatalyst.tables.rows.READ&access_type=offline&redirect_uri=https://www.google.com",
+			"CLIENT_SECRET": "d5e3c32eb0e865570f040595a75d89f5904a6a9ee9",
+			"REFRESH_IN": "3000",
+			"SUPPORT_FROM_EMAIL": "rodrigo.juarez@solvisconsulting.com",
+			"EXPECTED_TOKEN": "4e436d58c07e6646960893e91c8fd380307238d65c53aa36f39541d85702a944",
+			"CLIENT_ID": "1000.SF42CVRR64LS67XVAVAKCYS95RRMBC",
+			"REFRESH_TOKEN": "1000.129613cbfc0805c76ed997ba2d9e5140.83539a29cf1cfc053008dbbbd787994e",
+			"SUPPORT_TO_EMAIL": "support@solvisconsulting.com",
+			"REFRESH_URL": "https://accounts.zoho.com/oauth/v2/token"
+		}
 	},
 	"execution": {
 		"main": "index.js"

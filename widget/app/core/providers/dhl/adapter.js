@@ -346,7 +346,7 @@ export class DhlAdapter {
     }
 
 
-    async getProofOfDelivery(trackingNumber) {
+    async getProofOfDelivery(trackingNumber, shipmentID) {
         const orgId = ConfigService.getOrgId();
         const dhlUrlComplement = orgId === '808492068' ? '/test' : '';
         // const tNumbersForTesting = ['2775523063', '3660208860', '7661769404', '7349581960', '4540441264', '9356579890'];
@@ -381,7 +381,8 @@ export class DhlAdapter {
 
         return {
             provider: 'dhl',
-            pdfsBase64: podBody.documents.map(doc => doc.content)
+            trackingNumber: trackingNumber,
+            documents: podBody.documents.map((doc) => {return {type: 'pdf', content: doc.content}})
         };
     }
 }

@@ -8,6 +8,9 @@ const FormData = require('form-data');
 // const { Readable } = require('stream'); 
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
+
+const { table } = require("console");
 
 let app = express();;
 let catalystApp = null;
@@ -23,12 +26,12 @@ async function getInventoryAccessToken() {
 
 		let connector = catalystApp.connection({
 			inventoryConn: {
-				client_id: '1000.SF42CVRR64LS67XVAVAKCYS95RRMBC',
-				client_secret: 'd5e3c32eb0e865570f040595a75d89f5904a6a9ee9',
-				auth_url: 'https://accounts.zoho.com/oauth/v2/auth?response_type=code&client_id=1000.SF42CVRR64LS67XVAVAKCYS95RRMBC&scope=ZohoInventory.packages.ALL,ZohoInventory.shipmentorders.ALL,ZohoCatalyst.tables.rows.READ&access_type=offline&redirect_uri=https://www.google.com',
-				refresh_url: 'https://accounts.zoho.com/oauth/v2/token',
-				refresh_token: '1000.129613cbfc0805c76ed997ba2d9e5140.83539a29cf1cfc053008dbbbd787994e',
-				refresh_in: '3000'
+				client_id: process.env.CLIENT_ID,
+				client_secret: process.env.CLIENT_SECRET,
+				auth_url: process.env.AUTH_URL,
+				refresh_url: process.env.REFRESH_URL,
+				refresh_token: process.env.REFRESH_TOKEN,
+				refresh_in: process.env.REFRESH_IN
 			}
 		}).getConnector('inventoryConn');
 
@@ -291,7 +294,7 @@ async function sendEmailSupport(trackingNumber, errorMessage) {
 async function saveFailedWebhook(trackingNumber, firmaBase64, errorMessage) {
 	let fileId = null;
 	const fileName = `FALLIDA-${trackingNumber}-${Date.now()}.jpeg`;
-	const tempFilePath = path.join('/tmp', fileName);
+	const tempFilePath = path.join(os.tmpdir(), fileName);
 
 	try {
 
@@ -335,17 +338,25 @@ async function saveFailedWebhook(trackingNumber, firmaBase64, errorMessage) {
 	}
 
 	try {
-		let zcql = catalystApp.zcql();
+		// let zcql = catalystApp.zcql();
 		const tableName = "EntregasFallidas";
-		const data = {
+		const rowData = {
 			trackingNumber: trackingNumber,
 			fileId: fileId,
 			errorMessage: errorMessage.substring(0, 1000)
 		};
 
-		const query = `INSERT INTO ${tableName} (trackingNumber, fileId, errorMessage) VALUES ('${data.trackingNumber}', '${data.fileId}', '${data.errorMessage}')`;
+		// const rowData = `INSERT INTO ${tableName} (trackingNumber, fileId, errorMessage) VALUES ('${data.trackingNumber}', '${data.fileId ?? ""}', '${data.errorMessage}')`;
 
-		await zcql.executeZCQLQuery(query);
+		let datastore = catalystApp.datastore();
+		let table = datastore.table(tableName);
+
+		let insertPromise = table.insertRow(rowData);
+		await insertPromise;
+
+		// console.log("queryDataStore", query);
+
+		// await zcql.executeZCQLQuery(query);
 		console.log("Metadatos del webhook fallido guardados en Data Store.");
 
 	} catch (dbError) {
@@ -369,12 +380,18 @@ app.post('/', async (req, res) => {
 	catalystApp = catalyst.initialize(req);
 
 	var url = req.url;
-	const { firmaBase64, trackingNumber } = req.body;
+	const { firmaBase64, trackingNumber, fechaHoraEntrega, nombreReceptor } = req.body;
 
+	if (!firmaBase64 || !trackingNumber || !fechaHoraEntrega ) {
+		res.status(401).json({ "error": "Bad Request: Missing required fields" });
+		return;
+	}
 
-	const EXPECTED_TOKEN = "111111";
-	const authHeader = req.headers['authorization'];
+	const EXPECTED_TOKEN = process.env.EXPECTED_TOKEN;
+	const authHeader = req.headers['x-auth-token'];
 	let receivedToken = null;
+
+
 
 	if (authHeader) {
 		const parts = authHeader.split(' ');
@@ -383,10 +400,11 @@ app.post('/', async (req, res) => {
 		}
 	}
 
+
 	if (receivedToken !== EXPECTED_TOKEN) {
 		console.warn("Acceso no autorizado al webhook (Token inválido).");
 		res.status(401).json({ "error": "Unauthorized" });
-		return; // Detiene todo
+		return;
 	}
 
 	try {
@@ -402,7 +420,7 @@ app.post('/', async (req, res) => {
 
 		await saveFailedWebhook(trackingNumber, firmaBase64, error.message);
 
-		res.status(200).json({ status: "received_but_failed_internally" });
+		res.status(200).json({ status: "processed" });
 	}
 
 	res.end();
