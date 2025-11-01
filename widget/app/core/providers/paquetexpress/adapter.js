@@ -10,6 +10,28 @@ const BILLCLNTID = "14221805";
 const CATALYST_API_KEY = "06d8d3adc6a6609b40652707b28a48b4";
 const CATALYST_LABEL_URL = "https://integracionpaqueterias-875780419.development.catalystserverless.com/getPaquetexpressLabel";
 
+const spanishMonths = {
+    'enero': '01', 'febrero': '02', 'marzo': '03', 'abril': '04', 'mayo': '05', 'junio': '06',
+    'julio': '07', 'agosto': '08', 'septiembre': '09', 'octubre': '10', 'noviembre': '11', 'diciembre': '12'
+};
+
+function _parseDate(dateString) {
+    try {
+        const cleanString = dateString.trim().toLowerCase().replace(' del ', ' ');
+
+        const parts = cleanString.split(' ');
+
+        const day = parts[0].padStart(2, '0');
+        const month = spanishMonths[parts[2]];
+        const year = parts[3];
+
+        return `${year}-${month}-${day}`;
+    } catch (e) {
+        console.error("Error parseando la fecha de PaquetExpress:", dateString, e);
+        return dateString;
+    }
+}
+
 export class PaquetexpressAdapter {
 
     _transformResponse(responseBody) {
@@ -404,30 +426,60 @@ export class PaquetexpressAdapter {
     }
 
 
-    async trackShipment(trackingNumber) {
+    _transformTrackingResponse(responseBody) {
+        if (!responseBody?.body?.response?.success || !responseBody.body.response.data) {
+            throw new Error("PaquetExpress no devolvió un rastreo exitoso o los datos vinieron vacíos.");
+        }
 
-        
+        const data = responseBody.body.response.data;
 
-        const events = trackingBody.events
-            .sort((a, b) => new Date(b.date + ' ' + b.time) - new Date(a.date + ' ' + a.time))
-            .map(event => ({
-                date: event.date,
-                time: event.time.slice(0, 5),
-                description: event.description,
-                location: event.serviceArea[0].description
-            }));
+
+        data.sort((a, b) => b.fechahora - a.fechahora);
+
+        console.log("trackingPEdata ", responseBody);
+
+        const lastEvent = data[0];
+
+        const events = data.map(event => {
+            return {
+                date: _parseDate(event.fecha),
+                time: event.hora,
+                description: event.status,
+                location: event.ciudadEvento
+            };
+        });
 
         return {
             provider: 'paquetexpress',
-            trackingNumber: trackingNumber,
-            status: trackingBody.status.status,
+            trackingNumber: lastEvent.rastreo,
+            status: lastEvent.status,
+            events: events,
             summary: {
-                origin: trackingBody.shipperDetails.serviceArea[0].description,
-                destination: trackingBody.receiverDetails.serviceArea[0].description,
-                numberOfPieces: trackingBody.numberOfPieces
+                origin: data[0]?.sucursalOrigen ?? "",
+                destination: data[0]?.ciudadDestino ?? "",
+                numberOfPieces: null
             },
-            events: events
+        };
+    }
+
+
+    async trackShipment(trackingNumber) {
+
+        const headers = { "Content-Type": "application/json" };
+
+        trackingNumber = "SLW01WE185";
+
+        const trackingOptions = {
+            url: `${PAQUETEXPRESS_BASE_URL}/ptxws/rest/api/v3/guia/historico/${trackingNumber}/${TOKEN}`,
+            method: "GET"
         };
 
+        const response = await ZFAPPS.request(trackingOptions);
+        const trackingBody = JSON.parse(response.data.body);
+
+        return this._transformTrackingResponse(trackingBody);
     }
+
+
+
 }

@@ -6,6 +6,7 @@ import { showRequestErrorToast } from "../features/errorToast.js";
 import { displayAndDownloadPDFs } from "./features/shipping.js";
 import { warehouseAddressMap } from "../../../catalogs/warehouse-adress-map.js";
 import ZohoService from "../../../core/services/zoho.service.js"
+import { showShipmentError } from "./features/formValidation.js"
 
 const elements = {
     form: {
@@ -24,11 +25,12 @@ const viewState = {
 };
 
 
-async function handleRateSelection(event) {
+async function createShipmentLogic(button) {
 
 
-    // 3. El resto de tu código es exactamente igual
-    const button = event.currentTarget;
+    // const button = event.currentTarget;
+
+    console.log("button", button);
     const rateJsonBase64 = button.dataset.rateJson;
     const selectedRateData = JSON.parse(atob(rateJsonBase64));
 
@@ -36,7 +38,6 @@ async function handleRateSelection(event) {
 
 
     console.log("selectedRateData", selectedRateData);
-    // console.log("Type of decodedProduct:", typeof parsedProduct);
 
     const productCode = selectedRateData.productCode;
     const localProductCode = selectedRateData.localProductCode;
@@ -56,6 +57,8 @@ async function handleRateSelection(event) {
         selectedRateData.plannedShippingDateAndTime = formData.sender.plannedShippingDateAndTime;
 
         const shipmentResult = await ShippingService.createShipment(provider, formData, selectedRateData);
+
+        document.getElementById('ratesContainerResponse').style.display = 'none';
 
         displayAndDownloadPDFs(shipmentResult);
 
@@ -77,6 +80,10 @@ async function handleRateSelection(event) {
 
     } catch (error) {
         console.error("Error al crear el envío:", error);
+        button.disabled = false;
+        button.classList.replace('btn-success', 'btn-primary');
+        button.innerHTML = 'Seleccionar';
+        showShipmentError(error.message);
         // showRequestErrorToast("No se pudo crear la guía.");
     } finally {
         elements.spinner.style.display = 'none';
@@ -102,11 +109,109 @@ function handlePackageSelectionChange(event) {
 }
 
 
-function setupRateSelectionListeners() {
-    const selectButtons = document.querySelectorAll('.js-select-rate-btn');
 
-    selectButtons.forEach(button => {
-        button.addEventListener('click', handleRateSelection);
+function handleSelectClick(selectButton) {
+    
+    const clickedCell = selectButton.closest('.js-rate-btn-container');
+
+    const rateData = clickedCell.dataset.rateJson;
+    const provider = clickedCell.dataset.provider;
+
+    document.querySelectorAll('.js-rate-btn-container').forEach(cell => {
+        if (cell !== clickedCell) {
+            const otherRateData = cell.dataset.rateJson;
+            const otherProvider = cell.dataset.provider;
+            cell.innerHTML = `
+                <button type="button" class="btn btn-primary js-select-rate-btn" 
+                        data-rate-json="${otherRateData}" 
+                        data-provider="${otherProvider}">
+                    Seleccionar
+                </button>
+            `;
+        }
+    });
+
+
+    clickedCell.innerHTML = `
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-success js-confirm-btn" 
+                    data-rate-json="${rateData}" 
+                    data-provider="${provider}">
+                <i class="bi-check-circle"></i> Confirmar
+            </button>
+            <button type="button" class="btn btn-danger js-cancel-btn" 
+                    data-provider="${provider}" 
+                    data-rate-json="${rateData}">
+                <i class="bi-x"></i>
+            </button>
+        </div>
+    `;
+}
+
+
+function handleCancelClick(cancelButton) {
+    const cell = cancelButton.closest('.js-rate-btn-container');
+    const rateData = cancelButton.dataset.rateJson;
+    const provider = cancelButton.dataset.provider;
+
+    cell.innerHTML = `
+        <button type="button" class="btn btn-primary js-select-rate-btn" 
+                data-rate-json="${rateData}" 
+                data-provider="${provider}">
+            Seleccionar
+        </button>
+    `;
+}
+
+
+async function handleConfirmClick(confirmButton) {
+
+
+    const btnWidth = confirmButton.offsetWidth + 'px';
+
+    confirmButton.disabled = true;
+    confirmButton.style.minWidth = btnWidth;
+
+    confirmButton.innerHTML = `
+        <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+    `;
+
+    // OPCIÓN B: Spinner de "Giro" (pero sin texto)
+    // confirmButton.innerHTML = `
+    //     <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+    // `;
+
+    // 3. Llama a la lógica de negocio
+    // (Renombramos tu 'handleRateSelection' a 'createShipmentLogic' para más claridad)
+    await createShipmentLogic(confirmButton);
+}
+
+
+function setupRateSelectionListeners() {
+
+    document.getElementById('btn-back-to-form').addEventListener('click', () => {
+        document.getElementById('ratesContainerResponse').style.display = 'none';
+        document.getElementById('shipment-form-container').style.display = 'block';
+    });
+
+    const ratesContainer = document.getElementById('ratesContainerResponse');
+
+    ratesContainer.addEventListener('click', (event) => {
+
+        // Clic en el botón "Seleccionar" (azul)
+        if (event.target.classList.contains('js-select-rate-btn')) {
+            handleSelectClick(event.target);
+        }
+
+        // Clic en el botón "Confirmar" (verde)
+        if (event.target.classList.contains('js-confirm-btn')) {
+            handleConfirmClick(event.target);
+        }
+
+        // Clic en el botón "Cancelar" (rojo)
+        if (event.target.classList.contains('js-cancel-btn')) {
+            handleCancelClick(event.target);
+        }
     });
 }
 
@@ -121,27 +226,44 @@ function renderRatesView(rates) {
 
 
     const ratesHTML = rates.map(rate => {
-        const originalDataJson = btoa(JSON.stringify(rate));
+        const rateDataJson = btoa(JSON.stringify(rate));
 
         return `
-                <div class="row rate-row align-items-center py-3 border-bottom">
-                    <div class="col-md-3">
-                        <img src="${providerLogos[rate.provider] || ''}" alt="${rate.provider}" class="provider-logo">
-                        <span>${rate.serviceName}</span>
-                    </div>
-                    <div class="col-md-3 text-center">${rate.estimatedDelivery}</div>
-                    <div class="col-md-3 text-center"><b>$${rate.price} ${rate.currency}</b></div>
-                    <div class="col-md-3 text-center">
-                        <button type="button" class="btn btn-primary js-select-rate-btn" data-rate-json="${originalDataJson}" data-provider="${rate.provider}"> 
-                            Seleccionar
-                        </button>
-                    </div>
+            <div class="row rate-row align-items-center py-3 border-bottom">
+                
+                <div class="col-md-3 d-flex align-items-center">
+                    <img src="${providerLogos[rate.provider] || ''}" alt="${rate.provider}" class="provider-logo">
+                    <span>${rate.serviceName}</span>
                 </div>
-            `;
+                
+                <div class="col-md-3 text-center">${rate.estimatedDelivery}</div>
+                
+                <div class="col-md-3 text-center"><b>$${rate.price} ${rate.currency}</b></div>
+                
+                <div class="col-md-3 text-center js-rate-btn-container" 
+                     data-rate-json="${rateDataJson}" 
+                     data-provider="${rate.provider}">
+                    
+                    <button type="button" class="btn btn-primary js-select-rate-btn" 
+                            data-rate-json="${rateDataJson}" 
+                            data-provider="${rate.provider}">
+                        Seleccionar
+                    </button>
+                </div>
+
+            </div>
+        `;
     }).join('');
 
 
     ratesContainer.innerHTML = `
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <h5 class="mb-0">Resultados de la Cotización</h5>
+            <button class="btn btn-sm btn-outline-secondary" id="btn-back-to-form">
+                <i class="bi-arrow-left me-1"></i> Regresar al Formulario
+            </button>
+        </div>
+        <hr>
         <div class="alert alert-secondary">Selecciona una tarifa de envío.</div>
         <div class="row rate-header fw-bold py-2 border-bottom">
             <div class="col-md-3">Servicio</div>
@@ -153,10 +275,10 @@ function renderRatesView(rates) {
     `;
 
     ratesContainerResponse.style.display = "block";
-    const firstStepElements = document.getElementsByClassName("first-step");
-    for (let i = 0; i < firstStepElements.length; i++) {
-        firstStepElements[i].style.display = "none";
-    }
+    // const firstStepElements = document.getElementsByClassName("first-step");
+    // for (let i = 0; i < firstStepElements.length; i++) {
+    //     firstStepElements[i].style.display = "none";
+    // }
 
     ratesContainer.style.display = 'block';
 
@@ -171,6 +293,8 @@ export async function handleRateRequest(formElements) {
         const formData = _collectFormData(formElements.form);
 
         const rates = await ShippingService.getAllRates(formData);
+
+        document.getElementById('shipment-form-container').style.display = 'none';
 
         renderRatesView(rates);
 
@@ -278,43 +402,32 @@ function renderWarehouseCards(groupedPackages) {
     return allCardsHTML;
 }
 
-/**
- * Intenta separar una dirección completa en calle, número y detalles de interior.
- * @param {string} fullAddress - La dirección completa.
- * @returns {{street: string, number: string, interior: string}}
- */
+
 function parseAddress(fullAddress) {
     let streetLine = fullAddress;
     let interior = '';
 
-    // --- PASO 1: Busca y separa los detalles de "interior" ---
     const interiorKeywords = ['PISO', 'INT', 'INTERIOR', 'DPTO', 'DEPARTAMENTO', 'LOCAL', 'OFICINA'];
-    // Creamos un regex para buscar cualquiera de estas palabras
     const regexInterior = new RegExp(`\\b(${interiorKeywords.join('|')})\\s`, 'i');
     const interiorMatch = fullAddress.match(regexInterior);
 
     if (interiorMatch) {
-        // Si encuentra una palabra clave, divide la cadena en ese punto
         const splitIndex = interiorMatch.index;
         streetLine = fullAddress.substring(0, splitIndex).trim();
         interior = fullAddress.substring(splitIndex).trim();
     }
 
-    // --- PASO 2: Ahora, en la parte principal, busca la calle y el número ---
-    // Usamos una versión mejorada del primer regex, que busca el número al final de la cadena
     const regexStreetNumber = /^(.*?)\s*(#?[\w\d-]+)\s*$/;
     const streetNumberMatch = streetLine.match(regexStreetNumber);
 
     if (streetNumberMatch) {
-        // ¡Éxito! Encontramos calle y número
         return {
             street: streetNumberMatch[1].trim(),
             number: streetNumberMatch[2].trim(),
-            interior: interior // El que encontramos en el paso 1
+            interior: interior
         };
     } else {
-        // Fallback final: si no se pudo separar calle y número,
-        // todo es calle y el usuario lo arreglará.
+
         return {
             street: streetLine,
             number: '',
@@ -326,14 +439,12 @@ function parseAddress(fullAddress) {
 function setupEventListeners(appData) {
     const { groupedPackages } = appData.data;
 
-    // 1. Configurar los botones de "Copiar"
     const copyButtons = document.querySelectorAll('.js-copy-btn');
 
     console.log("elements", elements);
 
     copyButtons.forEach(button => {
         button.addEventListener('click', (event) => {
-            // Obtenemos el ID del almacén desde el data-attribute
             const warehouseId = event.currentTarget.dataset.warehouseId;
             const warehouseData = groupedPackages[warehouseId][0];
             const warehouseName = warehouseData.warehouse_name;
@@ -342,8 +453,8 @@ function setupEventListeners(appData) {
 
             const num = warehouseCatalogAddress.interior ? `${warehouseCatalogAddress.number} Int. ${warehouseCatalogAddress.interior}` : warehouseCatalogAddress.number;
 
-            const parsedAddr = parseAddress(warehouseData.address);
-            elements.form.sender.calleInput.value = warehouseCatalogAddress.street;  // Asumiendo que ahora tienes 'calleInput'
+            // const parsedAddr = parseAddress(warehouseData.address);
+            elements.form.sender.calleInput.value = warehouseCatalogAddress.street;
             elements.form.sender.numeroInput.value = num;
 
             console.log("elements.form.sender.nombreInput", elements.form.sender.nombreInput);

@@ -329,7 +329,8 @@ export class DhlAdapter {
                 date: event.date,
                 time: event.time.slice(0, 5),
                 description: event.description,
-                location: event.serviceArea[0].description
+                location: event.serviceArea[0].description,
+                typeCode: event.typeCode
             }));
 
         return {

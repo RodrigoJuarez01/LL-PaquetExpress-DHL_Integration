@@ -18,9 +18,9 @@
 
 
 	</script>
-	<header class="dhl-header d-flex justify-content-between align-items-center">
-		<img src="ui/img/dhl-3.svg" alt="DHL Express Logo">
-		<div class="header-text">Integración</div>
+	<header class="widget-header d-flex align-items-center px-3 py-2">
+		<i class="bi-box-seam me-2" style="font-size: 1.5rem;"></i>
+		<h5 class="mb-0">Gestor de Envíos</h5>
 	</header>
 	<!-- *********************************************************************************************************************** -->
 	<div class="spinner-wrapper" id="spinnerWrapper">
@@ -35,34 +35,41 @@
 		<div class="container inner-container mt-4 mb-5">
 
 
+			<div class="container-fluid p-3">
+				<ul class="nav nav-tabs" id="myTab" role="tablist">
+					<li class="nav-item" role="presentation">
+						<button class="nav-link active tab-title" id="shipment-tab" data-view="view-create-shipment"
+							data-bs-toggle="tab" data-bs-target="#shipment-tab-pane" type="button" role="tab"
+							aria-controls="home-tab-pane" aria-selected="true">
+							<i class="bi-plus-circle me-1"></i> Crear envío
+						</button>
+					</li>
+					<li class="nav-item" role="presentation">
+						<button class="nav-link tab-title" id="tracking-tab" data-view="view-tracking"
+							data-bs-toggle="tab" data-bs-target="#tracking-tab-pane" type="button" role="tab"
+							aria-controls="tracking-tab-pane" aria-selected="false">
+							<i class="bi-truck me-1"></i> Rastrear envío
+						</button>
+					</li>
+					<li class="nav-item" role="presentation">
+						<button class="nav-link tab-title" id="pod-tab" data-view="view-pod" data-bs-toggle="tab"
+							data-bs-target="#pod-tab-pane" type="button" role="tab" aria-controls="pod-tab-pane"
+							aria-selected="false">
+							<i class="bi-clipboard-check me-1"></i> Prueba de entrega
+						</button>
+					</li>
 
-			<ul class="nav nav-tabs" id="myTab" role="tablist">
-				<li class="nav-item" role="presentation">
-					<button class="nav-link active tab-title" id="shipment-tab" data-view="view-create-shipment"
-						data-bs-toggle="tab" data-bs-target="#shipment-tab-pane" type="button" role="tab"
-						aria-controls="home-tab-pane" aria-selected="true">
-						Crear envío
-					</button>
-				</li>
-				<li class="nav-item" role="presentation">
-					<button class="nav-link tab-title" id="tracking-tab" data-view="view-tracking" data-bs-toggle="tab"
-						data-bs-target="#tracking-tab-pane" type="button" role="tab" aria-controls="tracking-tab-pane"
-						aria-selected="false">
-						Rastrear envío
-					</button>
-				</li>
-				<li class="nav-item" role="presentation">
-					<button class="nav-link tab-title" id="pod-tab" data-view="view-pod" data-bs-toggle="tab"
-						data-bs-target="#pod-tab-pane" type="button" role="tab" aria-controls="pod-tab-pane"
-						aria-selected="false">
-						Prueba de entrega
-					</button>
-				</li>
-
-			</ul>
+				</ul>
+			</div>
 			<div class="tab-content" id="tab-content-container"></div>
 
 			<template id="view-create-shipment">
+				<div class="alert alert-danger d-none mt-3" role="alert" id="shipment-error-alert">
+					<i class="bi-exclamation-triangle-fill me-2"></i>
+					<strong id="shipment-error-message">Error: Este es un mensaje de ejemplo.</strong>
+				</div>
+				<div class="row mt-3">
+				</div>
 				<div class="tab-pane fade show active" id="shipment-tab-pane" role="tabpanel"
 					aria-labelledby="shipment-tab" tabindex="0">
 
@@ -81,250 +88,261 @@
 							</div>
 						</div>
 					</div>
-					<div class="row mt-4 first-step" id="shipmentDetailsMessage">
-						<div class="alert alert-secondary d-flex align-items-center" role="alert">
-							<div>
-								<i class="bi-truck-front-fill" style="font-size: 1.1rem; color: rgb(10, 10, 10);"></i>
-								&nbsp; <strong>Indica los detalles del envío.</strong>
+
+					<div id="shipment-form-container">
+						<div class="row mt-4 first-step" id="shipmentDetailsMessage">
+							<div class="alert alert-secondary d-flex align-items-center" role="alert">
+								<div>
+									<i class="bi-truck-front-fill"
+										style="font-size: 1.1rem; color: rgb(10, 10, 10);"></i>
+									&nbsp; <strong>Indica los detalles del envío.</strong>
+								</div>
 							</div>
 						</div>
-					</div>
-					<div class="row mt-2 first-step" id="warehousePackagesCards">
-					</div>
-					<div class="row gx-5 mt-4 first-step">
-						<div class="col-md-6">
-							<h5>
-								<i class="bi-box-arrow-in-down" style="margin-right: 0.5rem;">
-								</i>
-								Origen
-							</h5>
-							<form>
-								<div class="mb-3">
-									<label for="senderNombre" class="form-label">Nombre</label>
-									<input type="text" class="form-control form-control-sm" id="senderNombre">
-									<div class="invalid-feedback"></div>
-								</div>
-								<div class="mb-3">
-									<label for="senderEmpresa" class="form-label">Empresa</label>
-									<input type="text" class="form-control form-control-sm" id="senderEmpresa">
-									<div class="invalid-feedback"></div>
-								</div>
-								<div class="mb-3">
-									<label for="senderPais" class="form-label">País</label>
-									<input type="text" class="form-control form-control-sm" id="senderPais">
-									<div class="invalid-feedback"></div>
-								</div>
-								<div class="mb-3">
-									<label for="senderDireccion_num" class="form-label">Calle</label>
-									<input type="text" class="form-control form-control-sm" id="senderCalle">
-									<div class="invalid-feedback"></div>
-								</div>
-								<div class="mb-3">
-									<label for="senderDireccion_calle" class="form-label">Número Ext.</label>
-									<input type="text" class="form-control form-control-sm" id="senderNumero">
-									<div class="invalid-feedback"></div>
-								</div>
-								<div class="mb-3">
-									<label for="senderDireccion2" class="form-label">Dirección 2</label>
-									<input type="text" class="form-control form-control-sm" id="senderDireccion2">
-									<div class="invalid-feedback"></div>
-								</div>
-								<div class="mb-3" style="display: none;">
-									<label for="senderDireccion3" class="form-label">Dirección 3</label>
-									<input type="text" class="form-control form-control-sm" id="senderDireccion3">
-									<div class="invalid-feedback"></div>
-								</div>
-								<div class="mb-3">
-									<label for="senderCodigoPostal" class="form-label">Código postal</label>
-									<input type="text" class="form-control form-control-sm" id="senderCodigoPostal">
-									<div class="invalid-feedback"></div>
-									<div id="autocompleteResults0" style="position: absolute;"></div>
-								</div>
-								<div class="mb-3">
-									<label for="senderCiudad" class="form-label">Ciudad</label>
-									<input type="text" class="form-control form-control-sm" id="senderCiudad">
-									<div class="invalid-feedback"></div>
-								</div>
-								<div class="mb-3">
-									<label for="senderEstado" class="form-label">Estado</label>
-									<input type="text" class="form-control form-control-sm" id="senderEstado">
-									<div class="invalid-feedback"></div>
-								</div>
-								<div class="mb-3">
-									<label for="senderEmail" class="form-label">Dirección de correo electrónico</label>
-									<input type="email" class="form-control form-control-sm" id="senderEmail">
-									<div class="invalid-feedback"></div>
-								</div>
-								<div class="mb-3">
-									<label for="senderTelefono" class="form-label">Teléfono</label>
-									<input type="tel" class="form-control form-control-sm" id="senderTelefono">
-									<div class="invalid-feedback"></div>
-								</div>
-							</form>
+						<div class="row mt-2 first-step" id="warehousePackagesCards">
 						</div>
-						<div class="col-md-6 border-start">
-							<h5>
+						<!-- <div class="alert alert-danger d-none" role="alert" id="shipment-error-alert">
+						<h5 class="alert-heading">Error</h5>
+						<p id="shipment-error-message">Mensaje de error.</p>
+						</div> -->
+						<div class="row gx-5 mt-4 first-step">
+							<div class="col-md-6">
+								<h5>
+									<i class="bi-box-arrow-in-down" style="margin-right: 0.5rem;">
+									</i>
+									Origen
+								</h5>
+								<form>
+									<div class="mb-3">
+										<label for="senderNombre" class="form-label">Nombre</label>
+										<input type="text" class="form-control form-control-sm" id="senderNombre">
+										<div class="invalid-feedback"></div>
+									</div>
+									<div class="mb-3">
+										<label for="senderEmpresa" class="form-label">Empresa</label>
+										<input type="text" class="form-control form-control-sm" id="senderEmpresa">
+										<div class="invalid-feedback"></div>
+									</div>
+									<div class="mb-3">
+										<label for="senderPais" class="form-label">País</label>
+										<input type="text" class="form-control form-control-sm" id="senderPais">
+										<div class="invalid-feedback"></div>
+									</div>
+									<div class="mb-3">
+										<label for="senderDireccion_num" class="form-label">Calle</label>
+										<input type="text" class="form-control form-control-sm" id="senderCalle">
+										<div class="invalid-feedback"></div>
+									</div>
+									<div class="mb-3">
+										<label for="senderDireccion_calle" class="form-label">Número Ext.</label>
+										<input type="text" class="form-control form-control-sm" id="senderNumero">
+										<div class="invalid-feedback"></div>
+									</div>
+									<div class="mb-3">
+										<label for="senderDireccion2" class="form-label">Dirección 2</label>
+										<input type="text" class="form-control form-control-sm" id="senderDireccion2">
+										<div class="invalid-feedback"></div>
+									</div>
+									<div class="mb-3" style="display: none;">
+										<label for="senderDireccion3" class="form-label">Dirección 3</label>
+										<input type="text" class="form-control form-control-sm" id="senderDireccion3">
+										<div class="invalid-feedback"></div>
+									</div>
+									<div class="mb-3">
+										<label for="senderCodigoPostal" class="form-label">Código postal</label>
+										<input type="text" class="form-control form-control-sm" id="senderCodigoPostal">
+										<div class="invalid-feedback"></div>
+										<div id="autocompleteResults0" style="position: absolute;"></div>
+									</div>
+									<div class="mb-3">
+										<label for="senderCiudad" class="form-label">Ciudad</label>
+										<input type="text" class="form-control form-control-sm" id="senderCiudad">
+										<div class="invalid-feedback"></div>
+									</div>
+									<div class="mb-3">
+										<label for="senderEstado" class="form-label">Estado</label>
+										<input type="text" class="form-control form-control-sm" id="senderEstado">
+										<div class="invalid-feedback"></div>
+									</div>
+									<div class="mb-3">
+										<label for="senderEmail" class="form-label">Dirección de correo
+											electrónico</label>
+										<input type="email" class="form-control form-control-sm" id="senderEmail">
+										<div class="invalid-feedback"></div>
+									</div>
+									<div class="mb-3">
+										<label for="senderTelefono" class="form-label">Teléfono</label>
+										<input type="tel" class="form-control form-control-sm" id="senderTelefono">
+										<div class="invalid-feedback"></div>
+									</div>
+								</form>
+							</div>
+							<div class="col-md-6 border-start">
+								<h5>
 
-								<i class="bi-box-arrow-up" style="margin-right: 0.5rem;"></i>
-								Destino
-							</h5>
-							<form>
-								<div class="mb-3">
-									<label for="receiverNombre" class="form-label">Nombre</label>
-									<input type="text" class="form-control form-control-sm" id="receiverNombre">
-									<div class="invalid-feedback"></div>
-								</div>
-								<div class="mb-3">
-									<label for="receiverEmpresa" class="form-label">Empresa</label>
-									<input type="text" class="form-control form-control-sm" id="receiverEmpresa">
-									<div class="invalid-feedback"></div>
-								</div>
-								<div class="mb-3">
-									<label for="receiverPais" class="form-label">País</label>
-									<input type="text" class="form-control form-control-sm" id="receiverPais">
-									<div class="invalid-feedback"></div>
-								</div>
-								<div class="mb-3 p-2 bg-light rounded border">
-									<label class="form-label small text-muted">Dirección registrada en Zoho:</label>
-									<p class="form-text mb-0" id="receiverOriginalAddress"></p>
-								</div>
-								<div class="mb-3">
-									<label for="receiverDireccion" class="form-label">Calle</label>
-									<input type="text" class="form-control form-control-sm" id="receiverCalle">
-									<div class="invalid-feedback"></div>
-								</div>
-								<div class="mb-3">
-									<label for="receiverDireccion" class="form-label">Número Ext.</label>
-									<input type="text" class="form-control form-control-sm" id="receiverNumero">
-									<div class="invalid-feedback"></div>
-								</div>
-								<div class="mb-3">
-									<label for="receiverDireccion2" class="form-label">Dirección 2</label>
-									<input type="text" class="form-control form-control-sm" id="receiverDireccion2">
-									<div class="invalid-feedback"></div>
-								</div>
-								<div class="mb-3" style="display: none;">
-									<label for="receiverDireccion3" class="form-label">Dirección 3</label>
-									<input type="text" class="form-control form-control-sm" id="receiverDireccion3">
-									<div class="invalid-feedback"></div>
-								</div>
-								<div class="mb-3">
-									<label for="receiverCodigoPostal" class="form-label">Código postal</label>
-									<input type="text" class="form-control form-control-sm" id="receiverCodigoPostal">
-									<div class="invalid-feedback"></div>
-									<div id="autocompleteResults1" style="position: absolute;"></div>
-								</div>
-								<div class="mb-3">
-									<label for="receiverCiudad" class="form-label">Ciudad</label>
-									<input type="text" class="form-control form-control-sm" id="receiverCiudad">
-									<div class="invalid-feedback"></div>
-								</div>
-								<div class="mb-3">
-									<label for="receiverEstado" class="form-label">Estado</label>
-									<input type="text" class="form-control form-control-sm" id="receiverEstado">
-									<div class="invalid-feedback"></div>
-								</div>
-								<div class="mb-3">
-									<label for="receiverEmail" class="form-label">Dirección de correo
-										electrónico</label>
-									<input type="email" class="form-control form-control-sm" id="receiverEmail">
-									<div class="invalid-feedback"></div>
-								</div>
-								<div class="mb-3">
-									<label for="receiverTelefono" class="form-label">Teléfono</label>
-									<input type="tel" class="form-control form-control-sm" id="receiverTelefono">
-									<div class="invalid-feedback"></div>
-								</div>
-							</form>
-						</div>
-					</div>
-
-					<div class="row mt-4 first-step">
-						<h5>Contenido de su envío</h5>
-						<div class="col-md">
-							<div class="form-floating">
-								<script>
-									function updateCharacterCount() {
-										const textarea = document.getElementById("descripcionInput");
-										const characterCount = document.getElementById("characterCount");
-										const remainingCharacters = 70 - textarea.value.length;
-										characterCount.textContent = remainingCharacters + " caracteres restantes";
-										characterCount.style.display = "block";
-									}
-								</script>
-								<textarea class="form-control" id="descripcionInput" placeholder="Descripción"
-									maxlength="70" oninput="updateCharacterCount()"></textarea>
-								<div class="invalid-feedback"></div>
-								<small id="characterCount" class="mt-1" style="display: none;">70 caracteres
-									restantes</small>
-
-
-								<label for="descripcionInput">Descripción</label>
+									<i class="bi-box-arrow-up" style="margin-right: 0.5rem;"></i>
+									Destino
+								</h5>
+								<form>
+									<div class="mb-3">
+										<label for="receiverNombre" class="form-label">Nombre</label>
+										<input type="text" class="form-control form-control-sm" id="receiverNombre">
+										<div class="invalid-feedback"></div>
+									</div>
+									<div class="mb-3">
+										<label for="receiverEmpresa" class="form-label">Empresa</label>
+										<input type="text" class="form-control form-control-sm" id="receiverEmpresa">
+										<div class="invalid-feedback"></div>
+									</div>
+									<div class="mb-3">
+										<label for="receiverPais" class="form-label">País</label>
+										<input type="text" class="form-control form-control-sm" id="receiverPais">
+										<div class="invalid-feedback"></div>
+									</div>
+									<div class="mb-3 p-2 bg-light rounded border">
+										<label class="form-label small text-muted">Dirección registrada en Zoho:</label>
+										<p class="form-text mb-0" id="receiverOriginalAddress"></p>
+									</div>
+									<div class="mb-3">
+										<label for="receiverDireccion" class="form-label">Calle</label>
+										<input type="text" class="form-control form-control-sm" id="receiverCalle">
+										<div class="invalid-feedback"></div>
+									</div>
+									<div class="mb-3">
+										<label for="receiverDireccion" class="form-label">Número Ext.</label>
+										<input type="text" class="form-control form-control-sm" id="receiverNumero">
+										<div class="invalid-feedback"></div>
+									</div>
+									<div class="mb-3">
+										<label for="receiverDireccion2" class="form-label">Dirección 2</label>
+										<input type="text" class="form-control form-control-sm" id="receiverDireccion2">
+										<div class="invalid-feedback"></div>
+									</div>
+									<div class="mb-3" style="display: none;">
+										<label for="receiverDireccion3" class="form-label">Dirección 3</label>
+										<input type="text" class="form-control form-control-sm" id="receiverDireccion3">
+										<div class="invalid-feedback"></div>
+									</div>
+									<div class="mb-3">
+										<label for="receiverCodigoPostal" class="form-label">Código postal</label>
+										<input type="text" class="form-control form-control-sm"
+											id="receiverCodigoPostal">
+										<div class="invalid-feedback"></div>
+										<div id="autocompleteResults1" style="position: absolute;"></div>
+									</div>
+									<div class="mb-3">
+										<label for="receiverCiudad" class="form-label">Ciudad</label>
+										<input type="text" class="form-control form-control-sm" id="receiverCiudad">
+										<div class="invalid-feedback"></div>
+									</div>
+									<div class="mb-3">
+										<label for="receiverEstado" class="form-label">Estado</label>
+										<input type="text" class="form-control form-control-sm" id="receiverEstado">
+										<div class="invalid-feedback"></div>
+									</div>
+									<div class="mb-3">
+										<label for="receiverEmail" class="form-label">Dirección de correo
+											electrónico</label>
+										<input type="email" class="form-control form-control-sm" id="receiverEmail">
+										<div class="invalid-feedback"></div>
+									</div>
+									<div class="mb-3">
+										<label for="receiverTelefono" class="form-label">Teléfono</label>
+										<input type="tel" class="form-control form-control-sm" id="receiverTelefono">
+										<div class="invalid-feedback"></div>
+									</div>
+								</form>
 							</div>
 						</div>
-					</div>
 
-					<div class="row mt-3 first-step">
-						<h5>Paquetes</h5>
-						<div class="col-md">
-							<div class="form-floating">
-								<input type="number" class="form-control" id="cantidadInput" placeholder="Cantidad"
-									value="">
-								<div class="invalid-feedback"></div>
-								<label for="cantidadInput">Cantidad</label>
-							</div>
-						</div>
-						<div class="col-md">
-							<div class="form-floating">
-								<input type="number" class="form-control" id="pesoInput" placeholder="Peso (kg)"
-									value="">
-								<div class="invalid-feedback"></div>
-								<label for="pesoInput">Peso (kg)</label>
-							</div>
-						</div>
-						<div class="col-md">
-							<div class="form-floating">
-								<input type="number" class="form-control" id="longitudInput" placeholder="Longitud (cm)"
-									value="">
-								<div class="invalid-feedback"></div>
-								<label for="longitudInput">Long. (cm)</label>
-							</div>
-						</div>
-						<div class="col-md">
-							<div class="form-floating">
-								<input type="number" class="form-control" id="anchoInput" placeholder="Ancho (cm)"
-									value="">
-								<div class="invalid-feedback"></div>
-								<label for="anchoInput">Ancho (cm)</label>
-							</div>
-						</div>
-						<div class="col-md">
-							<div class="form-floating">
-								<input type="number" class="form-control" id="alturaInput" placeholder="Altura (cm)"
-									value="">
-								<div class="invalid-feedback"></div>
-								<label for="alturaInput">Altura (cm)</label>
-							</div>
-						</div>
-					</div>
+						<div class="row mt-4 first-step">
+							<h5>Contenido de su envío</h5>
+							<div class="col-md">
+								<div class="form-floating">
+									<script>
+										function updateCharacterCount() {
+											const textarea = document.getElementById("descripcionInput");
+											const characterCount = document.getElementById("characterCount");
+											const remainingCharacters = 70 - textarea.value.length;
+											characterCount.textContent = remainingCharacters + " caracteres restantes";
+											characterCount.style.display = "block";
+										}
+									</script>
+									<textarea class="form-control" id="descripcionInput" placeholder="Descripción"
+										maxlength="70" oninput="updateCharacterCount()"></textarea>
+									<div class="invalid-feedback"></div>
+									<small id="characterCount" class="mt-1" style="display: none;">70 caracteres
+										restantes</small>
 
-					<div class="row mt-4 first-step">
-						<h5>Fecha de recolección</h5>
-						<div class="col-md">
-							<div class="form-floating">
-								<!-- <label for="senderFecha" class="form-label">Fecha</label> -->
-								<!-- 2018-06-12T19:30 -->
-								<input id="senderFecha" class="form-control" type="datetime-local" id="meeting-time"
-									name="meeting-time" value="" min="" max="" />
-								<div class="invalid-feedback"></div>
 
+									<label for="descripcionInput">Descripción</label>
+								</div>
 							</div>
 						</div>
-					</div>
 
-					<div class="text-end mt-3 first-step">
-						<button type="submit" class="btn btn-primary btn-dhl mt-3"
-							id="nextStepShipmentBtn">Siguiente</button>
+						<div class="row mt-3 first-step">
+							<h5>Paquetes</h5>
+							<div class="col-md">
+								<div class="form-floating">
+									<input type="number" class="form-control" id="cantidadInput" placeholder="Cantidad"
+										value="">
+									<div class="invalid-feedback"></div>
+									<label for="cantidadInput">Cantidad</label>
+								</div>
+							</div>
+							<div class="col-md">
+								<div class="form-floating">
+									<input type="number" class="form-control" id="pesoInput" placeholder="Peso (kg)"
+										value="">
+									<div class="invalid-feedback"></div>
+									<label for="pesoInput">Peso (kg)</label>
+								</div>
+							</div>
+							<div class="col-md">
+								<div class="form-floating">
+									<input type="number" class="form-control" id="longitudInput"
+										placeholder="Longitud (cm)" value="">
+									<div class="invalid-feedback"></div>
+									<label for="longitudInput">Long. (cm)</label>
+								</div>
+							</div>
+							<div class="col-md">
+								<div class="form-floating">
+									<input type="number" class="form-control" id="anchoInput" placeholder="Ancho (cm)"
+										value="">
+									<div class="invalid-feedback"></div>
+									<label for="anchoInput">Ancho (cm)</label>
+								</div>
+							</div>
+							<div class="col-md">
+								<div class="form-floating">
+									<input type="number" class="form-control" id="alturaInput" placeholder="Altura (cm)"
+										value="">
+									<div class="invalid-feedback"></div>
+									<label for="alturaInput">Altura (cm)</label>
+								</div>
+							</div>
+						</div>
+
+						<div class="row mt-4 first-step">
+							<h5>Fecha de recolección</h5>
+							<div class="col-md">
+								<div class="form-floating">
+									<!-- <label for="senderFecha" class="form-label">Fecha</label> -->
+									<!-- 2018-06-12T19:30 -->
+									<input id="senderFecha" class="form-control" type="datetime-local" id="meeting-time"
+										name="meeting-time" value="" min="" max="" />
+									<div class="invalid-feedback"></div>
+
+								</div>
+							</div>
+						</div>
+
+						<div class="text-end mt-3 first-step">
+							<button type="submit" class="btn btn-primary btn-dhl mt-3"
+								id="nextStepShipmentBtn">Siguiente</button>
+						</div>
+
 					</div>
 
 
@@ -412,7 +430,7 @@
 					<div class="alert alert-secondary d-flex align-items-center mt-4" role="alert">
 						<div>
 							<i class="bi-file-earmark-post" style="font-size: 1.1rem; color: rgb(10, 10, 10);"></i>
-							&nbsp; <strong>Selecciona el número de rastreo de tu envío para obetener su prueba
+							&nbsp; <strong>Selecciona el número de rastreo de tu envío para obtener su prueba
 								electrónica
 								de entrega.</strong>
 						</div>

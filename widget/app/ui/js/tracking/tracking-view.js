@@ -1,5 +1,6 @@
 import { ShippingService } from "../../../core/services/shipping.service.js";
 import { showRequestErrorToast } from "../features/errorToast.js";
+import ZohoService from '../../../core/services/zoho.service.js';
 
 
 const elements = {
@@ -33,7 +34,7 @@ function renderTrackingTimeline(trackingResult) {
 		const trackingTime = event.time;
 		const trackingDescription = event.description;
 		const trackingServiceAreaDesc = event.location;
-		const trackingNumOfPieces = trackingResult.summary.numberOfPieces === 1 ? "1 Pieza" : `${trackingResult.summary.numberOfPieces} Piezas`;
+		const trackingNumOfPieces = !trackingResult.summary.numberOfPieces ? "" : trackingResult.summary.numberOfPieces === 1 ? "1 Pieza" : `${trackingResult.summary.numberOfPieces} Piezas`;
 
 
 		eventsHTML += `
@@ -106,7 +107,7 @@ async function handleTrackingButtonClick(event) {
 	console.log('Last Event:', lastEvent);
 
 
-	if (lastEvent.typeCode !== "OK") {
+	if ( lastEvent.typeCode && lastEvent.typeCode !== "OK" && provider === "dhl") {
 		const pendingRowHTML = `
                 <div class="tracking-item-pending" id="pendingTrackingEvent">
                     
@@ -126,7 +127,7 @@ async function handleTrackingButtonClick(event) {
             `;
 		elements.trackingEventsContainer.insertAdjacentHTML('afterbegin', pendingRowHTML);
 
-	} else {
+	} else if(provider === "dhl") {
 
 		const { success, errorMsg } = ZohoService.markShipmentAsDelivered(shipmentId);
 
@@ -134,6 +135,8 @@ async function handleTrackingButtonClick(event) {
 			showRequestErrorToast('Update Shipment Error: ' + errorMsg, 7000);
 		}
 	}
+
+	
 
 	// const lastStatusDiv = document.getElementById(`trackingStatus0`);
 	// lastStatusDiv.className = 'tracking-icon status-current blinker';

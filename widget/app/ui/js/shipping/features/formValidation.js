@@ -1,3 +1,20 @@
+export function showShipmentError(message, inputElement = null) {
+    const errorAlert = document.getElementById('shipment-error-alert');
+    const errorMessage = document.getElementById('shipment-error-message');
+
+    const instructionsMessage = document.getElementById('shipmentDetailsMessage');
+    instructionsMessage.style.display = 'none';
+
+    errorMessage.textContent = message;
+    errorAlert.classList.remove('d-none');
+
+    if (inputElement) {
+        inputElement.focus();
+    } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+}
+
 export function validateShipmentForm(elements, viewState) {
 
 
@@ -105,41 +122,51 @@ export function validateShipmentForm(elements, viewState) {
     }
 
     // Helper function to show validation toast
-    function showValidationErrorToast(message, delay, inputElement) {
-        console.log('input element: ', inputElement);
-        console.log('message: ', message);
-        // Get the toast container
-        const toastContainer = document.getElementById('toastContainer');
-        // Focus on the first invalid input or scroll to the top of the page
-        if (inputElement) {
-            inputElement.focus();
-            // Set vertical position of the toastContainer close to the inputElement
-            console.log('input element: ', inputElement.offsetTop);
-            console.log('input element parent: ', inputElement.offsetParent.offsetTop);
-            if (inputElement.offsetTop > 0) {
-                toastContainer.style.top = (inputElement.offsetTop + (inputElement.offsetTop * 0.20)) + 'px';
-            } else if (inputElement.offsetParent.offsetTop > 0) {
-                toastContainer.style.top = (inputElement.offsetParent.offsetTop + 80) + 'px';
-            }
+    // function showValidationErrorToast(message, delay, inputElement) {
+    //     console.log('input element: ', inputElement);
+    //     console.log('message: ', message);
+    //     // Get the toast container
+    //     const toastContainer = document.getElementById('toastContainer');
+    //     // Focus on the first invalid input or scroll to the top of the page
+    //     if (inputElement) {
+    //         inputElement.focus();
+    //         // Set vertical position of the toastContainer close to the inputElement
+    //         console.log('input element: ', inputElement.offsetTop);
+    //         console.log('input element parent: ', inputElement.offsetParent.offsetTop);
+    //         if (inputElement.offsetTop > 0) {
+    //             toastContainer.style.top = (inputElement.offsetTop + (inputElement.offsetTop * 0.20)) + 'px';
+    //         } else if (inputElement.offsetParent.offsetTop > 0) {
+    //             toastContainer.style.top = (inputElement.offsetParent.offsetTop + 80) + 'px';
+    //         }
 
-        } else {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-            toastContainer.style.top = '75%';
-        }
+    //     } else {
+    //         window.scrollTo({
+    //             top: 0,
+    //             behavior: 'smooth'
+    //         });
+    //         toastContainer.style.top = '75%';
+    //     }
 
-        toastContainer.classList.remove('top-50', 'translate-middle');
-        toastContainer.classList.add('bottom-0', 'translate-middle-x');
-        const errorToast = document.getElementById('toast');
-        errorToast.setAttribute('data-bs-delay', delay);
-        const toastBody = errorToast.querySelector('.toast-body');
-        toastBody.innerHTML = '<p><strong>' + message + '</strong></p>';
-        const toastBootstrap = bootstrap.Toast.getOrCreateInstance(errorToast);
-        toastBootstrap.show();
+    //     toastContainer.classList.remove('top-50', 'translate-middle');
+    //     toastContainer.classList.add('bottom-0', 'translate-middle-x');
+    //     const errorToast = document.getElementById('toast');
+    //     errorToast.setAttribute('data-bs-delay', delay);
+    //     const toastBody = errorToast.querySelector('.toast-body');
+    //     toastBody.innerHTML = '<p><strong>' + message + '</strong></p>';
+    //     const toastBootstrap = bootstrap.Toast.getOrCreateInstance(errorToast);
+    //     toastBootstrap.show();
+    // }
+
+
+    function hideShipmentError() {
+        const errorAlert = document.getElementById('shipment-error-alert');
+        errorAlert.classList.add('d-none');
+        const instructionsMessage = document.getElementById('shipmentDetailsMessage');
+        instructionsMessage.style.display = 'block';
     }
 
+
+    hideShipmentError();
     const { sender, receiver } = elements.form;
     const pck = elements.form.package;
 
@@ -196,12 +223,14 @@ export function validateShipmentForm(elements, viewState) {
 
         console.log('***Validation failed: No package selected');
         const message = 'Por favor, seleccione por lo menos un paquete.';
-        showValidationErrorToast(message, 3700, null);
+        // showValidationErrorToast(message, 3700, null);
         console.log('message: ', message);
 
         checkboxes.forEach(function (checkbox) {
             checkbox.classList.add('is-invalid');
         });
+
+        firstInvalidErrorMessage = 'Por favor, seleccione por lo menos un paquete.';
     } else {
 
         checkboxes.forEach(function (checkbox) {
@@ -209,17 +238,10 @@ export function validateShipmentForm(elements, viewState) {
         });
     }
 
-    // If validation fails, prevent moving to the next step
     if (!isValid) {
-        // event.preventDefault();
-        console.log('***Validation failed.');
-        // Show the first invalid input and its error message. There must be selected at least one package.
-        if (selectedPackageIds && selectedPackageIds.length > 0) {
-            console.log('we are in the first invalid input and its error message.')
-            showValidationErrorToast(firstInvalidErrorMessage, 3700, firstInvalidInput);
-        }
-
+        console.log('***Validation failed:', firstInvalidErrorMessage);
+        showShipmentError(firstInvalidErrorMessage, firstInvalidInput);
     }
-    
+
     return isValid;
 }

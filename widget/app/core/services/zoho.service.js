@@ -25,13 +25,15 @@ async function _fetchRawData() {
         console.log('***Sales Order ID:', salesorderId);
 
         const warehousesOptions = {
-            url: 'https://www.zohoapis.com/inventory/v1/settings/warehouses?organization_id=' + orgId,
+            url: 'https://www.zohoapis.com/inventory/v1/locations?organization_id=' + orgId,
             method: "GET",
             connection_link_name: inventoryConnectionLinkName
         };
         const werehousesAPIResponse = await ZFAPPS.request(warehousesOptions);
 
         const werehousesBody = JSON.parse(werehousesAPIResponse.data.body);
+
+        console.log("werehousesBody", werehousesBody);
 
         const salesordersOptions = {
             url: 'https://www.zohoapis.com/inventory/v1/salesorders/' + salesorderId + '?organization_id=' + orgId,
@@ -106,7 +108,7 @@ async function _fetchRawData() {
         console.log(packagesFullData);
 
         return {
-            warehouses: werehousesBody.warehouses,
+            warehouses: werehousesBody.locations,
             salesOrder: salesOrdersBody.salesorder,
             soShippingAddress: soShippingAddress,
             contact: {
@@ -175,6 +177,7 @@ function _processAndGroupData(data) {
     The joined packages and warehouses are then pushed into a new array called packagesAndWarehouse. 
     */
     packages.forEach(pck => {
+
         //let key = package.custom_field_hash.cf_pte_almacen;
         /*
         This code is responsible for retrieving the value of cf_pte_almacen from the package data.
@@ -199,19 +202,22 @@ function _processAndGroupData(data) {
             //packagesWithPteAlmacenEmpty.push(package.package_number);
         }
 
+        console.log("Key", key);
         warehouses.forEach(warehouse => {
-            if (warehouse.warehouse_name.trim() === key) {
+            console.log("warehouse.location_name", warehouse.location_name);
+
+            if (warehouse.location_name.trim().toLowerCase().includes(key.toLowerCase())) {
                 let obj = {
-                    warehouse_name: warehouse.warehouse_name,
+                    warehouse_name: key,
                     zip: warehouse.zip,
                     address: warehouse.address,
                     address2: warehouse.address2,
                     address1: warehouse.address1,
                     phone: warehouse.phone,
-                    attention: warehouse.attention,
+                    attention: warehouse.address.attention ?? warehouse.location_name,
                     state: warehouse.state,
                     city: warehouse.city,
-                    branch_name: warehouse.branch_name,
+                    branch_name: warehouse.location_name,
                     email: warehouse.email,
                     warehouse_id: warehouse.warehouse_id,
                     pte_almacen: key,
