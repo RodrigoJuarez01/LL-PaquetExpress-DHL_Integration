@@ -481,5 +481,50 @@ export class PaquetexpressAdapter {
     }
 
 
+    async cancelShipment(trackingNumber) {
+        // 1. Construye el Body de la Petición
+        const pqxRequestBody = {
+            header: {
+                security: {
+                    user: USER,
+                    token: TOKEN,
+                    type: 0 
+                }
+            },
+            body: {
+                request: {
+                    data: [trackingNumber]
+                }
+            }
+        };
+
+        const cancelOptions = {
+            url: `${PAQUETEXPRESS_BASE_URL}RadRestFul/api/rad/v1/cancelguia`,
+            method: "POST",
+            body: {
+                mode: 'raw',
+                raw: JSON.stringify(pqxRequestBody)
+            },
+            headers: [
+                { key: 'Content-Type', value: 'application/json' }
+            ]
+        };
+
+        const response = await ZFAPPS.request(cancelOptions);
+        const responseBody = JSON.parse(response.data.body);
+
+        if (responseBody?.body?.response?.success === true) {
+            return {
+                success: true,
+                message: "Envío cancelado exitosamente."
+            };
+        } else {
+            const errorMessage = responseBody?.body?.response?.messages?.[0]?.description 
+                                || "Error desconocido al cancelar en PaquetExpress.";
+            throw new Error(errorMessage);
+        }
+    }
+
+
 
 }

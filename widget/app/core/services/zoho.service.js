@@ -178,6 +178,7 @@ function _processAndGroupData(data) {
     */
     packages.forEach(pck => {
 
+        console.log("pck", pck);
         //let key = package.custom_field_hash.cf_pte_almacen;
         /*
         This code is responsible for retrieving the value of cf_pte_almacen from the package data.
@@ -204,7 +205,6 @@ function _processAndGroupData(data) {
 
         console.log("Key", key);
         warehouses.forEach(warehouse => {
-            console.log("warehouse.location_name", warehouse.location_name);
 
             if (warehouse.location_name.trim().toLowerCase().includes(key.toLowerCase())) {
                 let obj = {
@@ -228,7 +228,8 @@ function _processAndGroupData(data) {
                     shipment_number: pck.shipment_number,
                     shipment_status: pck.shipment_order.shipment_status,
                     shipment_tracking_number: pck.shipment_order.tracking_number,
-                    provider: pck.delivery_method.toLowerCase()
+                    provider: pck.delivery_method.toLowerCase(),
+                    shipping_date: pck.shipping_date
                 };
 
                 packagesAndWarehouse.push(obj);
@@ -622,12 +623,13 @@ const ZohoService = {
 
     async markShipmentAsDelivered(shipmentId) {
 
-        const success = true;
-        const errorMsg = "";
-
+        let success = true;
+        let errorMsg = "";
+        
         try {
+            const inventoryConnectionLinkName = ConfigService.getInventoryConn();
             const orgId = ConfigService.getOrgId();
-
+            
             const updateOptions = {
                 url: 'https://www.zohoapis.com/inventory/v1/shipmentorders/' + shipmentId + '/status/delivered?organization_id=' + orgId,
                 method: "POST",
@@ -643,7 +645,7 @@ const ZohoService = {
             };
             console.log('updateOptions: ', updateOptions);
 
-            response = await ZFAPPS.request(updateOptions)
+            const response = await ZFAPPS.request(updateOptions)
             //response Handling
             console.log('shipmentorders response: ', response);
 

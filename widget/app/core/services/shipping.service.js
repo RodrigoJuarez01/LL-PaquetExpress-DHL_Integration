@@ -38,8 +38,11 @@ export const ShippingService = {
     },
 
     async getProofOfDelivery(providerName, trackingNumber, shipmentID) {
-        console.log("providerName", providerName);
-        console.log("shipmentID", shipmentID);
+     
         return await providers[providerName].getProofOfDelivery(trackingNumber, shipmentID);
+    },
+    
+    async cancelShipment(providerName, trackingNumber){
+        return await providers[providerName].cancelShipment(trackingNumber);
     }
 };

@@ -111,37 +111,30 @@ function handlePackageSelectionChange(event) {
 
 
 function handleSelectClick(selectButton) {
-    
+
     const clickedCell = selectButton.closest('.js-rate-btn-container');
 
+    // 2. Rescata los datos de esa celda
     const rateData = clickedCell.dataset.rateJson;
     const provider = clickedCell.dataset.provider;
 
-    document.querySelectorAll('.js-rate-btn-container').forEach(cell => {
-        if (cell !== clickedCell) {
-            const otherRateData = cell.dataset.rateJson;
-            const otherProvider = cell.dataset.provider;
-            cell.innerHTML = `
-                <button type="button" class="btn btn-primary js-select-rate-btn" 
-                        data-rate-json="${otherRateData}" 
-                        data-provider="${otherProvider}">
-                    Seleccionar
-                </button>
-            `;
+    document.querySelectorAll('.js-select-rate-btn').forEach(btn => {
+        if (btn !== selectButton) {
+            btn.disabled = true;
         }
     });
 
-
+    // 4. Reemplaza el contenido de la CELDA PRESIONADA por los botones nuevos
     clickedCell.innerHTML = `
         <div class="btn-group" role="group">
             <button type="button" class="btn btn-success js-confirm-btn" 
                     data-rate-json="${rateData}" 
                     data-provider="${provider}">
-                <i class="bi-check-circle"></i> Confirmar
+                 Confirmar
             </button>
             <button type="button" class="btn btn-danger js-cancel-btn" 
-                    data-provider="${provider}" 
-                    data-rate-json="${rateData}">
+                    data-rate-json="${rateData}" 
+                    data-provider="${provider}">
                 <i class="bi-x"></i>
             </button>
         </div>
@@ -150,17 +143,7 @@ function handleSelectClick(selectButton) {
 
 
 function handleCancelClick(cancelButton) {
-    const cell = cancelButton.closest('.js-rate-btn-container');
-    const rateData = cancelButton.dataset.rateJson;
-    const provider = cancelButton.dataset.provider;
-
-    cell.innerHTML = `
-        <button type="button" class="btn btn-primary js-select-rate-btn" 
-                data-rate-json="${rateData}" 
-                data-provider="${provider}">
-            Seleccionar
-        </button>
-    `;
+    resetAllRateCells();
 }
 
 
@@ -172,10 +155,18 @@ async function handleConfirmClick(confirmButton) {
     confirmButton.disabled = true;
     confirmButton.style.minWidth = btnWidth;
 
+
+
+    const cancelButton = confirmButton.nextElementSibling; // El botón de cancelar
+    if (cancelButton) {
+        cancelButton.disabled = true;
+    }
+
+
+
     confirmButton.innerHTML = `
         <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
     `;
-
     // OPCIÓN B: Spinner de "Giro" (pero sin texto)
     // confirmButton.innerHTML = `
     //     <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
@@ -186,7 +177,6 @@ async function handleConfirmClick(confirmButton) {
     await createShipmentLogic(confirmButton);
 }
 
-
 function setupRateSelectionListeners() {
 
     document.getElementById('btn-back-to-form').addEventListener('click', () => {
@@ -195,23 +185,32 @@ function setupRateSelectionListeners() {
     });
 
     const ratesContainer = document.getElementById('ratesContainerResponse');
-
     ratesContainer.addEventListener('click', (event) => {
+        const selectBtn = event.target.closest('.js-select-rate-btn');
+        const confirmBtn = event.target.closest('.js-confirm-btn');
+        const cancelBtn = event.target.closest('.js-cancel-btn');
 
-        // Clic en el botón "Seleccionar" (azul)
-        if (event.target.classList.contains('js-select-rate-btn')) {
-            handleSelectClick(event.target);
+        if (selectBtn) {
+            handleSelectClick(selectBtn);
+        } else if (confirmBtn) {
+            handleConfirmClick(confirmBtn);
+        } else if (cancelBtn) {
+            handleCancelClick(cancelBtn);
         }
+    });
+}
 
-        // Clic en el botón "Confirmar" (verde)
-        if (event.target.classList.contains('js-confirm-btn')) {
-            handleConfirmClick(event.target);
-        }
-
-        // Clic en el botón "Cancelar" (rojo)
-        if (event.target.classList.contains('js-cancel-btn')) {
-            handleCancelClick(event.target);
-        }
+function resetAllRateCells() {
+    document.querySelectorAll('.js-rate-btn-container').forEach(cell => {
+        const rateData = cell.dataset.rateJson;
+        const provider = cell.dataset.provider;
+        cell.innerHTML = `
+            <button type="button" class="btn btn-primary js-select-rate-btn" 
+                    data-rate-json="${rateData}" 
+                    data-provider="${provider}">
+                Seleccionar
+            </button>
+        `;
     });
 }
 

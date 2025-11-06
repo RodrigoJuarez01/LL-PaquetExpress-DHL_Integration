@@ -389,36 +389,40 @@
 			</template>
 
 			<template id="view-tracking">
-				<div class="tab-pane fade show active" id="tracking-tab-pane" role="tabpanel"
-					aria-labelledby="tracking-tab" tabindex="0">
-					<div class="alert alert-secondary d-flex align-items-center mt-4" role="alert">
-						<div>
-							<i class="bi-pin-map-fill" style="font-size: 1.1rem; color: rgb(10, 10, 10);"></i>
-							&nbsp; <strong>Selecciona el número de rastreo de tu envío para conocer su estatus.</strong>
-						</div>
-					</div>
-					<div class="row mt-4" id="trackingCards">
-					</div>
+				<div class="tab-pane fade show active" id="tracking-tab-pane" ...>
 
-					<div class="row">
+					<div class="row g-0">
 
-						<div class="col-12">
+						<div class="col-12 col-md-4 border-end" style="height: 700px; overflow-y: auto;">
+							<div class="p-3">
+								<strong>Envíos Activos</strong>
+								<p class="text-muted small">Selecciona un envío para ver su historial.</p>
 
-							<div class="alert alert-secondary d-flex align-items-center mb-4"
-								style="display: none !important;" role="alert" id="trackingEventsMessage">
-								<div>
-									<i class="bi-crosshair" style="font-size: 1.1rem; color: rgb(10, 10, 10);"></i>
-									&nbsp; <strong id="trackingTitle"></strong>
+								<div id="trackingCardsList" class="d-flex flex-column gap-2">
 								</div>
 							</div>
+						</div>
 
-							<div id="tracking">
-								<div class="tracking-list" id="trackingEvents">
+						<div class="col-12 col-md-8" style="height: 700px; overflow-y: auto;">
+							<div class="p-3">
+								<h5 id="trackingTitle">Selecciona un envío</h5>
 
+								<div id="tracking-actions-container">
+								</div>
+								<div id="tracking-spinner" class="text-center p-5 d-none">
+									<div class="spinner-border text-primary" role="status">
+										<span class="visually-hidden">Loading...</span>
+									</div>
+								</div>
+
+								<div id="tracking">
+									<div class="tracking-list" id="trackingEvents">
+										<p class="text-muted" id="tracking-placeholder"></p>
+									</div>
 								</div>
 							</div>
-
 						</div>
+
 					</div>
 				</div>
 			</template>
@@ -427,19 +431,30 @@
 
 				<div class="tab-pane fade show active" id="pod-tab-pane" role="tabpanel" aria-labelledby="pod-tab"
 					tabindex="0">
-					<div class="alert alert-secondary d-flex align-items-center mt-4" role="alert">
-						<div>
-							<i class="bi-file-earmark-post" style="font-size: 1.1rem; color: rgb(10, 10, 10);"></i>
-							&nbsp; <strong>Selecciona el número de rastreo de tu envío para obtener su prueba
-								electrónica
-								de entrega.</strong>
+					<div id="pod-list-view">
+						<div class="alert alert-secondary d-flex align-items-center mt-4" role="alert">
+							<div>
+								<i class="bi-file-earmark-post"></i>
+								&nbsp; <strong>Selecciona un envío para ver su Prueba de Entrega.</strong>
+							</div>
+						</div>
+
+						<div class="row mt-4" id="podCards">
 						</div>
 					</div>
-					<div class="row mt-4" id="podCards">
-					</div>
-					<div class="row mt-4">
-						<!-- Container for displaying PDFs -->
-						<div id="podPDFContainer"></div>
+
+					<div id="pod-detail-view" class="d-none">
+						<button class="btn btn-sm btn-outline-secondary my-3" id="btn-back-to-pod-list">
+							<i class="bi-arrow-left me-1"></i> Volver a la lista
+						</button>
+
+						<div id="pod-spinner" class="text-center p-5 d-none">
+							<div class.="spinner-border text-primary" role="status"></div>
+							<p class.="mt-2">Obteniendo documento...</p>
+						</div>
+
+						<div id="podPDFContainer">
+						</div>
 					</div>
 				</div>
 			</template>

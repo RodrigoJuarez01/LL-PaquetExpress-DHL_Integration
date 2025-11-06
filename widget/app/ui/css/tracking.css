@@ -1,180 +1,121 @@
-#tracking{
-    background: #fff
- }
- .tracking-detail {
-   padding: 3rem 0;
- }
- #tracking {
-   margin-bottom: 1rem;
- }
- [class*="tracking-status-"] p {
-   margin: 0;
-   font-size: 1.1rem;
-   color: #fff;
-   text-transform: uppercase;
-   text-align: center;
- }
- [class*="tracking-status-"] {
-   padding: 1.6rem 0;
- }
- .tracking-list {
-   border: 1px solid #e5e5e5;
- }
- 
- .tracking-item {
-   border-left: 4px solid #00ba0d;
-   position: relative;
-   padding: 2rem 1.5rem 0.5rem 2.5rem;
-   font-size: 0.9rem;
-   margin-left: 3rem;
-   min-height: 5rem;
- }
-   
- .tracking-item:last-child {
-   padding-bottom: 4rem;
- }
+/* EN: /ui/css/tracking.css (o tu main.css) */
 
- .tracking-item .tracking-date {
-   margin-bottom: 0.5rem;
- }
+/* El contenedor principal de la línea de tiempo */
+.tracking-list {
+  padding-top: 20px;
+  position: relative;
+  /* Clave para anclar la línea vertical */
+  padding-left: 20px;
+  /* Espacio para la línea y los puntos */
+}
 
- .tracking-item .tracking-date span {
-   color: #888;
-   font-size: 85%;
-   padding-left: 0.4rem;
- }
- 
- .tracking-item .tracking-content {
-   padding: 0.5rem 0.8rem;
-   background-color: #f4f4f4;
-   border-radius: 0.5rem;
- }
-   
- .tracking-item .tracking-content span {
-   display: block;
-   color: #767676;
-   font-size: 13px;
- }
- .tracking-item .tracking-icon {
-   position: absolute;
-   left: -0.7rem;
-   width: 1.1rem;
-   height: 1.1rem;
-   text-align: center;
-   border-radius: 50%;
-   font-size: 1.1rem;
-   background-color: #fff;
-   color: #fff;
- }
- 
- .tracking-item-pending {
-   border-left: 4px solid #d6d6d6;
-   position: relative;
-   padding: 2rem 1.5rem 0.5rem 2.5rem;
-   font-size: 0.9rem;
-   margin-left: 3rem;
-   min-height: 5rem;
- }
-   
- .tracking-item-pending:last-child {
-   padding-bottom: 4rem;
- }
- 
- .tracking-item-pending .tracking-date {
-   margin-bottom: 0.5rem;
- }
-   
- .tracking-item-pending .tracking-date span {
-   color: #888;
-   font-size: 85%;
-   padding-left: 0.4rem;
- }
- 
- .tracking-item-pending .tracking-content {
-   padding: 0.5rem 0.8rem;
-   background-color: #f4f4f4;
-   border-radius: 0.5rem;
- }
- 
- .tracking-item-pending .tracking-content span {
-   display: block;
-   color: #767676;
-   font-size: 13px;
- }
- .tracking-item-pending .tracking-icon {
-   line-height: 2.6rem;
-   position: absolute;
-   left: -0.7rem;
-   width: 1.1rem;
-   height: 1.1rem;
-   text-align: center;
-   border-radius: 50%;
-   font-size: 1.1rem;
-   color: #d6d6d6;
- }
- 
- .tracking-item-pending .tracking-content {
-   font-weight: 600;
-   font-size: 17px;
- }
- 
- .tracking-item .tracking-icon.status-current {
-   width: 1.9rem;
-   height: 1.9rem;
-   left: -1.1rem;
- }
- .tracking-item .tracking-icon.status-intransit {
-   color: #00ba0d;
-   font-size: 0.6rem;
- }
- .tracking-item .tracking-icon.status-current {
-   color: #00ba0d;
-   font-size: 0.6rem;
- }
- 
-   .tracking-item {
-     margin-left: 10rem;
-   }
-   .tracking-item .tracking-date {
-     position: absolute;
-     left: -10rem;
-     width: 7.5rem;
-     text-align: right;
-   }
-   .tracking-item .tracking-date span {
-     display: block;
-   }
-   .tracking-item .tracking-content {
-     padding: 0;
-     background-color: transparent;
-   }
- 
-   .tracking-item-pending {
-     margin-left: 10rem;
-   }
-   .tracking-item-pending .tracking-date {
-     position: absolute;
-     left: -10rem;
-     width: 7.5rem;
-     text-align: right;
-   }
-   .tracking-item-pending .tracking-date span {
-     display: block;
-   }
-   .tracking-item-pending .tracking-content {
-     padding: 0;
-     background-color: transparent;
-   }
- 
- 
- .tracking-item .tracking-content {
-   font-weight: 600;
-   font-size: 17px;
- }
- 
- .blinker {
-   border: 7px solid #cfe7d0;
-   animation: blink 1s;
-   animation-iteration-count: infinite;
- }
- @keyframes blink { 50% { border-color:#fff ; }  }
+/* La línea vertical que conecta todo */
+.tracking-list::before {
+  content: '';
+  position: absolute;
+  left: 28px;
+  /* Centra la línea con los puntos */
+  top: 10px;
+  bottom: 10px;
+  width: 2px;
+  background-color: #e0e0e0;
+  /* Un gris claro */
+}
+
+/* Cada fila de evento (fecha + contenido) */
+.tracking-item {
+  position: relative;
+  display: flex;
+  /* Alinea el icono, fecha y contenido */
+  align-items: flex-start;
+  padding-bottom: 25px;
+  /* Espacio entre eventos */
+}
+
+/* El "puntito" (el círculo pequeño) */
+.tracking-icon {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  background-color: #e0e0e0;
+  /* Color del punto */
+  border-radius: 50%;
+  margin-right: 20px;
+  z-index: 2;
+  /* Se asegura de que esté sobre la línea */
+  /* Lo movemos para que quede centrado en la línea */
+  transform: translateX(calc(8px - 50%));
+}
+
+/* El "puntito" GRANDE Y QUE PARPADEA para el evento actual */
+.tracking-item.is-current .tracking-icon {
+  background-color: #0d6efd;
+  /* Color azul de Bootstrap */
+  transform: translateX(calc(8px - 50%)) scale(1.5);
+  /* Lo hace más grande */
+  box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.3);
+  animation: pulse 1.5s infinite;
+}
+
+/* Columnas de fecha y contenido */
+.tracking-date {
+  width: 160px;
+  /* Ancho fijo para la fecha */
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+.tracking-date h5 {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #212529;
+  margin: 0;
+}
+
+.tracking-content {
+  flex: 1;
+  /* Ocupa el resto del espacio */
+  font-size: 0.9rem;
+}
+
+.tracking-content .location {
+  color: #6c757d;
+  font-style: italic;
+}
+
+.provider-logo-small {
+  height: 18px;
+  /* Ajusta el tamaño del logo */
+  width: auto;
+}
+
+/* Y el CSS que ya tenías para la tarjeta activa */
+.tracking-card-button {
+  border: 1px solid #dee2e6;
+  background-color: #fff;
+  transition: background-color 0.2s ease;
+}
+
+.tracking-card-button:hover {
+  background-color: #f8f9fa;
+}
+
+.tracking-card-button.active {
+  background-color: #e6f0ff;
+  border-color: #0d6efd;
+}
+
+/* Animación de pulso para el punto actual */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(13, 110, 253, 0.4);
+  }
+
+  70% {
+    box-shadow: 0 0 0 10px rgba(13, 110, 253, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(13, 110, 253, 0);
+  }
+}

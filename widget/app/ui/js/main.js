@@ -12,7 +12,12 @@ const viewInitializers = {
     'view-create-shipment': initializeShipmentView,
     'view-tracking': initializeTrackingView,
     'view-pod': initializePodView
-};
+};  
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 
 function loadView(viewId) {
     const tabContainer = document.getElementById('tab-content-container');
@@ -39,6 +44,7 @@ function setupTabListeners() {
             event.target.classList.add('active');
 
             const viewFile = event.target.getAttribute('data-view');
+            sleep(500);
             loadView(viewFile);
         });
     });

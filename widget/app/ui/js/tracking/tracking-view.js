@@ -37,78 +37,123 @@ function renderTrackingTimeline(trackingResult) {
 		const trackingNumOfPieces = !trackingResult.summary.numberOfPieces ? "" : trackingResult.summary.numberOfPieces === 1 ? "1 Pieza" : `${trackingResult.summary.numberOfPieces} Piezas`;
 
 
-		eventsHTML += `
-			<div class="tracking-icon status-intransit" id="trackingStatus${index}">
-				<svg class="svg-inline--fa fa-circle fa-w-16" aria-hidden="true" data-prefix="fas" data-icon="circle" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg="">
-				<path fill="currentColor" d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8z"></path>
-				</svg>
-			</div>
-			<div class="tracking-date">
-				<span id="trackingDayOfWeek${index}">
-					${trackingDayOfWeek}
-				</span>
-				<h5 id="trackingDate${index}">${trackingDate}</h5>
-				
-				<span id="trackingTime${index}">
-					${trackingTime}
-				</span>
-			</div>
-			<div class="tracking-content">
-				<div id="trackingDescription${index}">${trackingDescription}</div>
-				<span id="trackingServiceAreaDesc${index}">${trackingServiceAreaDesc}</span>
-				<span id="trackingNumOfPieces${index}">${trackingNumOfPieces}</span>
+		const isCurrentClass = (index === 0) ? 'is-current' : '';
 
-			</div>
-		
-		`;
+		eventsHTML += `
+            <div class="tracking-item ${isCurrentClass}">
+                
+                <div class="tracking-icon"></div>
+                
+                <div class="tracking-date">
+                    <span class="day-of-week">${trackingDayOfWeek}</span>
+                    <h5>${trackingDate}</h5>
+                    <span class="time">${trackingTime}</span>
+                </div>
+                
+                <div class="tracking-content">
+                    <div>${event.description}</div>
+                    <span class="location">${event.location}</span>
+                </div>
+
+            </div>
+        `;
 	});
 
 	elements.trackingEventsContainer.innerHTML = eventsHTML;
 
-	const trackingEventsMessage = document.getElementById('trackingEventsMessage');
 	const trackingTitle = document.getElementById('trackingTitle');
-	trackingTitle.textContent = `Resultado para Tracking# - ${trackingResult.trackingNumber}`;
-	trackingEventsMessage.style.display = 'block';
-
-	elements.spinner.style.display = 'none';
+	if (trackingTitle) {
+		trackingTitle.textContent = `Historial para ${trackingResult.trackingNumber}`;
+	};
 }
 
-
-async function handleTrackingButtonClick(event) {
-
-	elements.spinner.style.display = 'flex';
-
-	// console.log("thisButton.dataset", thisButton);
-
+async function handleCancelShipmentClick(event) {
 	const button = event.currentTarget;
+	const trackingNumber = button.dataset.trackingNumber;
 
-	elements.trackingNumber = button.dataset.trackingNumber;;
-	elements.shipmentId = button.dataset.shipmentId;
+	if (!confirm(`¿Estás seguro de que deseas cancelar el envío ${trackingNumber}? Esta acción no se puede deshacer.`)) {
+		return;
+	}
 
-	const provider = button.dataset.provider;
+	button.disabled = true;
+	button.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Cancelando...';
 
-	console.log("provider", provider);
-	console.log('Tracking Number:', elements.trackingNumber);
-	console.log('Shipment id:', elements.shipmentId);
+	try {
+		await ShippingService.cancelShipment('paquetexpress', trackingNumber);
 
-	// try {
-	const packages = elements.groupedPackagesByShipment[elements.trackingNumber];
+		alert('¡Envío cancelado con éxito!');
 
-	const packageIds = packages.map(pck => pck.package_id).join(',');
-	const pck = packages[0];
-	elements.shipmentId = pck.shipment_id;
+		document.getElementById('tracking-actions-container').innerHTML = '';
+		document.getElementById('trackingTitle').textContent = 'Envío Cancelado';
+		document.getElementById('trackingEvents').innerHTML = '<p class="text-danger">Este envío ha sido cancelado.</p>';
 
-	const trackingResult = await ShippingService.trackShipment(provider, elements.trackingNumber);
+	} catch (error) {
+		alert(`Error: ${error.message}`); // O usa tu "cuadrado rojo"
+		button.disabled = false;
+		button.innerHTML = '<i class="bi-trash me-1"></i> Cancelar Envío';
+	}
+}
 
-	renderTrackingTimeline(trackingResult);
+function setupCancelButtonListener() {
+	const cancelButton = document.querySelector('.js-cancel-shipment-btn');
+	if (cancelButton) {
+		// Usamos '.onclick' para asegurarnos de que solo haya un listener
+		cancelButton.onclick = handleCancelShipmentClick;
+	}
+}
+
+function checkCanCancel(shippingDateStr) {
+	if (!shippingDateStr) return false;
+
+	const shippingDate = new Date(`${shippingDateStr}T00:00:00-06:00`);
+
+	const today = new Date();
+	today.setHours(0, 0, 0, 0);
+
+	return today <= shippingDate;
+}
+
+async function handleTrackingCardClick(card) {
+
+	elements.trackingSpinner.classList.remove('d-none');
+	elements.trackingEventsContainer.innerHTML = '';
+	elements.trackingPlaceholder.classList.add('d-none');
+
+	const trackingNumber = card.dataset.trackingNumber;
+	const shipmentId = card.dataset.shipmentId;
+	const provider = card.dataset.provider;
+	const shippingDateStr = card.dataset.shippingDate;
+	// elements.shipmentId = pck.shipment_id;
+
+	const actionsContainer = document.getElementById('tracking-actions-container');
+	actionsContainer.innerHTML = '';
+
+	const canCancel = checkCanCancel(shippingDateStr);
+
+	if (provider === 'paquetexpress' && canCancel) {
+		const cancelButtonHTML = `
+            <button class="btn btn-sm btn-outline-danger js-cancel-shipment-btn" 
+                    data-tracking-number="${trackingNumber}">
+                <i class="bi-trash me-1"></i> Cancelar Envío
+            </button>
+        `;
+		actionsContainer.innerHTML = cancelButtonHTML;
+		setupCancelButtonListener();
+	}
+
+	try {
+		const trackingResult = await ShippingService.trackShipment(provider, elements.trackingNumber);
+
+		renderTrackingTimeline(trackingResult);
+
+		elements.trackingTitle.textContent = `Historial para ${trackingNumber}`;
+
+		const lastEvent = trackingResult.events[0];
+		console.log('Last Event:', lastEvent);
 
 
-	const lastEvent = trackingResult.events[0];
-	console.log('Last Event:', lastEvent);
-
-
-	if ( lastEvent.typeCode && lastEvent.typeCode !== "OK" && provider === "dhl") {
-		const pendingRowHTML = `
+		if (lastEvent.typeCode && lastEvent.typeCode !== "OK" && provider === "dhl") {
+			const pendingRowHTML = `
                 <div class="tracking-item-pending" id="pendingTrackingEvent">
                     
                         <div class="tracking-icon status-intransit">
@@ -125,126 +170,111 @@ async function handleTrackingButtonClick(event) {
                     
                 
             `;
-		elements.trackingEventsContainer.insertAdjacentHTML('afterbegin', pendingRowHTML);
+			elements.trackingEventsContainer.insertAdjacentHTML('afterbegin', pendingRowHTML);
 
-	} else if(provider === "dhl") {
+		} else if (provider === "dhl") {
 
-		const { success, errorMsg } = ZohoService.markShipmentAsDelivered(shipmentId);
+			const { success, errorMsg } = await ZohoService.markShipmentAsDelivered(shipmentId);
 
-		if (!success) {
-			showRequestErrorToast('Update Shipment Error: ' + errorMsg, 7000);
+			if (!success) {
+				showRequestErrorToast('Update Shipment Error: ' + errorMsg, 7000);
+
+				elements.trackingTitle.textContent = `<p class="text-danger">Error al actualizar el rastreo</p>`;
+				elements.trackingEventsContainer.innerHTML = `${errorMsg}`;
+			}
 		}
-	}
 
-	
 
-	// const lastStatusDiv = document.getElementById(`trackingStatus0`);
-	// lastStatusDiv.className = 'tracking-icon status-current blinker';
 
-	const firstIcon = document.querySelector('.js-tracking-icon');
-	if (firstIcon) {
-		firstIcon.classList.add('status-current', 'blinker');
-	}
+		// const lastStatusDiv = document.getElementById(`trackingStatus0`);
+		// lastStatusDiv.className = 'tracking-icon status-current blinker';
 
-	// } catch (error) {
+		const firstIcon = document.querySelector('.js-tracking-icon');
+		if (firstIcon) {
+			firstIcon.classList.add('status-current', 'blinker');
+		}
+
+	} catch (error) {
+		elements.trackingTitle.textContent = "Error al cargar el rastreo";
+		elements.trackingEventsContainer.innerHTML = `<p class="text-danger">${error.message}</p>`;
+		// showRequestErrorToast(error.message, 7000); // Puedes reusar tu toast si quieres
+	} finally {
+		elements.trackingSpinner.classList.add('d-none');
+	}	// } catch (error) {
 	// 	showRequestErrorToast(error.message, 7000);
 	// }
 	//
 }
 
+function setupTrackingCardListeners() {
+	const trackCards = document.querySelectorAll('.js-track-card');
 
-function setupTrackingButtonListeners(appData) {
-	const trackButtons = document.querySelectorAll('.js-track-btn');
-	trackButtons.forEach(button => {
-		button.addEventListener('click', (event) => {
-			handleTrackingButtonClick(event, appData);
+	trackCards.forEach(card => {
+		card.addEventListener('click', (event) => {
+			trackCards.forEach(c => c.classList.remove('active'));
+			card.classList.add('active');
+
+			handleTrackingCardClick(event.currentTarget);
 		});
 	});
 }
+
 
 function renderTrackingCards(groupedPackages) {
-	let trackingCardsEl = '';
-
-	console.log("groupedPackages", groupedPackages);
-
+	let cardsHTML = '';
 	Object.keys(groupedPackages).forEach((trackingNumber, index) => {
-		if (trackingNumber == 'notShipped') {
-			return;
-		}
+		if (trackingNumber === 'notShipped') return;
 
-		console.log("trackingNumber", trackingNumber);
 		const packages = groupedPackages[trackingNumber];
-		let packagesEl = '';
-
+		const shipmentId = packages[0].shipment_id;
 		const provider = packages[0].provider;
+		const shippingDate = packages[0].shipping_date;
 
-
-		packages.forEach((pck) => {
-			const packageEl = `
-					<div class="col-6 mb-4">
-						<button type="button" class="btn btn-warning disabled">
-							${pck.package_number}
-							<span class="badge text-bg-secondary">
-								${pck.shipment_number}
-							</span>
-						</button>
-					</div>
-			`;
-
-			packagesEl += packageEl;
-
+		let packagesHTML = '';
+		packages.forEach(pck => {
+			packagesHTML += `
+                <span class="badge text-bg-secondary me-1 mb-1">
+                    ${pck.package_number}
+                </span>
+            `;
 		});
+		// ---------------------------------------------------
 
-		const cardEl = `
-			<div class="col-6 mb-4" id="trackingCard${index}">
-				<div class="card">
-					<div class="card-body">
+		cardsHTML += `
+            <button class="card tracking-card-button p-3 text-start js-track-card"
+                    data-tracking-number="${trackingNumber}"
+                    data-shipment-id="${shipmentId}"
+                    data-provider="${provider}"
+					data-shipping-date="${shippingDate}">
 
-						<h5 class="card-title">Tracking# - ${trackingNumber}</h5>
-						<p class="card-text">
-							Paquetes
-						</p>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="fw-bold">Tracking# ${trackingNumber}</div>
+                    <img src="${provider === 'dhl' ? 'ui/img/dhl-2.png' : 'ui/img/paquetexpress-logo.png'}" 
+                         class="provider-logo-small" alt="${provider}">
+                </div>
+                
+                <div class="mb-1">
+                    ${packagesHTML}
+                </div>
 
-						<div class="row" id="packagesRow${index}">
-							${packagesEl}
-							
-						</div>
-
-						<div class="d-grid mb-2">
-							<button class="btn btn-primary js-track-btn" type="button" data-tracking-number="${trackingNumber}" id="trackingNumberBtn${index}" data-shipment-id="${packages[0].shipment_id}" data-provider="${provider}">
-								Rastrear
-							</button>
-						</div>
-							
-					</div>
-				</div>
-			</div>    
-		`;
-
-		trackingCardsEl += cardEl;
-
-
+            </button>
+        `;
 	});
-
-	return trackingCardsEl;
+	return cardsHTML;
 }
-
-
 export function initializeTrackingView(appData) {
 
 
-	elements.trackingCardsContainer = document.getElementById('trackingCards');
+	elements.trackingCardsList = document.getElementById('trackingCardsList');
 	elements.trackingEventsContainer = document.getElementById('trackingEvents');
-	elements.spinner = document.getElementById('spinnerWrapper');
-	elements.groupedPackagesByShipment = appData.data.groupedPackagesByShipment;
+	elements.trackingTitle = document.getElementById('trackingTitle');
+	elements.trackingSpinner = document.getElementById('tracking-spinner');
+	elements.trackingPlaceholder = document.getElementById('tracking-placeholder');
+	elements.spinner = document.getElementById('spinnerWrapper'); // El spinner global
 
-	const trackingCardsHTML = renderTrackingCards(appData.data.groupedPackagesByShipment);
+	const cardsHTML = renderTrackingCards(appData.data.groupedPackagesByShipment);
+	elements.trackingCardsList.innerHTML = cardsHTML;
 
-
-
-	elements.trackingCardsContainer.innerHTML = trackingCardsHTML;
-
-
-	setupTrackingButtonListeners();
+	setupTrackingCardListeners();
 
 }
