@@ -1,0 +1,11 @@
+{
+	"deployment": {
+		"name": "paquetexpress_package-delivery_webhook",
+		"stack": "node20",
+		"type": "advancedio",
+		"env_variables": {}
+	},
+	"execution": {
+		"main": "index.js"
+	}
+}

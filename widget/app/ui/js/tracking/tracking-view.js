@@ -67,38 +67,133 @@ function renderTrackingTimeline(trackingResult) {
 	};
 }
 
-async function handleCancelShipmentClick(event) {
-	const button = event.currentTarget;
-	const trackingNumber = button.dataset.trackingNumber;
-
-	if (!confirm(`¿Estás seguro de que deseas cancelar el envío ${trackingNumber}? Esta acción no se puede deshacer.`)) {
-		return;
+function setupConfirmCancelListeners() {
+	const confirmButton = document.querySelector('.js-confirm-cancel-btn');
+	if (confirmButton) {
+		confirmButton.onclick = executeCancelation; // Llama a la lógica final
 	}
 
-	button.disabled = true;
-	button.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Cancelando...';
+	const resetButton = document.querySelector('.js-reset-cancel-btn');
+	if (resetButton) {
+		resetButton.onclick = resetCancelButton; // Llama al reseteo
+	}
+}
+
+
+async function executeCancelation(event) {
+	const confirmButton = event.currentTarget;
+	const trackingNumber = confirmButton.dataset.trackingNumber;
+	const shipmentId = confirmButton.dataset.shipmentId;
+	const container = confirmButton.parentElement; // El .btn-group
+
+	// Fija el ancho para que no "brinque" con el spinner
+	const alertContainer = document.getElementById('tracking-alert-container');
+	alertContainer.innerHTML = ''; // Limpia alertas viejas
+
+	container.style.minWidth = container.offsetWidth + 'px';
+	container.style.justifyContent = 'center'; // Centra el spinner
+
+	// Muestra el spinner
+	container.innerHTML = `
+        <span class="spinner-grow spinner-grow-sm text-danger" role="status">
+            <span class="visually-hidden">Cancelando...</span>
+        </span>
+    `;
 
 	try {
+
 		await ShippingService.cancelShipment('paquetexpress', trackingNumber);
+		
+		const zohoDeleteResult = await ZohoService.deleteShipment(shipmentId);
 
-		alert('¡Envío cancelado con éxito!');
+		
+		if (!zohoDeleteResult.success) {
+			console.warn(`Guía ${trackingNumber} cancelada en PQX, pero no se pudo borrar de Zoho: ${zohoDeleteResult.errorMsg}`);
+		}
 
-		document.getElementById('tracking-actions-container').innerHTML = '';
-		document.getElementById('trackingTitle').textContent = 'Envío Cancelado';
-		document.getElementById('trackingEvents').innerHTML = '<p class="text-danger">Este envío ha sido cancelado.</p>';
+
+		alertContainer.innerHTML = `
+            <div class="alert alert-success">
+                <i class="bi-check-circle-fill me-2"></i>
+                ¡Envío <strong>${trackingNumber}</strong> cancelado con éxito!
+            </div>
+        `;
+
+		document.getElementById('tracking-actions-container').innerHTML = ''; // Borra el spinner
+		document.getElementById('trackingTitle').textContent = `Envío Cancelado: ${trackingNumber}`;
+		elements.trackingEventsContainer.innerHTML = '<p class="text-danger fs-5">Este envío ha sido cancelado.</p>';
 
 	} catch (error) {
-		alert(`Error: ${error.message}`); // O usa tu "cuadrado rojo"
-		button.disabled = false;
-		button.innerHTML = '<i class="bi-trash me-1"></i> Cancelar Envío';
+
+		alertContainer.innerHTML = `
+            <div class="alert alert-danger">
+                <i class="bi-exclamation-triangle-fill me-2"></i>
+                Error: ${error.message}
+            </div>
+        `;
+
+		const container = document.getElementById('tracking-actions-container');
+		container.style.minWidth = null; // Resetea el ancho
+		container.innerHTML = `
+            <button class="btn btn-sm btn-outline-danger js-cancel-shipment-btn" 
+                    data-tracking-number="${trackingNumber}"
+                    data-shipment-id="${shipmentId}">
+                <i class="bi-trash me-1"></i> Cancelar Envío
+            </button>
+        `;
 	}
+}
+
+function resetCancelButton(event) {
+	const button = event.currentTarget || event;
+
+	const trackingNumber = button.dataset.trackingNumber;
+	const shipmentId = button.dataset.shipmentId;
+	const container = button.closest('#tracking-actions-container');
+
+	container.innerHTML = `
+        <button class="btn btn-sm btn-outline-danger js-cancel-shipment-btn" 
+                data-tracking-number="${trackingNumber}"
+                data-shipment-id="${shipmentId}">
+            <i class="bi-trash me-1"></i> Cancelar Envío
+        </button>
+    `;
+
+	setupCancelButtonListener();
+}
+
+function showCancelConfirmation(event) {
+	const button = event.currentTarget;
+	const trackingNumber = button.dataset.trackingNumber;
+	const shipmentId = button.dataset.shipmentId;
+	const container = button.parentElement; // El div 'tracking-actions-container'
+
+	// 1. Reemplaza el botón por el grupo "Confirmar/Volver"
+	container.innerHTML = `
+        <div class="btn-group btn-group-sm" role="group">
+            <button type="button" class="btn btn-danger js-confirm-cancel-btn" 
+                    data-tracking-number="${trackingNumber}" 
+                    data-shipment-id="${shipmentId}">
+                <strong>¿Confirmar?</strong>
+            </button>
+            <button type="button" class="btn btn-secondary js-reset-cancel-btn"
+                    data-tracking-number="${trackingNumber}" 
+                    data-shipment-id="${shipmentId}">
+                Volver
+            </button>
+        </div>
+    `;
+
+	// 2. ¡IMPORTANTE! Acabamos de crear botones nuevos.
+	//    Debemos asignarles sus listeners AHORA.
+	setupConfirmCancelListeners();
 }
 
 function setupCancelButtonListener() {
 	const cancelButton = document.querySelector('.js-cancel-shipment-btn');
 	if (cancelButton) {
 		// Usamos '.onclick' para asegurarnos de que solo haya un listener
-		cancelButton.onclick = handleCancelShipmentClick;
+		cancelButton.onclick = showCancelConfirmation;
 	}
 }
 
@@ -133,7 +228,9 @@ async function handleTrackingCardClick(card) {
 	if (provider === 'paquetexpress' && canCancel) {
 		const cancelButtonHTML = `
             <button class="btn btn-sm btn-outline-danger js-cancel-shipment-btn" 
-                    data-tracking-number="${trackingNumber}">
+                    data-tracking-number="${trackingNumber}"
+					data-shipment-id="${shipmentId}"
+					>
                 <i class="bi-trash me-1"></i> Cancelar Envío
             </button>
         `;

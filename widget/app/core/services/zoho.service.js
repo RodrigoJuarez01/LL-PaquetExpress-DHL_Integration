@@ -625,11 +625,11 @@ const ZohoService = {
 
         let success = true;
         let errorMsg = "";
-        
+
         try {
             const inventoryConnectionLinkName = ConfigService.getInventoryConn();
             const orgId = ConfigService.getOrgId();
-            
+
             const updateOptions = {
                 url: 'https://www.zohoapis.com/inventory/v1/shipmentorders/' + shipmentId + '/status/delivered?organization_id=' + orgId,
                 method: "POST",
@@ -693,13 +693,13 @@ const ZohoService = {
 
         let fileID = null;
 
-        for(const doc of documents){
+        for (const doc of documents) {
             if (commonImageFormats.includes(doc?.file_type)) {
                 fileID = doc?.document_id;
                 break;
             }
         }
-        
+
         console.log("fileID", fileID);
 
         let attachmentBody = null;
@@ -721,10 +721,46 @@ const ZohoService = {
             console.log("attachmentBody", attachmentBody);
         }
 
-        
+
         return attachmentBody;
 
 
+    },
+
+    async deleteShipment(shipmentId) {
+        if (!shipmentId) {
+            console.warn("No se proporcionó shipmentId para eliminar.");
+            return { success: false, errorMsg: "ID de envío no válido." };
+        }
+
+        const orgId = ConfigService.getOrgId();
+        const inventoryConnectionLinkName = ConfigService.getInventoryConn();
+
+        const deleteOptions = {
+            url: `https://www.zohoapis.com/inventory/v1/shipmentorders/${shipmentId}?organization_id=${orgId}`,
+            method: 'DELETE',
+            connection_link_name: inventoryConnectionLinkName
+        };
+
+        console.log("deleteOptions", deleteOptions);
+
+        try {
+            const response = await ZFAPPS.request(deleteOptions);
+
+            console.log("delete shipment response", response);
+
+            const responseBody = JSON.parse(response.data.body);
+
+            if (responseBody.code === 0) {
+                console.log(`Envío ${shipmentId} eliminado de Zoho.`);
+                return { success: true };
+            } else {
+                return { success: false, errorMsg: responseBody.message };
+            }
+        } catch (error) {
+            console.error("Error al eliminar envío de Zoho:", error);
+            return { success: false, errorMsg: error.message };
+        }
     }
 
 };
