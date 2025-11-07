@@ -1,0 +1,29 @@
+[debug] [2025-10-30T06:08:28.656Z] : 
+[debug] [2025-10-30T06:08:28.656Z] : ----------------------------------------------------------------------
+[debug] [2025-10-30T06:08:28.657Z] : Command:      /usr/bin/node /usr/local/bin/catalyst serve
+[debug] [2025-10-30T06:08:28.657Z] : CLI Version:  1.20.2
+[debug] [2025-10-30T06:08:28.657Z] : Platform:     linux
+[debug] [2025-10-30T06:08:28.657Z] : Node Version: v18.19.1
+[debug] [2025-10-30T06:08:28.658Z] : Time:         Thu Oct 30 2025 00:08:28 GMT-0600 (Central Standard Time)
+[debug] [2025-10-30T06:08:28.658Z] : ----------------------------------------------------------------------
+[debug] [2025-10-30T06:08:28.658Z] : 
+[debug] [2025-10-30T06:08:28.910Z] : > authorizing via signed-in user option
+[debug] [2025-10-30T06:08:28.910Z] : > command requires scopes: ["ZohoCatalyst.projects.ALL","ZohoCatalyst.apigateway.apis.READ","ZohoCatalyst.apigateway.READ","ZohoCatalyst.segments.ALL","ZohoCatalyst.cache.READ","ZohoCatalyst.cache.CREATE","ZohoCatalyst.cache.DELETE","ZohoCatalyst.projects.ALL","ZohoCatalyst.cron.ALL","ZohoCatalyst.zcql.CREATE","ZohoCatalyst.projects.users.READ","ZohoCatalyst.projects.users.CREATE","ZohoCatalyst.projects.users.DELETE","ZohoCatalyst.projects.users.UPDATE","ZohoCatalyst.authentication.CREATE","ZohoCatalyst.email.CREATE","ZohoCatalyst.tables.ALL","ZohoCatalyst.tables.rows.ALL","ZohoCatalyst.tables.columns.ALL","ZohoCatalyst.tables.bulk.CREATE","ZohoCatalyst.tables.bulk.READ","ZohoCatalyst.folders.ALL","ZohoCatalyst.files.CREATE","ZohoCatalyst.files.READ","ZohoCatalyst.files.DELETE","ZohoCatalyst.functions.ALL","ZohoCatalyst.functions.EXECUTE","ZohoCatalyst.eventlistners.ALL","ZohoCatalyst.eventlisteners.produce","ZohoCatalyst.security.rules.Read","ZohoCatalyst.security.rules.Update","ZohoCatalyst.notifications.mobile","ZohoCatalyst.notifications.web","ZohoCatalyst.search.READ","ZohoCatalyst.mlkit.READ","QuickML.deployment.READ","ZohoCatalyst.pdfshot.execute","ZohoCatalyst.dataverse.execute","ZohoCatalyst.circuits.execution.DELETE","ZohoCatalyst.circuits.execution.READ","ZohoCatalyst.circuits.execute","ZohoCatalyst.appsail.Read","ZohoCatalyst.jobpool.READ","ZohoCatalyst.job.ALL","ZohoCatalyst.nosql.READ","ZohoCatalyst.nosql.rows.ALL"]
+[debug] [2025-10-30T06:08:28.921Z] : >>>> HTTP REQUEST : GET https://api.catalyst.zoho.com/baas/v1/project/26384000000024079 
+
+[debug] [2025-10-30T06:08:29.290Z] : <<<< HTTP RESPONSE : 200
+Response Headers: {"server":"ZGS","date":"Thu, 30 Oct 2025 06:08:29 GMT","content-type":"application/vnd.catalyst.v2+json","transfer-encoding":"chunked","connection":"close","x-content-type-options":"nosniff","cache-control":"private,no-cache,no-store,max-age=0,must-revalidate","pragma":"no-cache","expires":"Thu, 01 Jan 1970 00:00:00 GMT","x-frame-options":"DENY","strict-transport-security":"max-age=64072000; includeSubDomains; preload"}
+
+[debug] [2025-10-30T06:08:29.293Z] : >>>> HTTP REQUEST : GET https://api.catalyst.zoho.com/baas/v1/project/26384000000024079/environment 
+
+[debug] [2025-10-30T06:08:29.618Z] : <<<< HTTP RESPONSE : 200
+Response Headers: {"server":"ZGS","date":"Thu, 30 Oct 2025 06:08:29 GMT","content-type":"application/vnd.catalyst.v2+json","transfer-encoding":"chunked","connection":"close","x-content-type-options":"nosniff","cache-control":"private,no-cache,no-store,max-age=0,must-revalidate","pragma":"no-cache","expires":"Thu, 01 Jan 1970 00:00:00 GMT","x-frame-options":"DENY","strict-transport-security":"max-age=64072000; includeSubDomains; preload"}
+
+[debug] [2025-10-30T06:08:29.760Z] : >>>> HTTP REQUEST : GET https://api.catalyst.zoho.com/baas/v1/project/26384000000024079/function 
+Query params: {"type":"basicio,event,cron,applogic,integration,browser_logic,job"}
+
+[debug] [2025-10-30T06:08:30.086Z] : <<<< HTTP RESPONSE : 200
+Response Headers: {"server":"ZGS","date":"Thu, 30 Oct 2025 06:08:29 GMT","content-type":"application/vnd.catalyst.v2+json","transfer-encoding":"chunked","connection":"close","x-content-type-options":"nosniff","cache-control":"private,no-cache,no-store,max-age=0,must-revalidate","pragma":"no-cache","expires":"Thu, 01 Jan 1970 00:00:00 GMT","x-frame-options":"DENY","strict-transport-security":"max-age=64072000; includeSubDomains; preload"}
+
+[debug] [2025-10-30T06:08:30.097Z] : unknown eol undefined hence skipping check
+[debug] [2025-10-30T06:08:30.102Z] : unknown eol undefined hence skipping check

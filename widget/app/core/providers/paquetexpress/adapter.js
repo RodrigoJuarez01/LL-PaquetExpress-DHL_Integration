@@ -475,14 +475,17 @@ export class PaquetexpressAdapter {
         };
 
         const response = await ZFAPPS.request(trackingOptions);
+
+        
         const trackingBody = JSON.parse(response.data.body);
+        console.log("trackingresponseBody", trackingBody);
 
         return this._transformTrackingResponse(trackingBody);
     }
 
 
     async cancelShipment(trackingNumber) {
-        // 1. Construye el Body de la Petición
+
         const pqxRequestBody = {
             header: {
                 security: {
@@ -499,20 +502,20 @@ export class PaquetexpressAdapter {
         };
 
         const cancelOptions = {
-            url: `${PAQUETEXPRESS_BASE_URL}RadRestFul/api/rad/v1/cancelguia`,
+            url: `${PAQUETEXPRESS_BASE_URL}/RadRestFul/api/rad/v1/cancelguia`,
             method: "POST",
             body: {
                 mode: 'raw',
                 raw: JSON.stringify(pqxRequestBody)
             },
-            headers: [
-                { key: 'Content-Type', value: 'application/json' }
-            ]
         };
 
+        console.log("cancelOptions", cancelOptions);
+        
         const response = await ZFAPPS.request(cancelOptions);
         const responseBody = JSON.parse(response.data.body);
-
+        console.log("responseBody", responseBody);
+        
         if (responseBody?.body?.response?.success === true) {
             return {
                 success: true,
