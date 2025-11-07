@@ -84,6 +84,7 @@ async function createShipmentLogic(button) {
         button.classList.replace('btn-success', 'btn-primary');
         button.innerHTML = 'Seleccionar';
         showShipmentError(error.message);
+        resetAllRateCells();
         // showRequestErrorToast("No se pudo crear la guía.");
     } finally {
         elements.spinner.style.display = 'none';
@@ -220,7 +221,8 @@ function renderRatesView(rates) {
 
     const providerLogos = {
         'dhl': 'ui/img/dhl-2.png',
-        'paquetexpress': 'ui/img/paquetexpress-logo.png'
+        // 'paquetexpress': 'ui/img/paquetexpress-logo.png'
+        'paquetexpress': 'ui/img/paquetexpress-logo-2.jpg'
     };
 
 
@@ -291,7 +293,7 @@ export async function handleRateRequest(formElements) {
 
         const formData = _collectFormData(formElements.form);
 
-        const rates = await ShippingService.getAllRates(formData);
+        const rates = await ShippingService.getRates("paquetexpress",formData);
 
         document.getElementById('shipment-form-container').style.display = 'none';
 

@@ -37,7 +37,7 @@ export class PaquetexpressAdapter {
     _transformResponse(responseBody) {
         if (!responseBody?.body?.response?.data?.quotations) {
             console.error("Respuesta de PaquetExpress inválida o sin cotizaciones.");
-            return [];
+            throw new Error("Respuesta de PaquetExpress inválida o no se encontraron cotizaciones.");
         }
 
         const quotations = responseBody.body.response.data.quotations;
