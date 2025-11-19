@@ -2,7 +2,8 @@
   "functions": {
     "targets": [
       "integracion_paqueterias_function",
-      "paquetexpress_package-delivery_webhook"
+      "paquetexpress_package-delivery_webhook",
+      "cancel_shipment_paquetexpress"
     ],
     "ignore": [],
     "source": "functions"

@@ -1,14 +1,10 @@
 import { ConfigService } from '../../services/config.service.js';
 import ZohoService from '../../services/zoho.service.js';
 
-const PAQUETEXPRESS_BASE_URL = "https://qaglp.paquetexpress.com.mx";
-const TOKEN_RATES = "3DE9B062CDDD4334E063350AA8C05C9E";
-const USER = "WSQLUNALABS";
-const PASSWORD = "1234";
-const TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJXU1FMVU5BTEFCUyJ9.3l0IkzwDyUqBUEuMjR5fv6Bnrxt8QgE4ssxksaHhCV4";
-const BILLCLNTID = "14221805";
-const CATALYST_API_KEY = "06d8d3adc6a6609b40652707b28a48b4";
-const CATALYST_LABEL_URL = "https://integracionpaqueterias-875780419.development.catalystserverless.com/getPaquetexpressLabel";
+
+// const paquetexpressConnectionLinkName = '21924000591655009-808492068-paquetexpress_api_conn_v2';
+const paquetexpressConnectionLinkName = 'paquetexpress_api_conn_v2';
+
 
 const spanishMonths = {
     'enero': '01', 'febrero': '02', 'marzo': '03', 'abril': '04', 'mayo': '05', 'junio': '06',
@@ -65,6 +61,11 @@ export class PaquetexpressAdapter {
     async getRates(formData) {
         console.log("Traduciendo datos para PaquetExpress...", formData);
 
+        const PAQUETEXPRESS_BASE_URL = ConfigService.getPqxBaseUrl();
+        const TOKEN_RATES = ConfigService.getPqxRatesToken();
+        const USER = ConfigService.getPqxUser();
+        const PASSWORD = ConfigService.getPqxRatesPassword();
+
         // --- 1. DATOS DE CONFIGURACIÓN Y CREDENCIALES (Estáticos) ---
         const requestHeader = {
             security: {
@@ -88,7 +89,7 @@ export class PaquetexpressAdapter {
             dlvyType: "1",      //  Tipo de entrega - 0=Ocurre, 1=Entrega a domicilio 
             ackType: "N",       // Acuse de recibo - C=CLIENTE, I=INTERNO, X=EXTENDIDA, N=SIN ACUSE
             // totlDeclVlue: 1000, // Valor declarado Valor declarado para seguro de envío
-            invType: "A", // N=SIN SEGURO, A=COBERTURA AMPLIA
+            invType: "S", // N=SIN SEGURO, A=COBERTURA AMPLIA
             radType: "1" // Servicio de recoleccion a domicilio (para clientes de documentacion en linea siempre se cargará RAD) - 0=No, 1=Si
         };
 
@@ -127,13 +128,20 @@ export class PaquetexpressAdapter {
             header: requestHeader,
             body: {
                 request: { data: requestData, objectDTO: null }
-            }
+            },
         };
 
         const pqxOptions = {
             url: `${PAQUETEXPRESS_BASE_URL}/WsQuotePaquetexpress/api/apiQuoter/v2/getQuotation`,
             method: 'POST',
-            body: { raw: JSON.stringify(pqxRequestBody), mode: 'raw' }
+            body: { raw: JSON.stringify(pqxRequestBody), mode: 'raw' },
+            connection_link_name: paquetexpressConnectionLinkName,
+            header: [
+                {
+                    key: 'Content-Type',
+                    value: 'application/json'
+                }
+            ]
         };
 
         console.log("Enviando a PaquetExpress:", JSON.stringify(pqxRequestBody, null, 2));
@@ -152,11 +160,13 @@ export class PaquetexpressAdapter {
 
     async getLabel(trackingNumber) {
 
+        const CATALYST_LABEL_URL = ConfigService.getCatalystLabelUrl();
+        const CATALYST_API_KEY = ConfigService.getCatalystCancelApiKey();
 
         const labelOptions = {
             url: `${CATALYST_LABEL_URL}?trackingNumber=${trackingNumber}&ZCFKEY=${CATALYST_API_KEY}`,
             method: 'GET',
-
+            connection_link_name: paquetexpressConnectionLinkName,
         };
 
         console.log("Enviando a catalyst:", labelOptions);
@@ -257,8 +267,14 @@ export class PaquetexpressAdapter {
     //     }
     // }
 
-    async createShipment(formData, selectedRateData) {
+    async createShipment(formData, selectedRateData, selectedPackageIds) {
         console.log("Creando envío con PaquetExpress...");
+
+        const PAQUETEXPRESS_BASE_URL = ConfigService.getPqxBaseUrl();
+        const USER = ConfigService.getPqxUser();
+        const TOKEN = ConfigService.getPqxTokenGen();
+        const BILLCLNTID = ConfigService.getPqxBillClientId();
+
 
         const { sender, receiver, packageInfo } = formData;
 
@@ -282,9 +298,8 @@ export class PaquetexpressAdapter {
 
         const requestData = {
             billClntId: BILLCLNTID,
-            pymtMode: "PAID",
-            comt: packageInfo.descripcionInput,
-            billRad: "REQUEST", // uien pagará la solicitud, sólo con REQUEST o ORIGIN pueden ser a crédito
+            // comt: packageInfo.descripcionInput,
+            billRad: "ORIGIN", // uien pagará la solicitud, sólo con REQUEST o ORIGIN pueden ser a crédito
             pymtMode: "PAID", // Modo de pago (PAID=PAGADO, TO_PAY=Flete porcobrar)
             pymtType: "C", // Tipo de pago (CREDITO, CONTADO) - N= CONTADO, C=CREDITO
             radGuiaAddrDTOList: [
@@ -325,7 +340,7 @@ export class PaquetexpressAdapter {
             radSrvcItemDTOList: [
                 {
                     srvcId: "PACKETS", // PACKETS=Paquetes, ENVELOPES=Sobres 
-                    productIdSAT: "01010101", // Buscar
+                    productIdSAT: "51241200", // Buscar
                     weight: packageInfo.pesoInput,
                     volL: packageInfo.longitudInput,
                     volW: packageInfo.anchoInput,
@@ -347,7 +362,7 @@ export class PaquetexpressAdapter {
             ],
             listRefs: [
                 {
-                    grGuiaRefr: "A"
+                    grGuiaRefr: selectedPackageIds?.join(",")
                 }
             ],
 
@@ -359,14 +374,16 @@ export class PaquetexpressAdapter {
             body: {
                 request: { data: [requestData] },
                 response: null
-            }
+            },
         };
 
 
         const pqxOptions = {
             url: `${PAQUETEXPRESS_BASE_URL}/RadRestFul/api/rad/v1/guia`, // URL que te dieron
             method: 'POST',
-            body: { raw: JSON.stringify(pqxRequestBody), mode: 'raw' }
+            body: { raw: JSON.stringify(pqxRequestBody), mode: 'raw' },
+            connection_link_name: paquetexpressConnectionLinkName,
+            header: [{ key: 'Content-Type', value: 'application/json' }]
         };
 
         console.log("Enviando a PaquetExpress:", JSON.stringify(pqxRequestBody, null, 2));
@@ -467,16 +484,20 @@ export class PaquetexpressAdapter {
 
         const headers = { "Content-Type": "application/json" };
 
-        trackingNumber = "SLW01WE185";
+        const PAQUETEXPRESS_BASE_URL = ConfigService.getPqxBaseUrl();
+        const TOKEN = ConfigService.getPqxTokenGen();
+
+        // trackingNumber = "SLW01WE185";
 
         const trackingOptions = {
             url: `${PAQUETEXPRESS_BASE_URL}/ptxws/rest/api/v3/guia/historico/${trackingNumber}/${TOKEN}`,
-            method: "GET"
+            method: "GET",
+            connection_link_name: paquetexpressConnectionLinkName,
         };
 
         const response = await ZFAPPS.request(trackingOptions);
 
-        
+
         const trackingBody = JSON.parse(response.data.body);
         console.log("trackingresponseBody", trackingBody);
 
@@ -484,50 +505,90 @@ export class PaquetexpressAdapter {
     }
 
 
+    // async cancelShipment(trackingNumber) {
+
+    //     const pqxRequestBody = {
+    //         header: {
+    //             security: {
+    //                 user: USER,
+    //                 token: TOKEN,
+    //                 type: 0
+    //             }
+    //         },
+    //         body: {
+    //             request: {
+    //                 data: [trackingNumber]
+    //             }
+    //         }
+    //     };
+
+    //     const cancelOptions = {
+    //         url: `${PAQUETEXPRESS_BASE_URL}/RadRestFul/api/rad/v1/cancelguia`,
+    //         method: "POST",
+    //         body: {
+    //             mode: 'raw',
+    //             raw: JSON.stringify(pqxRequestBody)
+    //         },
+    //         connection_link_name: paquetexpressConnectionLinkName,
+    //         headers: [
+    //             { key: 'Content-Type', value: 'application/json' },
+    //         ]
+    //     };
+
+    //     console.log("cancelOptions", cancelOptions);
+
+    //     const response = await ZFAPPS.request(cancelOptions);
+    //     const responseBody = JSON.parse(response.data.body);
+    //     console.log("responseBody", responseBody);
+
+    //     if (responseBody?.body?.response?.success === true) {
+    //         return {
+    //             success: true,
+    //             message: "Envío cancelado exitosamente."
+    //         };
+    //     } else {
+    //         const errorMessage = responseBody?.body?.response?.messages?.[0]?.description
+    //             || "Error desconocido al cancelar en PaquetExpress.";
+    //         throw new Error(errorMessage);
+    //     }
+    // }
+
+
+
     async cancelShipment(trackingNumber) {
 
-        const pqxRequestBody = {
-            header: {
-                security: {
-                    user: USER,
-                    token: TOKEN,
-                    type: 0 
-                }
-            },
-            body: {
-                request: {
-                    data: [trackingNumber]
-                }
-            }
-        };
+        const CATALYST_CANCEL_URL = ConfigService.getCatalystCancelUrl();
+        const CATALYST_CANCEL__API_KEY = ConfigService.getCatalystCancelApiKey();
 
-        const cancelOptions = {
-            url: `${PAQUETEXPRESS_BASE_URL}/RadRestFul/api/rad/v1/cancelguia`,
-            method: "POST",
-            body: {
-                mode: 'raw',
-                raw: JSON.stringify(pqxRequestBody)
-            },
-        };
+        const fullUrl = `${CATALYST_CANCEL_URL}?trackingNumber=${trackingNumber}&ZCFKEY=${CATALYST_CANCEL__API_KEY}`;
 
-        console.log("cancelOptions", cancelOptions);
-        
-        const response = await ZFAPPS.request(cancelOptions);
-        const responseBody = JSON.parse(response.data.body);
-        console.log("responseBody", responseBody);
-        
-        if (responseBody?.body?.response?.success === true) {
+        const catalystOptions = {
+            url: fullUrl,
+            method: 'POST',
+            connection_link_name: paquetexpressConnectionLinkName
+        };
+        console.log("catalystOptions", catalystOptions);
+
+
+        const response = await ZFAPPS.request(catalystOptions);
+        console.log("catalystResponse: ", response);
+
+        const catalystResponseBody = JSON.parse(response.data.body);
+
+        const catalystBody = JSON.parse(catalystResponseBody.output);
+        console.log("catalystBody: ", catalystBody);
+
+        if (catalystBody?.body?.response?.success === true) {
             return {
                 success: true,
                 message: "Envío cancelado exitosamente."
             };
         } else {
-            const errorMessage = responseBody?.body?.response?.messages?.[0]?.description 
-                                || "Error desconocido al cancelar en PaquetExpress.";
+            const errorMessage = catalystBody?.body?.response?.messages?.[0]?.description
+                || catalystBody.error
+                || "Error desconocido al cancelar.";
             throw new Error(errorMessage);
         }
     }
-
-
 
 }

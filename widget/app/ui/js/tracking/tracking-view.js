@@ -239,7 +239,7 @@ async function handleTrackingCardClick(card) {
 	}
 
 	try {
-		const trackingResult = await ShippingService.trackShipment(provider, elements.trackingNumber);
+		const trackingResult = await ShippingService.trackShipment(provider, trackingNumber);
 
 		renderTrackingTimeline(trackingResult);
 

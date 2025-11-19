@@ -10,7 +10,7 @@
 				"location": "salesorder.details.sidebar",
 				"name": "Inventory Extension",
 				"url": "/app/widget.html",
-				"logo": "/app/ui/img/dhl-2.png",
+				"logo": "/app/ui/img/widget-logo.png",
 				"widget_type": "modal"
 			}
 		]
@@ -18,45 +18,31 @@
 	"config": [],
 	"usedConnections": [
 		{
-			"connectionLinkName": "ext_inventory_all",
-			"connectionName": "ext_inventory_all",
-			"serviceName": "zoho_inventory",
-			"userAccess":  true,
-			"isUserDefinedService":  false,
-			"sharedBy":  "855449054"
-	   },
-	   {
-		"connectionLinkName": "inventory_all_1",
-		"connectionName": "inventory_all_1",
-		"serviceName": "zoho_inventory",
-		"userAccess":  false,
-		"isUserDefinedService":  false,
-		"sharedBy":  "785799185"
-   		},
-		   {
-			"connectionLinkName": "inventory_all",
-			"connectionName": "inventory_all",
-			"serviceName": "zoho_inventory",
-			"userAccess":  false,
-			"isUserDefinedService":  false,
-			"sharedBy":  "808492068"
-	   },
-	   {
-		"connectionLinkName": "inventory_all_1",
-		"connectionName": "Inventory_all_1",
-		"serviceName": "zoho_inventory",
-		"userAccess":  true,
-		"isUserDefinedService":  false,
-		"sharedBy":  "808492068"
+			"connectionLinkName": "dhl_api_conn",
+			"connectionName": "DHL_API_CONN",
+			"serviceName": "dhl_api_service",
+			"userAccess": true,
+			"isUserDefinedService": true,
+			"sharedBy": "859259366"
 		},
 		{
-				"connectionLinkName": "dhl_api_conn",
-				"connectionName": "DHL_API_CONN",
-				"serviceName": "dhl_api_service",
-				"userAccess": false,
-				"isUserDefinedService": true,
-				"sharedBy": "808492068"
+			"connectionLinkName": "paquetexpress_api_conn_v2",
+			"connectionName": "paquetexpress_api_conn_v2",
+			"serviceName": "paquetexpress_api_service_v2",
+			"userAccess": true,
+			"isUserDefinedService": true,
+			"sharedBy": "906457336"
+		},
+		{
+			"connectionLinkName": "inventory_all_1_",
+			"connectionName": "inventory_all_1_",
+			"serviceName": "zoho_inventory",
+			"userAccess": true,
+			"isUserDefinedService": false,
+			"sharedBy": "906457336",
+			"scope": [
+				"ZohoInventory.FullAccess.all"
+			]
 		}
-
 	]
 }

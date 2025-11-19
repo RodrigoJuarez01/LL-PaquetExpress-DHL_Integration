@@ -56,7 +56,7 @@ async function createShipmentLogic(button) {
 
         selectedRateData.plannedShippingDateAndTime = formData.sender.plannedShippingDateAndTime;
 
-        const shipmentResult = await ShippingService.createShipment(provider, formData, selectedRateData);
+        const shipmentResult = await ShippingService.createShipment(provider, formData, selectedRateData, viewState.selectedPackageIds);
 
         document.getElementById('ratesContainerResponse').style.display = 'none';
 
@@ -293,7 +293,8 @@ export async function handleRateRequest(formElements) {
 
         const formData = _collectFormData(formElements.form);
 
-        const rates = await ShippingService.getRates("paquetexpress",formData);
+        // const rates = await ShippingService.getRates("paquetexpress",formData);
+        const rates = await ShippingService.getAllRates(formData);
 
         document.getElementById('shipment-form-container').style.display = 'none';
 

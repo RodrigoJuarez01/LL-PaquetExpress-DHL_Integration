@@ -119,7 +119,7 @@ export class DhlAdapter {
     }
 
 
-    async createShipment(formData, selectedRateData) {
+    async createShipment(formData, selectedRateData, selectedPackageIds) {
 
         const shipmentsPackages = [];
 

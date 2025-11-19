@@ -29,8 +29,8 @@ export const ShippingService = {
     },
 
 
-    async createShipment(providerName, formData, selectedRateData) {
-        return await providers[providerName].createShipment(formData, selectedRateData);
+    async createShipment(providerName, formData, selectedRateData, selectedPackageIds) {
+        return await providers[providerName].createShipment(formData, selectedRateData, selectedPackageIds);
     },
 
     async trackShipment(providerName, trackingNumber) {
