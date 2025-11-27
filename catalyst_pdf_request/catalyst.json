@@ -3,9 +3,14 @@
     "targets": [
       "integracion_paqueterias_function",
       "paquetexpress_package-delivery_webhook",
-      "cancel_shipment_paquetexpress"
+      "cancel_shipment_paquetexpress",
+      "cancel_shipment"
     ],
     "ignore": [],
     "source": "functions"
+  },
+  "apig": {
+    "rules": "catalyst-user-rules.json",
+    "enabled": true
   }
 }

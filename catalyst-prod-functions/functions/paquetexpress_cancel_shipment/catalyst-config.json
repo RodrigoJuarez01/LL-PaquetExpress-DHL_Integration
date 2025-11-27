@@ -1,0 +1,15 @@
+{
+	"deployment": {
+		"name": "paquetexpress_cancel_shipment",
+		"stack": "node20",
+		"type": "basicio",
+		"env_variables": {
+			"PAQUETEXPRESS_API_TOKEN": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJXU0xVTkFMQUJTTUVYIn0.0z-og-2w1Cxjd-eMFv5lIio_jeZO9yX9xbFyv2v22Gw",
+			"PAQUETEXPRESS_BASEURL": "https://cc.paquetexpress.com.mx",
+			"PAQUETEXPRESS_API_USER": "WSLUNALABSMEX"
+		}
+	},
+	"execution": {
+		"main": "index.js"
+	}
+}

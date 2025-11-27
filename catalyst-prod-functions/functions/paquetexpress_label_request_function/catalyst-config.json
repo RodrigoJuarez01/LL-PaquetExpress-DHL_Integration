@@ -1,0 +1,13 @@
+{
+	"deployment": {
+		"name": "paquetexpress_label_request_function",
+		"stack": "node20",
+		"type": "advancedio",
+		"env_variables": {
+			"BASE_URL": "https://cc.paquetexpress.com.mx:8082"
+		}
+	},
+	"execution": {
+		"main": "index.js"
+	}
+}

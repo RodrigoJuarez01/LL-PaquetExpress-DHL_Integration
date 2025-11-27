@@ -1,8 +1,10 @@
 import { ConfigService } from '../../services/config.service.js';
 import ZohoService from '../../services/zoho.service.js';
 
-
-// const paquetexpressConnectionLinkName = '21924000591655009-808492068-paquetexpress_api_conn_v2';
+// SOLVIS2
+// const paquetexpressConnectionLinkName = '21924000872833007-785799185-paquetexpress_api_conn_v2';
+// DEMO2
+// const paquetexpressConnectionLinkName = '21924000872759007-808492068-paquetexpress_api_conn_v2';
 const paquetexpressConnectionLinkName = 'paquetexpress_api_conn_v2';
 
 
@@ -426,7 +428,9 @@ export class PaquetexpressAdapter {
         // };
     }
 
-    async getProofOfDelivery(trackingNumber, shipmentId) {
+    async getProofOfDelivery(trackingNumberD, shipmentId) {
+
+        let trackingNumber = trackingNumberD.replace(/\s+/g, '');
 
         const signatureAttachment = await ZohoService.findAttachment(shipmentId);
 
@@ -480,7 +484,11 @@ export class PaquetexpressAdapter {
     }
 
 
-    async trackShipment(trackingNumber) {
+    async trackShipment(trackingNumberD) {
+
+        let trackingNumber = trackingNumberD.replace(/\s+/g, '');
+        
+        console.log("trackingNumber", trackingNumber);
 
         const headers = { "Content-Type": "application/json" };
 
@@ -555,7 +563,9 @@ export class PaquetexpressAdapter {
 
 
 
-    async cancelShipment(trackingNumber) {
+    async cancelShipment(trackingNumberD) {
+
+        let trackingNumber = trackingNumberD.replace(/\s+/g, '');
 
         const CATALYST_CANCEL_URL = ConfigService.getCatalystCancelUrl();
         const CATALYST_CANCEL__API_KEY = ConfigService.getCatalystCancelApiKey();

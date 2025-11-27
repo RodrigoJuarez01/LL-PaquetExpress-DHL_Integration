@@ -460,8 +460,8 @@ function setupEventListeners(appData) {
             elements.form.sender.numeroInput.value = num;
 
             console.log("elements.form.sender.nombreInput", elements.form.sender.nombreInput);
-            elements.form.sender.nombreInput.value = warehouseData.attention;
-            elements.form.sender.empresaInput.value = warehouseData.branch_name;
+            elements.form.sender.nombreInput.value = warehouseCatalogAddress.attention;
+            elements.form.sender.empresaInput.value = warehouseCatalogAddress.branch_name;
             elements.form.sender.paisInput.value = 'Mexico';
             elements.form.sender.direccion2Input.value = warehouseCatalogAddress.colonia;
             elements.form.sender.direccion3Input.value = '';

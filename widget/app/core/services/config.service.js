@@ -16,6 +16,7 @@ let appConfig = {
     catalystCancelUrl: null,
     catalystCancelApiKey: null,
 
+    // inventoryConnectionLinkName: '21924000872833007-785799185-inventory_all_1_',
     inventoryConnectionLinkName: 'inventory_all_1_',
     dhlConnectionLinkName: 'dhl_api_conn',
     pqxConnName: 'paquetexpress_conn'

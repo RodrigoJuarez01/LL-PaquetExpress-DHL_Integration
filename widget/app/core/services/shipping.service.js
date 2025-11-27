@@ -8,12 +8,23 @@ const providers = {
 
 export const ShippingService = {
 
-    async getRates(providerName, formData) {
-        if (providers[providerName]) {
-            return await providers[providerName].getRates(formData);
-        } else {
-            throw new Error(`La paquetería '${providerName}' no está soportada.`);
+    _getProvider(providerName) {
+        if (!providerName) throw new Error("Nombre de proveedor no proporcionado.");
+        
+        const key = providerName.trim().toLowerCase(); 
+        const provider = providers[key];
+
+        if (!provider) {
+            console.error(`Proveedor no encontrado. Recibido: '${providerName}' -> Buscado: '${key}'`);
+            throw new Error(`El proveedor '${providerName}' no está configurado o soportado.`);
         }
+        return provider;
+    },
+
+
+    async getRates(providerName, formData) {
+        const adapter = this._getProvider(providerName);
+        return await adapter.getRates(formData);
     },
 
     async getAllRates(formData) {
@@ -28,21 +39,23 @@ export const ShippingService = {
         return combinedAndSortedRates;
     },
 
-
     async createShipment(providerName, formData, selectedRateData, selectedPackageIds) {
-        return await providers[providerName].createShipment(formData, selectedRateData, selectedPackageIds);
+        const adapter = this._getProvider(providerName);
+        return await adapter.createShipment(formData, selectedRateData, selectedPackageIds);
     },
 
     async trackShipment(providerName, trackingNumber) {
-        return await providers[providerName].trackShipment(trackingNumber);
+        const adapter = this._getProvider(providerName);
+        return await adapter.trackShipment(trackingNumber);
     },
 
     async getProofOfDelivery(providerName, trackingNumber, shipmentID) {
-     
-        return await providers[providerName].getProofOfDelivery(trackingNumber, shipmentID);
+        const adapter = this._getProvider(providerName);
+        return await adapter.getProofOfDelivery(trackingNumber, shipmentID);
     },
     
     async cancelShipment(providerName, trackingNumber){
-        return await providers[providerName].cancelShipment(trackingNumber);
+        const adapter = this._getProvider(providerName);
+        return await adapter.cancelShipment(trackingNumber);
     }
 };

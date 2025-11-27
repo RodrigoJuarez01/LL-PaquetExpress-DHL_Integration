@@ -1,6 +1,8 @@
 export const warehouseAddressMap = {
     // La clave es el nombre EXACTO del almacén que viene de Zoho
     'DCA Ventas PE LL/DC': {
+        attention: "DCA Ventas PE LL/DC",
+        branch_name: "Dermi Co",
         street: 'Blvd. Vito Alessio Robles',
         number: '3720',
         interior: '15',
@@ -11,6 +13,8 @@ export const warehouseAddressMap = {
         country: 'México'
     },
     'DCA CEDIS CDMX': {
+        attention: "DCA CEDIS CDMX",
+        branch_name: "Dermi Co",
         street: 'Querétaro',
         number: '229',
         interior: null,
@@ -21,6 +25,8 @@ export const warehouseAddressMap = {
         country: 'México'
     },
     'DCA CEDIS MTY': {
+        attention: "DCA CEDIS MTY",
+        branch_name: "Dermi Co",
         street: 'Manuel Ordoñez',
         number: '1610',
         interior: null,
@@ -31,6 +37,8 @@ export const warehouseAddressMap = {
         country: 'México'
     },
     'DCA CEDIS GDL': {
+        attention: "DCA CEDIS GDL",
+        branch_name: "Dermi Co",
         street: 'Av. Mariano Otero',
         number: '3607',
         interior: null,

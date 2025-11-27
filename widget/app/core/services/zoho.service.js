@@ -228,7 +228,7 @@ function _processAndGroupData(data) {
                     shipment_number: pck.shipment_number,
                     shipment_status: pck.shipment_order.shipment_status,
                     shipment_tracking_number: pck.shipment_order.tracking_number,
-                    provider: pck.delivery_method.toLowerCase(),
+                    provider: pck.delivery_method?.toLowerCase()?.trim(),
                     shipping_date: pck.shipping_date
                 };
 

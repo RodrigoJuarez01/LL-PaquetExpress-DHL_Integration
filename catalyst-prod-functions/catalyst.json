@@ -1,0 +1,11 @@
+{
+  "functions": {
+    "targets": [
+      "paquetexpress_label_request_function",
+      "paquetexpress_cancel_shipment",
+      "paquetexpress_package-delivery_webhook"
+    ],
+    "ignore": [],
+    "source": "functions"
+  }
+}

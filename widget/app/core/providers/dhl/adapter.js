@@ -4,6 +4,7 @@ import { ConfigService } from '../../services/config.service.js';
 
 const DHL_BASE_URL = "https://express.api.dhl.com/mydhlapi";
 const dhlConnectionLinkName = 'dhl_api_conn';
+// const dhlConnectionLinkName = '21924000872833007-785799185-dhl_api_conn';
 
 
 export class DhlAdapter {
@@ -109,7 +110,7 @@ export class DhlAdapter {
                 // estimatedDelivery: product.deliveryCapabilities.estimatedDeliveryDateAndTime,
                 estimatedDelivery: formattedDate,
                 originalData: product,
-                
+
                 productCode: product.productCode,
                 localProductCode: product.localProductCode,
             };
@@ -267,14 +268,16 @@ export class DhlAdapter {
         };
     }
 
-    async trackShipment(trackingNumber) {
+    async trackShipment(trackingNumberD) {
 
         // const tNumbersForTesting = ['2775523063', '3660208860', '7661769404', '7349581960', '4540441264', '9356579890'];
 
         // console.log("trackingNumber", trackingNumber);
 
         // trackingNumber = ConfigService.getOrgId() == '808492068' ? tNumbersForTesting[3] : trackingNumber;
-        console.log('trackingNumber:', trackingNumber);
+        console.log('trackingNumber:', trackingNumberD);
+
+        let trackingNumber = trackingNumberD.replace(/\s+/g, '');
 
         trackingNumber = ConfigService.getOrgId() == '808492068' ? "8314579276" : trackingNumber;
 
@@ -347,7 +350,9 @@ export class DhlAdapter {
     }
 
 
-    async getProofOfDelivery(trackingNumber, shipmentID) {
+    async getProofOfDelivery(trackingNumberD, shipmentID) {
+        let trackingNumber = trackingNumberD.replace(/\s+/g, '');
+
         const orgId = ConfigService.getOrgId();
         const dhlUrlComplement = orgId === '808492068' ? '/test' : '';
         // const tNumbersForTesting = ['2775523063', '3660208860', '7661769404', '7349581960', '4540441264', '9356579890'];
@@ -383,7 +388,7 @@ export class DhlAdapter {
         return {
             provider: 'dhl',
             trackingNumber: trackingNumber,
-            documents: podBody.documents.map((doc) => {return {type: 'pdf', content: doc.content}})
+            documents: podBody.documents.map((doc) => { return { type: 'pdf', content: doc.content } })
         };
     }
 }

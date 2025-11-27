@@ -250,24 +250,24 @@ async function handleTrackingCardClick(card) {
 
 
 		if (lastEvent.typeCode && lastEvent.typeCode !== "OK" && provider === "dhl") {
-			const pendingRowHTML = `
-                <div class="tracking-item-pending" id="pendingTrackingEvent">
+			// const pendingRowHTML = `
+            //     <div class="tracking-item-pending" id="pendingTrackingEvent">
                     
-                        <div class="tracking-icon status-intransit">
-                            <svg class="svg-inline--fa fa-circle fa-w-16" aria-hidden="true" data-prefix="fas" data-icon="circle" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg="">
-                            <path fill="currentColor" d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8z"></path>
-                            </svg>
-                        </div>
-                        <div class="tracking-date">
-                        &nbsp; 
-                        </div>
-                        <div class="tracking-content">
-                            Actividad de rastreo pendiente
-                        </div>
+            //             <div class="tracking-icon status-intransit">
+            //                 <svg class="svg-inline--fa fa-circle fa-w-16" aria-hidden="true" data-prefix="fas" data-icon="circle" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg="">
+            //                 <path fill="currentColor" d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8z"></path>
+            //                 </svg>
+            //             </div>
+            //             <div class="tracking-date">
+            //             &nbsp; 
+            //             </div>
+            //             <div class="tracking-content">
+            //                 Actividad de rastreo pendiente
+            //             </div>
                     
                 
-            `;
-			elements.trackingEventsContainer.insertAdjacentHTML('afterbegin', pendingRowHTML);
+            // `;
+			// elements.trackingEventsContainer.insertAdjacentHTML('afterbegin', pendingRowHTML);
 
 		} else if (provider === "dhl") {
 

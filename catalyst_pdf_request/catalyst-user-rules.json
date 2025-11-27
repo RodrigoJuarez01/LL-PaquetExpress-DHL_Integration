@@ -1,0 +1,104 @@
+[
+  {
+    "name": "paquetExpress__cancel_shipment",
+    "source_endpoint": "/cancelshipment",
+    "target_endpoint": "/server/cancel_shipment/execute",
+    "target": "basicio",
+    "method": "POST",
+    "throttling": {
+      "overall": {
+        "duration": {
+          "days": 0,
+          "hours": 0,
+          "minutes": 1,
+          "seconds": 0
+        },
+        "limit": "10"
+      },
+      "ip": {
+        "duration": {
+          "days": 0,
+          "hours": 0,
+          "minutes": 1,
+          "seconds": 0
+        },
+        "limit": "10"
+      }
+    },
+    "target_id": "26384000000058003",
+    "authentication": [
+      "APIKey"
+    ]
+  },
+  {
+    "name": "paquetExpress__updateShipmentStatus_webhook",
+    "source_endpoint": "/delivery-proof",
+    "target_endpoint": "/server/paquetexpress_package-delivery_webhook/",
+    "target": "advancedio",
+    "method": "POST",
+    "throttling": {
+      "overall": {
+        "duration": {
+          "days": 0,
+          "hours": 0,
+          "minutes": 1,
+          "seconds": 0
+        },
+        "limit": "15"
+      },
+      "ip": {
+        "duration": {
+          "days": 0,
+          "hours": 0,
+          "minutes": 1,
+          "seconds": 0
+        },
+        "limit": "15"
+      }
+    },
+    "target_id": "26384000000032001"
+  },
+  {
+    "name": "PaquetExpressIntegration",
+    "source_endpoint": "/getPaquetexpressLabel",
+    "target_endpoint": "/server/integracion_paqueterias_function/getPaquetexpressLabel",
+    "target": "advancedio",
+    "method": "GET",
+    "throttling": {
+      "overall": {
+        "duration": {
+          "days": 0,
+          "hours": 0,
+          "minutes": 1,
+          "seconds": 0
+        },
+        "limit": "5"
+      },
+      "ip": {
+        "duration": {
+          "days": 0,
+          "hours": 0,
+          "minutes": 1,
+          "seconds": 0
+        },
+        "limit": "5"
+      }
+    },
+    "target_id": "26384000000022046",
+    "authentication": [
+      "APIKey"
+    ]
+  },
+  {
+    "name": "integracion_paqueterias_function",
+    "source_endpoint": "/server/integracion_paqueterias_function/{path1:(.*)}",
+    "target_endpoint": "/server/integracion_paqueterias_function/{path1}",
+    "target": "advancedio",
+    "method": "ANY",
+    "throttling": {
+      "overall": {},
+      "ip": {}
+    },
+    "target_id": "26384000000022046"
+  }
+]

@@ -1,0 +1,30 @@
+{
+  "defaults": {
+    "project": 1,
+    "env": 1
+  },
+  "actives": {
+    "project": 1,
+    "env": 1
+  },
+  "projects": [
+    {
+      "idx": 1,
+      "id": "4075000000113001",
+      "name": "integracionPaqueterias",
+      "domain": {
+        "id": "10111121666",
+        "name": "integracionpaqueterias-806216909.development"
+      },
+      "timezone": "America/Mexico_City",
+      "env": [
+        {
+          "idx": 1,
+          "id": "806216909",
+          "name": "Development",
+          "type": 3
+        }
+      ]
+    }
+  ]
+}

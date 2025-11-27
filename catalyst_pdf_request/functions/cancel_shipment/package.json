@@ -1,0 +1,10 @@
+{
+	"name": "cancel_shipment",
+	"version": "1.0.0",
+	"main": "index.js",
+	"author": "user1@demo2.roiretornodeinversion.com",
+	"dependencies": {
+		"axios": "^1.13.2",
+		"zcatalyst-sdk-node": "latest"
+	}
+}
