@@ -10,8 +10,8 @@ export const ShippingService = {
 
     _getProvider(providerName) {
         if (!providerName) throw new Error("Nombre de proveedor no proporcionado.");
-        
-        const key = providerName.trim().toLowerCase(); 
+
+        const key = providerName.trim().toLowerCase();
         const provider = providers[key];
 
         if (!provider) {
@@ -30,13 +30,26 @@ export const ShippingService = {
     async getAllRates(formData) {
         const promises = Object.values(providers).map(provider => provider.getRates(formData));
 
-        const resultsByProvider = await Promise.all(promises);
+        const results = await Promise.allSettled(promises);
 
-        const combinedAndSortedRates = resultsByProvider
-            .flat() 
-            .sort((a, b) => a.price - b.price); 
+        const successfulRates = [];
+        const errors = [];
 
-        return combinedAndSortedRates;
+        results.forEach(result => {
+            if (result.status === 'fulfilled') {
+                successfulRates.push(...result.value);
+            } else {
+                console.warn("Un proveedor falló al cotizar:", result.reason);
+                errors.push(result.reason.message);
+            }
+        });
+
+        if (successfulRates.length === 0) {
+            const errorMsg = errors.length > 0 ? errors.join(" | ") : "No se encontraron tarifas disponibles.";
+            throw new Error(`Ninguna paquetería pudo cotizar este envío. (${errorMsg})`);
+        }
+
+        return successfulRates.sort((a, b) => a.price - b.price);
     },
 
     async createShipment(providerName, formData, selectedRateData, selectedPackageIds) {
@@ -53,8 +66,8 @@ export const ShippingService = {
         const adapter = this._getProvider(providerName);
         return await adapter.getProofOfDelivery(trackingNumber, shipmentID);
     },
-    
-    async cancelShipment(providerName, trackingNumber){
+
+    async cancelShipment(providerName, trackingNumber) {
         const adapter = this._getProvider(providerName);
         return await adapter.cancelShipment(trackingNumber);
     }

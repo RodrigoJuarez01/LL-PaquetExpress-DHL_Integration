@@ -302,7 +302,7 @@ export async function handleRateRequest(formElements) {
 
     } catch (error) {
         console.error("Error al obtener tarifas:", error);
-        showRequestErrorToast(error.message, 7000);
+        showRequestErrorToast(error.message, 15000);
         // showRequestErrorToast("No se pudieron obtener las tarifas.");
     } finally {
         elements.spinner.style.display = 'none';
