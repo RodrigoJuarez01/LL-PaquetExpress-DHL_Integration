@@ -206,7 +206,7 @@ function _processAndGroupData(data) {
         console.log("Key", key);
         warehouses.forEach(warehouse => {
 
-            if (warehouse.location_name.trim().toLowerCase().includes(key.toLowerCase())) {
+            if (warehouse.location_name.trim().toLowerCase().includes(key?.toLowerCase())) {
                 let obj = {
                     warehouse_name: key,
                     zip: warehouse.zip,

@@ -150,6 +150,15 @@ function handleCancelClick(cancelButton) {
 
 async function handleConfirmClick(confirmButton) {
 
+    if (confirmButton.disabled || confirmButton.dataset.processing === "true") {
+        console.warn("Doble click prevenido o listener duplicado.");
+        return;
+    }
+
+    // Marca el botón como procesando para evitar condiciones de carrera
+    confirmButton.dataset.processing = "true";
+    confirmButton.disabled = true;
+
 
     const btnWidth = confirmButton.offsetWidth + 'px';
 
@@ -175,18 +184,23 @@ async function handleConfirmClick(confirmButton) {
 
     // 3. Llama a la lógica de negocio
     // (Renombramos tu 'handleRateSelection' a 'createShipmentLogic' para más claridad)
-    await createShipmentLogic(confirmButton);
+
+    try {
+        await createShipmentLogic(confirmButton);
+    } catch (error) {
+        // Si falla, recuerda quitar el flag de processing
+        delete confirmButton.dataset.processing;
+        throw error; // Deja que el catch de createShipmentLogic maneje lo visual, o manéjalo aquí
+    }
 }
 
 function setupRateSelectionListeners() {
-
-    document.getElementById('btn-back-to-form').addEventListener('click', () => {
-        document.getElementById('ratesContainerResponse').style.display = 'none';
-        document.getElementById('shipment-form-container').style.display = 'block';
-    });
-
+    
     const ratesContainer = document.getElementById('ratesContainerResponse');
-    ratesContainer.addEventListener('click', (event) => {
+    const newRatesContainer = ratesContainer.cloneNode(true);
+    ratesContainer.parentNode.replaceChild(newRatesContainer, ratesContainer);
+
+    newRatesContainer.addEventListener('click', (event) => {
         const selectBtn = event.target.closest('.js-select-rate-btn');
         const confirmBtn = event.target.closest('.js-confirm-btn');
         const cancelBtn = event.target.closest('.js-cancel-btn');
@@ -199,6 +213,14 @@ function setupRateSelectionListeners() {
             handleCancelClick(cancelBtn);
         }
     });
+
+    const backBtn = document.getElementById('btn-back-to-form');
+    if (backBtn) {
+        backBtn.addEventListener('click', () => {
+            document.getElementById('ratesContainerResponse').style.display = 'none';
+            document.getElementById('shipment-form-container').style.display = 'block';
+        });
+    }
 }
 
 function resetAllRateCells() {
