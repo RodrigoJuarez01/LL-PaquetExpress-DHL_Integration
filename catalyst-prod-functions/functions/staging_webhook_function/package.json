@@ -1,0 +1,9 @@
+{
+	"name": "staging_webhook_function",
+	"version": "1.0.0",
+	"main": "index.js",
+	"author": "solvis2@lunalabs.com.mx",
+	"dependencies": {
+		"zcatalyst-sdk-node": "latest"
+	}
+}

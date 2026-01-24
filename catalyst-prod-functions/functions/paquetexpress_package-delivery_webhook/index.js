@@ -125,7 +125,7 @@ async function attachImage(base64Image, fileName, endpointUrl, accessToken) {
 	try {
 		const response = await axios.post(fullUrl, formData, config);
 
-		console.log('Respuesta de adjuntar imagen (axios):', response.data);
+		// console.log('Respuesta de adjuntar imagen (axios):', response.data);
 		return { success: true, data: response.data };
 
 	} catch (error) {
@@ -250,6 +250,8 @@ async function processWebhook(trackingNumber, firmaBase64) {
 		throw new Error(`Procesamiento parcial completado con errores: ${failureMessages.join(', ')}`);
 	}
 
+	console.log(`Todos los envíos procesados correctamente para  ${trackingNumber}`);
+
 	return { success: true, message: "Todos los envíos procesados." };
 
 }
@@ -280,7 +282,7 @@ async function sendEmailSupport(trackingNumber, errorMessage) {
             `,
 		};
 
-		await email.sendMail(config);
+		// await email.sendMail(config);
 		console.log("Correo de soporte enviado exitosamente.");
 
 	} catch (emailError) {
