@@ -70,53 +70,38 @@ async function sendEmailSupport(catalystApp, trackingNumber, errorMessage) {
 }
 
 async function attachImage(catalystApp, fileId, trackingNumber, shipmentID, orgID, accessToken) {
+    try {
+        const folderID = process.env.STAGING_FILES_FOLDER_ID;
+        if (!folderID) throw new Error("Falta STAGING_FILES_FOLDER_ID");
 
-	let tempFilePath = null;
-	
-	try {
-		const folderID = process.env.STAGING_FILES_FOLDER_ID;
+        const filestore = catalystApp.filestore();
+        const folder = filestore.folder(folderID);
 
-		if (!folderID) throw new Error("Falta STAGING_FILES_FOLDER_ID");
+        const fileBuffer = await folder.downloadFile(fileId);
 
-		const filestore = catalystApp.filestore();
-		const folder = filestore.folder(folderID);
+        const fileName = `EVIDENCIA-${trackingNumber}.jpeg`;
 
-		const fileStream = await folder.downloadFile(fileId);
+        const form = new FormData();
 
-		const fileName = `EVIDENCIA-${trackingNumber}.jpeg`;
-		tempFilePath = path.join(os.tmpdir(), fileName);
+        form.append('attachment', fileBuffer, {
+            filename: fileName,
+            contentType: 'image/jpeg' 
+        });
 
-		const writer = fs.createWriteStream(tempFilePath);
-		fileStream.pipe(writer);
+        const attachUrl = `https://www.zohoapis.com/inventory/v1/shipmentorders/${shipmentID}/attachment?organization_id=${orgID}`;
 
-		await new Promise((resolve, reject) => {
-			writer.on('finish', resolve);
-			writer.on('error', reject);
-		});
+        await axios.post(attachUrl, form, {
+            headers: {
+                Authorization: `Zoho-oauthtoken ${accessToken}`,
+                ...form.getHeaders()
+            }
+        });
 
-		const form = new FormData();
-		form.append('attachment', fs.createReadStream(tempFilePath));
+        console.log(`Imagen adjuntada correctamente al envío ${shipmentID}`);
 
-		const attachUrl = `https://www.zohoapis.com/inventory/v1/shipmentorders/${shipmentID}/attachment?organization_id=${orgID}`;
-
-		await axios.post(attachUrl, form, {
-			headers: {
-				Authorization: `Zoho-oauthtoken ${accessToken}`,
-				...form.getHeaders()
-			}
-		});
-
-		console.log(`Imagen adjuntada correctamente al envío ${shipmentID}`);
-
-	} catch (error) {
-		console.warn(`No se pudo adjuntar imagen para ${shipmentID} de la guía ${trackingNumber}, Error ${error}`);
-	} finally {
-		if (tempFilePath && fs.existsSync(tempFilePath)) {
-			fs.unlinkSync(tempFilePath);
-		}
-	}
-
-
+    } catch (error) {
+        console.warn(`No se pudo adjuntar imagen para ${shipmentID} de la guía ${trackingNumber}. Error: ${error.message}`);
+    }
 }
 
 async function processSingleRecord(catalystApp, record, accessToken, orgID) {
@@ -143,13 +128,15 @@ async function processSingleRecord(catalystApp, record, accessToken, orgID) {
 
 			const statusUrl = `https://www.zohoapis.com/inventory/v1/shipmentorders/${shipmentID}/status/delivered?organization_id=${orgID}`;
 
+			let zohoCode = null;
+
 			try {
 				await axios.post(statusUrl, {}, { headers: { Authorization: `Zoho-oauthtoken ${accessToken}` } });
 				console.log(`Estatus actualizado a Delivered para ${shipmentID}`);
 			} catch (error) {
-				const zohoCode = error.response?.data?.code;
+				zohoCode = error.response?.data?.code;
 
-				if (zohoCode === 37135) {
+				if (zohoCode && zohoCode === 37135) {
 					console.log(`El envío ${shipmentID} ya estaba marcado como entregado. (Código 37135 - Ignorado)`);
 
 				} else {
