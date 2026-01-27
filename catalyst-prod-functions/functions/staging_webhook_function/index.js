@@ -46,18 +46,31 @@ async function sendEmailSupport(catalystApp, trackingNumber, errorMessage) {
 }
 
 async function saveImageToFileStore(catalystApp, trackingNumber, firmaBase64) {
-    if (!firmaBase64) return null;
+    if (!firmaBase64 || firmaBase64.length < 10) return null;
 
     const fileName = `EVIDENCIA-${trackingNumber}-${Date.now()}.jpeg`;
     const tempFilePath = path.join(os.tmpdir(), fileName);
 
     try {
-        const folderID = process.env.CATALYST_WEBHOOK_STAGING_FILES_FOLDER_ID;
-
+        const folderID = process.env.STAGING_FILES_FOLDER_ID;
         if (!folderID) throw new Error(`No se encontró la variable de entorno para el folder id`);
 
         const base64Data = firmaBase64.split(',').pop();
         const imageBuffer = Buffer.from(base64Data, 'base64');
+
+        if (imageBuffer.length > 0) {
+            const header = imageBuffer.subarray(0, 4).toString('hex').toUpperCase();
+            const isJPEG = header.startsWith('FFD8');
+            const isPNG = header.startsWith('89504E47');
+
+            if (!isJPEG && !isPNG) {
+                console.warn(`[Validación Imagen] La guía ${trackingNumber} envió data que no es imagen válida (Header: ${header}).`);
+                return null;
+            }
+        } else {
+            return null;
+        }
+
         fs.writeFileSync(tempFilePath, imageBuffer);
 
         let filestore = catalystApp.filestore();

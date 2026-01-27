@@ -74,9 +74,9 @@ async function attachImage(catalystApp, fileId, trackingNumber, shipmentID, orgI
 	let tempFilePath = null;
 	
 	try {
-		const folderID = process.env.CATALYST_WEBHOOK_STAGING_FILES_FOLDER_ID;
+		const folderID = process.env.STAGING_FILES_FOLDER_ID;
 
-		if (!folderID) throw new Error("Falta CATALYST_WEBHOOK_STAGING_FILES_FOLDER_ID");
+		if (!folderID) throw new Error("Falta STAGING_FILES_FOLDER_ID");
 
 		const filestore = catalystApp.filestore();
 		const folder = filestore.folder(folderID);
@@ -192,7 +192,7 @@ module.exports = async (cronDetails, context) => {
 		console.log(`Se encontraron ${pendingRecords.length} registros para procesar.`);
 
 		const accessToken = await getInventoryAccessToken(catalystApp);
-		const orgID = process.env.ORGANIZATION_ID;
+		const orgID = process.env.CURRENT_ORG_ID;
 
 		if (!accessToken || !orgID) throw new Error("Fallo crítico obteniendo credenciales de Zoho.");
 

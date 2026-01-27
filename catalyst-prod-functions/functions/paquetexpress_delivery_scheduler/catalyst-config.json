@@ -3,7 +3,18 @@
 		"name": "paquetexpress_delivery_scheduler",
 		"stack": "node20",
 		"type": "cron",
-		"env_variables": {}
+		"env_variables": {
+			"SUPPORT_FROM_EMAIL": "javier.marcelo@solvisconsulting.com",
+			"SUPPORT_TO_EMAIL": "support@solvisconsulting.com",
+			"CLIENT_ID": "1000.3EBETNC06V30D25EVQCQX13BJY5VYH",
+			"CLIENT_SECRET": "0b189601a500a21cc8282b77c29970f504dfda5470",
+			"AUTH_URL": "https://accounts.zoho.com/oauth/v2/auth?response_type=code&client_id=1000.3EBETNC06V30D25EVQCQX13BJY5VYH&scope=ZohoInventory.packages.ALL,ZohoInventory.shipmentorders.ALL,ZohoCatalyst.tables.rows.READ&access_type=offline&redirect_uri=https://www.google.com",
+			"REFRESH_TOKEN": "1000.0bb81feeef3024b83195b0c50e5e3030.1b9a74f566a74f3164200c934702c4dd",
+			"REFRESH_IN": "3600",
+			"REFRESH_URL": "https://accounts.zoho.com/oauth/v2/token",
+			"STAGING_FILES_FOLDER_ID": "4075000000150498",
+			"CURRENT_ORG_ID": "785799185"
+		}
 	},
 	"execution": {
 		"main": "index.js"
