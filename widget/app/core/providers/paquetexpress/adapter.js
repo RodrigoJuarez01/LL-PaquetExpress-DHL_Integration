@@ -392,22 +392,65 @@ export class PaquetexpressAdapter {
 
         const response = await ZFAPPS.request(pqxOptions);
 
-        console.log("generación guía response: ", JSON.stringify(response, null, 2));
+        console.log("generación guía response (Zoho): ", JSON.stringify(response, null, 2));
 
-        const responseBody = JSON.parse(response.data.body);
+        let pqxFullResponse = {};
 
-        const pqxResponseBody = responseBody.body;
+        try {
+            const rawBody = response.data && response.data.body;
 
-        console.log("pqxResponseBody ", pqxResponseBody);
-
-
-        const responseData = pqxResponseBody.response;
-        if (!responseData || !responseData.success) {
-            throw new Error("No se pudo generar la guía");
+            if (typeof rawBody === 'string') {
+                pqxFullResponse = JSON.parse(rawBody);
+            } else if (typeof rawBody === 'object') {
+                pqxFullResponse = rawBody;
+            } else {
+                throw new Error("Respuesta vacía o inválida del proveedor.");
+            }
+        } catch (e) {
+            console.error("Error parseando JSON de PQX:", e);
+            throw new Error(`Error de comunicación (Parse): ${String(response.data.body).substring(0, 50)}`);
         }
 
+        console.log("Respuesta Parseada PQX:", pqxFullResponse);
 
-        const trackingNumber = responseData.data;
+        const pqxInternalBody = pqxFullResponse?.body;
+        const responseData = pqxInternalBody?.response;
+
+        const isSuccess = responseData?.success === true;
+
+        if (!isSuccess) {
+            let errorDetallado = "";
+
+            if (responseData?.messages) {
+                errorDetallado = typeof responseData.messages === 'object'
+                    ? JSON.stringify(responseData.messages)
+                    : responseData.messages;
+            }
+            else if (responseData?.alerts && responseData.alerts.length > 0) {
+                errorDetallado = JSON.stringify(responseData.alerts[0]);
+            }
+            else if (pqxFullResponse?.header?.error) {
+                errorDetallado = JSON.stringify(pqxFullResponse.header.error);
+            }
+            else if (typeof responseData?.data === 'string' && responseData.data.length > 20) {
+                errorDetallado = responseData.data;
+            }
+
+            if (!errorDetallado) {
+                const dump = JSON.stringify(pqxInternalBody || pqxFullResponse).substring(0, 300);
+                errorDetallado = `Error no estándar: ${dump}`;
+            }
+
+            console.error("Fallo PQX:", errorDetallado);
+
+            throw new Error(`Paquetexpress: ${errorDetallado}`);
+        }
+
+        const trackingNumber = responseData?.data;
+
+        if (!trackingNumber) {
+            throw new Error("Se generó la guía pero no se recibió el número de rastreo.");
+        }
 
         const labelResponse = await this.getLabel(trackingNumber);
 
@@ -487,7 +530,7 @@ export class PaquetexpressAdapter {
     async trackShipment(trackingNumberD) {
 
         let trackingNumber = trackingNumberD.replace(/\s+/g, '');
-        
+
         console.log("trackingNumber", trackingNumber);
 
         const headers = { "Content-Type": "application/json" };
