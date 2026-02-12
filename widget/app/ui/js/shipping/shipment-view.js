@@ -433,12 +433,12 @@ function parseAddress(fullAddress) {
 
     const interiorKeywords = ['PISO', 'INT', 'INTERIOR', 'DPTO', 'DEPARTAMENTO', 'LOCAL', 'OFICINA'];
     const regexInterior = new RegExp(`\\b(${interiorKeywords.join('|')})\\s`, 'i');
-    const interiorMatch = fullAddress.match(regexInterior);
+    const interiorMatch = fullAddress?.match(regexInterior);
 
     if (interiorMatch) {
         const splitIndex = interiorMatch.index;
-        streetLine = fullAddress.substring(0, splitIndex).trim();
-        interior = fullAddress.substring(splitIndex).trim();
+        streetLine = fullAddress?.substring(0, splitIndex).trim();
+        interior = fullAddress?.substring(splitIndex).trim();
     }
 
     const regexStreetNumber = /^(.*?)\s*(#?[\w\d-]+)\s*$/;
@@ -522,8 +522,8 @@ function setupEventListeners(appData) {
 function populateReceiverForm(appData) {
     const { soShippingAddress, contact } = appData.rawData;
 
-    elements.form.receiver.nombreInput.value = soShippingAddress.attention;		//contactInformation.fullName
-    elements.form.receiver.empresaInput.value = contact.contactFromAPI.company_name;		//contactInformation.companyName
+    elements.form.receiver.nombreInput.value = soShippingAddress?.attention ?? '';		//contactInformation.fullName
+    elements.form.receiver.empresaInput.value = contact.contactFromAPI?.company_name ?? '';		//contactInformation.companyName
     elements.form.receiver.paisInput.value = 'Mexico';								//postalAddress.countryName *Debemos agregar postalAddress.countryCode = MX
 
     const parsedAddr = parseAddress(soShippingAddress.address);
@@ -534,17 +534,17 @@ function populateReceiverForm(appData) {
         originalAddressEl.textContent = appData.rawData.soShippingAddress.address;
     }
 
-    elements.form.receiver.calleInput.value = parsedAddr.street;  // Asumiendo que ahora tienes 'calleInput'
-    elements.form.receiver.numeroInput.value = parsedAddr.number; // y 'numeroInput' en tu objeto 'elements'
+    elements.form.receiver.calleInput.value = parsedAddr?.street ?? '';  // Asumiendo que ahora tienes 'calleInput'
+    elements.form.receiver.numeroInput.value = parsedAddr?.number ?? ''; // y 'numeroInput' en tu objeto 'elements'
 
     // elements.form.receiver.direccionInput.value = soShippingAddress.address;		//postalAddress.addressLine1
-    elements.form.receiver.direccion2Input.value = soShippingAddress.street2;		//postalAddress.addressLine2
+    elements.form.receiver.direccion2Input.value = soShippingAddress?.street2 ?? '';		//postalAddress.addressLine2
     elements.form.receiver.direccion3Input.value = '';
-    elements.form.receiver.codigoPostalInput.value = soShippingAddress.zip;		//postalAddress.postalCode
-    elements.form.receiver.ciudadInput.value = soShippingAddress.city;				//postalAddress.cityName
-    elements.form.receiver.estadoInput.value = soShippingAddress.state;			//postalAddress.provinceName
-    elements.form.receiver.emailInput.value = contact.soContactPerson.email;				//contactInformation.email
-    elements.form.receiver.telefonoInput.value = soShippingAddress.phone;			//contactInformation.phone
+    elements.form.receiver.codigoPostalInput.value = soShippingAddress?.zip ?? '';		//postalAddress.postalCode
+    elements.form.receiver.ciudadInput.value = soShippingAddress?.city ?? '';				//postalAddress.cityName
+    elements.form.receiver.estadoInput.value = soShippingAddress?.state ?? '';			//postalAddress.provinceName
+    elements.form.receiver.emailInput.value = contact.soContactPerson?.email ?? '';				//contactInformation.email
+    elements.form.receiver.telefonoInput.value = soShippingAddress?.phone ?? '';			//contactInformation.phone
 
     // <small>Dirección en Zoho: <span>${appData.rawData.soShippingAddress.address}</span></small>
 }

@@ -45,13 +45,13 @@ async function _fetchRawData() {
 
         const salesOrdersBody = JSON.parse(sordersAPIResponse.data.body);
 
-        const soContactPerson = salesOrdersBody.salesorder.contact_person_details[0];
+        const soContactPerson = salesOrdersBody.salesorder?.contact_person_details[0];
 
-        const soCustomerId = salesOrdersBody.salesorder.customer_id;
-        const packagesFromSalesOrder = salesOrdersBody.salesorder.packages;
+        const soCustomerId = salesOrdersBody.salesorder?.customer_id;
+        const packagesFromSalesOrder = salesOrdersBody.salesorder?.packages;
         const soShippingAddress = salesOrdersBody.salesorder.shipping_address;
 
-        console.log(salesOrdersBody.salesorder.contact_person_details[0].email);
+        // console.log(salesOrdersBody.salesorder.contact_person_details[0].email);
 
         const contactsOptions = {
             url: 'https://www.zohoapis.com/inventory/v1/contacts/' + soCustomerId + '?organization_id=' + orgId,
@@ -64,7 +64,7 @@ async function _fetchRawData() {
         console.log('contacts Body: ');
         console.log(contactsBody);
 
-        const contactFromAPI = contactsBody.contact;
+        const contactFromAPI = contactsBody?.contact;
 
         // let packagesFullData = [];
 
@@ -101,15 +101,15 @@ async function _fetchRawData() {
         });
 
         const packageAPIResponses = await Promise.all(packagePromises);
-        const packagesFullData = packageAPIResponses.map(res => JSON.parse(res.data.body).package);
+        const packagesFullData = packageAPIResponses.map(res => JSON.parse(res.data.body)?.package);
 
 
         console.log("*packagesFullData: ", packagesFullData);
         console.log(packagesFullData);
 
         return {
-            warehouses: werehousesBody.locations,
-            salesOrder: salesOrdersBody.salesorder,
+            warehouses: werehousesBody?.locations,
+            salesOrder: salesOrdersBody?.salesorder,
             soShippingAddress: soShippingAddress,
             contact: {
                 soContactPerson: soContactPerson,
@@ -120,7 +120,7 @@ async function _fetchRawData() {
         };
 
     } catch (error) {
-        errors.push('Fetching data error: ' + error.message);
+        errors.push('Fetching data error: ' + error?.message);
         return {
             errors: errors
         }
@@ -141,15 +141,15 @@ function _processAndGroupData(data) {
     const warehouseShouldBeLaboratory = packages.some(
         pck => {
             if (pck.custom_field_hash.hasOwnProperty('cf_num_de_recepcion')) {
-                const lowercaseNumRecepcion = pck.custom_field_hash
-                    .cf_num_de_recepcion.trim().toLowerCase();
+                const lowercaseNumRecepcion = pck?.custom_field_hash
+                    ?.cf_num_de_recepcion.trim().toLowerCase();
 
                 if (salesOrder.custom_field_hash
                     .hasOwnProperty('cf_pte_almacen')) {
 
-                    const pteAlmacenFromSalesOrder = salesOrder.custom_field_hash.cf_pte_almacen;
+                    const pteAlmacenFromSalesOrder = salesOrder?.custom_field_hash?.cf_pte_almacen;
                     const pteAlmacenContainsCEDIS = pteAlmacenFromSalesOrder
-                        .includes('CEDIS');
+                        ?.includes('CEDIS');
                     const isNumRecepcionAut7 = lowercaseNumRecepcion == 'aut_7';
                     return isNumRecepcionAut7 && pteAlmacenContainsCEDIS;
 
@@ -164,9 +164,10 @@ function _processAndGroupData(data) {
     console.log('warehouseShouldBeLaboratory: ', warehouseShouldBeLaboratory);
 
     let isAuthorizedWarehouse = false;
-    if (salesOrder.custom_field_hash.cf_pte_almacen && salesOrder.custom_field_hash.cf_pte_almacen.trim() !== '') {
-        const pteAlmacen = salesOrder.custom_field_hash.cf_pte_almacen.trim();
-        if (pteAlmacen.includes('VENTAS') || pteAlmacen.includes('CEDIS')) {
+    if (salesOrder?.custom_field_hash?.cf_pte_almacen && salesOrder?.custom_field_hash?.cf_pte_almacen.trim() !== '') {
+        const pteAlmacen = salesOrder?.custom_field_hash?.cf_pte_almacen?.trim()?.toUpperCase();
+
+        if (pteAlmacen?.includes('VENTAS') || pteAlmacen?.includes('CEDIS')) {
             isAuthorizedWarehouse = true;
         }
     }
@@ -188,7 +189,7 @@ function _processAndGroupData(data) {
         let key;
         if (salesOrder.custom_field_hash
             .hasOwnProperty('cf_pte_almacen')) {
-            key = salesOrder.custom_field_hash.cf_pte_almacen;
+            key = salesOrder?.custom_field_hash.cf_pte_almacen;
             key = key.trim();
         }
         console.log('key: ', key);
@@ -209,17 +210,17 @@ function _processAndGroupData(data) {
             if (warehouse.location_name.trim().toLowerCase().includes(key?.toLowerCase())) {
                 let obj = {
                     warehouse_name: key,
-                    zip: warehouse.zip,
-                    address: warehouse.address,
-                    address2: warehouse.address2,
-                    address1: warehouse.address1,
-                    phone: warehouse.phone,
+                    zip: warehouse?.zip,
+                    address: warehouse?.address,
+                    address2: warehouse?.address2,
+                    address1: warehouse?.address1,
+                    phone: warehouse?.phone,
                     attention: warehouse.address.attention ?? warehouse.location_name,
-                    state: warehouse.state,
-                    city: warehouse.city,
-                    branch_name: warehouse.location_name,
-                    email: warehouse.email,
-                    warehouse_id: warehouse.warehouse_id,
+                    state: warehouse?.state,
+                    city: warehouse?.city,
+                    branch_name: warehouse?.location_name,
+                    email: warehouse?.email,
+                    warehouse_id: warehouse?.warehouse_id,
                     pte_almacen: key,
                     package_id: pck.package_id,
                     package_number: pck.package_number,
@@ -229,7 +230,7 @@ function _processAndGroupData(data) {
                     shipment_status: pck.shipment_order.shipment_status,
                     shipment_tracking_number: pck.shipment_order.tracking_number,
                     provider: pck.delivery_method?.toLowerCase()?.trim(),
-                    shipping_date: pck.shipping_date
+                    shipping_date: pck?.shipping_date
                 };
 
                 packagesAndWarehouse.push(obj);

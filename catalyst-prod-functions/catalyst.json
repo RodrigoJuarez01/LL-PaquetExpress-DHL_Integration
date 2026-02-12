@@ -9,5 +9,9 @@
     ],
     "ignore": [],
     "source": "functions"
+  },
+  "apig": {
+    "rules": "catalyst-user-rules.json",
+    "enabled": true
   }
 }

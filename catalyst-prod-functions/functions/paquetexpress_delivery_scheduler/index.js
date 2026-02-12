@@ -36,72 +36,119 @@ async function getInventoryAccessToken(catalystApp) {
 
 }
 
-async function sendEmailSupport(catalystApp, trackingNumber, errorMessage) {
+async function sendSummaryEmail(catalystApp, failuresList) {
 	try {
-		console.log("Enviando correo de notificación a soporte...");
+		console.log(`Enviando reporte de ${failuresList.length} errores a soporte...`);
 		let email = catalystApp.email();
 
 		const fromEmail = process.env.SUPPORT_FROM_EMAIL || 'javier.marcelo@solvisconsulting.com';
 		const toEmail = process.env.SUPPORT_TO_EMAIL || 'support@solvisconsulting.com';
 
+		// Construimos una lista HTML bonita
+		const rows = failuresList.map(f =>
+			`<tr>
+                <td style="padding:5px; border:1px solid #ccc;">${f.tracking}</td>
+                <td style="padding:5px; border:1px solid #ccc; color:red;">${f.error}</td>
+            </tr>`
+		).join('');
+
 		let config = {
 			from_email: fromEmail,
 			to_email: [toEmail],
-			subject: `ALERTA: Falló en staging webhook Paquetexpress - Guía ${trackingNumber}`,
-
+			subject: `ALERTA: Reporte de Errores Scheduler Paquetexpress (${failuresList.length} fallos)`,
 			html_mode: true,
 			content: `
-                <p>El sistema no pudo encolar una firma de entrega de Paquetexpress.</p>
-                <ul>
-                    <li><strong>Guía:</strong> ${trackingNumber}</li>
-                    <li><strong>Error:</strong> ${errorMessage.substring(0, 250)}</li>
-                </ul>
-                <p>Este es un mensaje automático, pertenece a una integración de Rodrigo.</p>
+                <h3>Resumen de Fallos en Procesamiento</h3>
+                <p>El Scheduler detectó los siguientes errores permanentes en este ciclo:</p>
+                <table style="border-collapse: collapse; width: 100%;">
+                    <thead>
+                        <tr style="background-color: #f2f2f2;">
+                            <th style="padding:8px; border:1px solid #ccc; text-align:left;">Guía</th>
+                            <th style="padding:8px; border:1px solid #ccc; text-align:left;">Error</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rows}
+                    </tbody>
+                </table>
+                <p>Estas guías han alcanzado el límite de reintentos y marcadas como PERMANENT_FAIL.</p>
             `,
 		};
 
 		await email.sendMail(config);
-		console.log("Correo de soporte enviado exitosamente.");
+		console.log("Correo de resumen enviado exitosamente.");
 
 	} catch (emailError) {
-		console.error("Error critico - Falló el envío del correo de soporte.");
-		console.error(emailError);
+		console.error("Error critico - Falló el envío del correo de soporte:", emailError.message);
 	}
 }
 
+// async function sendEmailSupport(catalystApp, trackingNumber, errorMessage) {
+// 	try {
+// 		console.log("Enviando correo de notificación a soporte...");
+// 		let email = catalystApp.email();
+
+// 		const fromEmail = process.env.SUPPORT_FROM_EMAIL || 'javier.marcelo@solvisconsulting.com';
+// 		const toEmail = process.env.SUPPORT_TO_EMAIL || 'support@solvisconsulting.com';
+
+// 		let config = {
+// 			from_email: fromEmail,
+// 			to_email: [toEmail],
+// 			subject: `ALERTA: Falló en staging webhook Paquetexpress - Guía ${trackingNumber}`,
+
+// 			html_mode: true,
+// 			content: `
+//                 <p>El sistema no pudo encolar una firma de entrega de Paquetexpress.</p>
+//                 <ul>
+//                     <li><strong>Guía:</strong> ${trackingNumber}</li>
+//                     <li><strong>Error:</strong> ${errorMessage.substring(0, 250)}</li>
+//                 </ul>
+//                 <p>Este es un mensaje automático, pertenece a una integración de Rodrigo.</p>
+//             `,
+// 		};
+
+// 		await email.sendMail(config);
+// 		console.log("Correo de soporte enviado exitosamente.");
+
+// 	} catch (emailError) {
+// 		console.error("Error critico - Falló el envío del correo de soporte.");
+// 		console.error(emailError);
+// 	}
+// }
+
 async function attachImage(catalystApp, fileId, trackingNumber, shipmentID, orgID, accessToken) {
-    try {
-        const folderID = process.env.STAGING_FILES_FOLDER_ID;
-        if (!folderID) throw new Error("Falta STAGING_FILES_FOLDER_ID");
+	try {
+		const folderID = process.env.STAGING_FILES_FOLDER_ID;
+		if (!folderID) throw new Error("Falta STAGING_FILES_FOLDER_ID");
 
-        const filestore = catalystApp.filestore();
-        const folder = filestore.folder(folderID);
+		const filestore = catalystApp.filestore();
+		const folder = filestore.folder(folderID);
 
-        const fileBuffer = await folder.downloadFile(fileId);
+		const fileBuffer = await folder.downloadFile(fileId);
 
-        const fileName = `EVIDENCIA-${trackingNumber}.jpeg`;
+		const fileName = `EVIDENCIA-${trackingNumber}.jpeg`;
 
-        const form = new FormData();
+		const form = new FormData();
 
-        form.append('attachment', fileBuffer, {
-            filename: fileName,
-            contentType: 'image/jpeg' 
-        });
+		form.append('attachment', fileBuffer, {
+			filename: fileName,
+			contentType: 'image/jpeg'
+		});
 
-        const attachUrl = `https://www.zohoapis.com/inventory/v1/shipmentorders/${shipmentID}/attachment?organization_id=${orgID}`;
+		const attachUrl = `https://www.zohoapis.com/inventory/v1/shipmentorders/${shipmentID}/attachment?organization_id=${orgID}`;
 
-        await axios.post(attachUrl, form, {
-            headers: {
-                Authorization: `Zoho-oauthtoken ${accessToken}`,
-                ...form.getHeaders()
-            }
-        });
+		await axios.post(attachUrl, form, {
+			headers: {
+				Authorization: `Zoho-oauthtoken ${accessToken}`,
+				...form.getHeaders()
+			}
+		});
 
-        console.log(`Imagen adjuntada correctamente al envío ${shipmentID}`);
+		console.log(`Imagen adjuntada correctamente al envío ${shipmentID}`);
 
-    } catch (error) {
-        console.warn(`No se pudo adjuntar imagen para ${shipmentID} de la guía ${trackingNumber}. Error: ${error.message}`);
-    }
+	} catch (error) {
+		console.warn(`No se pudo adjuntar imagen para ${shipmentID} de la guía ${trackingNumber}. Error: ${error.message}`);
+	}
 }
 
 async function processSingleRecord(catalystApp, record, accessToken, orgID) {
@@ -160,12 +207,14 @@ async function processSingleRecord(catalystApp, record, accessToken, orgID) {
 
 
 module.exports = async (cronDetails, context) => {
-	const catalystApp = catalyst.initialize(context);
-
 	console.log("Iniciando Scheduler...");
+	const catalystApp = catalyst.initialize(context);
+	let permanentFailures = [];
+
 
 	try {
 		let zcql = catalystApp.zcql();
+
 
 		const query = `SELECT * FROM ${TABLE_NAME} WHERE status = 'PENDING' AND retryCount < ${MAX_RETRIES} LIMIT 20`;
 		const pendingRecords = await zcql.executeZCQLQuery(query);
@@ -210,7 +259,12 @@ module.exports = async (cronDetails, context) => {
 
 				if (newRetryCount >= MAX_RETRIES) {
 					updateData.status = 'PERMANENT_FAIL';
-					await sendEmailSupport(catalystApp, recordData.trackingNumber, safeErrorMsg);
+					// await sendEmailSupport(catalystApp, recordData.trackingNumber, safeErrorMsg);
+
+					permanentFailures.push({
+						tracking: recordData.trackingNumber,
+						error: safeErrorMsg
+					});
 
 					console.error(`Guía ${recordData.trackingNumber} falló permanentemente tras ${newRetryCount} intentos.`);
 				} else {
@@ -226,8 +280,24 @@ module.exports = async (cronDetails, context) => {
 
 
 	} catch (criticalError) {
-		console.error("Error crítico en la ejecución: ", criticalError);
+		console.error("Error crítico en la ejecución del scheduler: ", criticalError);
+
+		permanentFailures.push({
+			tracking: "SISTEMA",
+			error: `CRASH GLOBAL: ${criticalError.message}`
+		});
+
 		context.closeWithFailure();
-	}
+	} finally {
+
+        if (permanentFailures.length > 0) {
+            console.log("Finalizando ejecución. Enviando reporte de errores acumulados...");
+            try {
+                await sendSummaryEmail(catalystApp, permanentFailures);
+            } catch (mailError) {
+                console.error("Falló el envío del correo de errores (todo falló):", mailError);
+            }
+        }
+    }
 
 };
